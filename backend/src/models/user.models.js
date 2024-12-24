@@ -12,13 +12,19 @@ const Schema = new mongoose.Schema({
                 trim:true,
                 lower:true,
                 required:[true,"Email is required"]
-            }  ,password:{
+            }  
+            ,password:{
                 type:String, 
                 trim:true, 
                 required:[true,"Password is required"]
+            },
+            role:{
+                type:String,
+                enum: ['admin', 'customer'],
+                default:"customer"
             }
-},{timestamps:true})
 
+},{timestamps:true})
 
 // 
 

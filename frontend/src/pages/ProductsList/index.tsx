@@ -1,43 +1,37 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, InputAdornment, CircularProgress } from "@mui/material";
+import { FileUpload } from 'primereact/fileupload';
+import { InputNumber } from 'primereact/inputnumber';
+import { useCreateProductMutation, useGetAllProductsQuery } from "../../provider/queries/Products.query";
 import Loader from "../../components/Loader";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import TableCard from "./components/Card.product";
-import { useCreateProductMutation, useGetAllProductsQuery } from "../../provider/queries/Products.query";
-import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { InputNumber } from 'primereact/inputnumber';
-import { FileUpload } from 'primereact/fileupload';
-import { Dropdown } from 'primereact/dropdown';
 
 const ProductsPage = () => {
   const [visible, setVisible] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
-    price: 0,
-    stock: 1,
+    price: null,
+    stock: null,
     category: "",
     image: ""
   });
-
+  const [errors, setErrors] = useState<any>({});
   const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
   const navigate = useNavigate();
   const [SearchParams] = useSearchParams();
+
   const { data, isLoading, isError } = useGetAllProductsQuery({
     query: SearchParams.get("query") || "",
     page: Number(SearchParams.get("page")) || 1,
+    category: SearchParams.get("category") || ""
   });
 
-  if (isLoading) {
-    return <Loader />;
-  }
+  if (isLoading) return <Loader />;
+  if (isError) return <h1>Something went wrong</h1>;
 
-  if (isError) {
-    return <h1>Something went wrong</h1>;
-  }
-
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewProduct((prev) => ({ ...prev, [name]: value }));
   };
@@ -46,17 +40,30 @@ const ProductsPage = () => {
     const file = e.files[0];
     if (file) {
       const reader = new FileReader();
-
       reader.onloadend = () => {
         setNewProduct((prev) => ({ ...prev, image: reader.result }));
       };
-
       reader.readAsDataURL(file);
     }
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!newProduct.name) newErrors.name = "Product name is required";
+    if (!newProduct.description) newErrors.description = "Description is required";
+    if (!newProduct.price || newProduct.price <= 0) newErrors.price = "Price must be greater than 0";
+    if (!newProduct.stock || newProduct.stock <= 0) newErrors.stock = "Stock must be greater than 0";
+    if (!newProduct.category) newErrors.category = "Category is required";
+    if (!newProduct.image) newErrors.image = "Image is required";
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;  // Return true if there are no errors
+  };
+
   const handleAddProduct = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
 
     try {
       await createProduct(newProduct);
@@ -97,63 +104,87 @@ const ProductsPage = () => {
 
       {visible && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded shadow w-[90%] max-w-lg relative">
-            <h2 className="text-lg font-semibold mb-4">Add New Product</h2>
-            <form onSubmit={handleAddProduct} className="space-y-3">
-              <InputText
+          <div className="bg-white p-6 rounded shadow w-[90%] max-w-lg relative pr-9">
+            <h2 className="text-lg font-semibold mb-4 pl-3">Add New Product</h2>
+            <Box
+              component="form"
+              onSubmit={handleAddProduct}
+              sx={{
+                '& .MuiTextField-root': { m: 1, width: '100%' },
+                '& .MuiFormControl-root': { m: 1, width: '100%' },
+              }}
+              noValidate
+              autoComplete="off"
+            >
+              <TextField
                 name="name"
+                label="Name"
                 value={newProduct.name}
                 onChange={handleInputChange}
-                placeholder="Name"
-                className="w-full"
+                fullWidth
                 required
+                error={Boolean(errors.name)}
+                helperText={errors.name}
               />
-              <InputTextarea
+
+              <TextField
                 name="description"
+                label="Description"
                 value={newProduct.description}
                 onChange={handleInputChange}
-                placeholder="Description"
-                className="w-full"
+                fullWidth
+                multiline
+                rows={4}
+                required
+                error={Boolean(errors.description)}
+                helperText={errors.description}
               />
-              <div className="flex flex-row">
-                <p className="mt-5 mr-3 text-lg">Price</p>
-                <InputNumber
-                  name="price"
-                  value={newProduct.price}
-                  onValueChange={(e) => handleInputChange(e)}
-                  placeholder="Price"
-                  className="w-full p-2"
-                  required
-                />
-              </div>
 
-              <div className="flex flex-row">
-                <p className="mt-5 mr-3 text-lg">Stock</p>
-                <InputNumber
-                  name="stock"
-                  value={newProduct.stock}
-                  onValueChange={(e) => handleInputChange(e)}
-                  placeholder="Stock"
-                  className="w-full p-2 text-lg"
-                  required
-                />
-              </div>
+              {/* Price field using Material UI's TextField with InputAdornment */}
+              <TextField
+                name="price"
+                label="Price"
+                value={newProduct.price}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                type="number"
+                error={Boolean(errors.price)}
+                helperText={errors.price}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                }}
+              />
 
-              {/* Category Dropdown */}
-              <div className="flex flex-row">
-                <p className="mt-5 mr-3 text-lg">Category</p>
-                <Dropdown
+              {/* Stock field using Material UI's TextField */}
+              <TextField
+                name="stock"
+                label="Stock"
+                value={newProduct.stock}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                type="number"
+                error={Boolean(errors.stock)}
+                helperText={errors.stock}
+              />
+
+              <FormControl fullWidth required error={Boolean(errors.category)} sx={{ margin: 1 }}>
+                <InputLabel>Category</InputLabel>
+                <Select
                   name="category"
                   value={newProduct.category}
-                  options={categories}
                   onChange={handleInputChange}
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Select a category"
-                  className="w-full p-2 text-lg"
-                  required
-                />
-              </div>
+                  label="Category"
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.category && <span className="MuiFormHelperText-root text-xs text-red-500 ml-4 mt-1">{errors.category}</span>}
+              </FormControl>
 
               <FileUpload
                 name="image"
@@ -161,22 +192,32 @@ const ProductsPage = () => {
                 accept="image/*"
                 className="w-full"
                 mode="basic"
+                style={{paddingLeft: 8, paddingTop: 3}}
               />
-              <div className="flex justify-end gap-4">
+              {errors.image && <span className="MuiFormHelperText-root text-xs text-red-500 ml-7 mt-1">{errors.image}</span>}
+
+              <div className="flex justify-end gap-4 mt-4">
                 <Button
                   type="button"
-                  label="Cancel"
+                  variant="outlined"
+                  color="secondary"
                   onClick={() => setVisible(false)}
-                  className="bg-gray-500 p-3"
-                />
+                  sx={{ padding: "10px 20px" }}
+                >
+                  Cancel
+                </Button>
                 <Button
                   type="submit"
-                  label={isCreating ? "Adding..." : "Add"}
+                  variant="contained"
+                  color="primary"
                   disabled={isCreating}
-                  className="bg-blue-500 p-3"
-                />
+                  sx={{ padding: "10px 20px" }}
+                  startIcon={isCreating ? <CircularProgress size={24} /> : null}
+                >
+                  {isCreating ? "Adding..." : "Add Product"}
+                </Button>
               </div>
-            </form>
+            </Box>
           </div>
         </div>
       )}

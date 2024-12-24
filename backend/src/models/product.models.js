@@ -30,10 +30,12 @@ const Schema = new mongoose.Schema({
         type: String,
         required: true
     },
-    stars:{
-        type: Number,
-        default: 0
-    },
+    ratings: [{
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+        rating: { type: Number, min: 1, max: 5 },
+        review: { type: String },
+        createdAt: { type: Date, default: Date.now }
+    }],
     
 }, { timestamps: true })
 

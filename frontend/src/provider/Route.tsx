@@ -25,7 +25,7 @@ export const Routes = createBrowserRouter([
         element: <ProductsCategory />
       },
       {
-        path: "/landing",
+        path: "/home",
         element: <ProductsLanding />
       },
       

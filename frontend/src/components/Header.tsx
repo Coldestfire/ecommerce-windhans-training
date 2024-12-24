@@ -6,12 +6,10 @@ const Header = () => {
 
 
   return (
-    <header className="py-4 shadow-md px-7 bg-slate-300 rounded-lg">
-
-     Product List Website
+    <div className="bg-slate-300">
     
      <CategoryList />
-    </header>
+    </div>
   );
 };
 

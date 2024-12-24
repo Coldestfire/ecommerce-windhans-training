@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const CategoryList = () => {
+  const location = useLocation();  // Get the current location
   const categories = [
     { label: "Electronics", value: "electronics" },
     { label: "Clothes", value: "clothes" },
@@ -10,17 +11,27 @@ const CategoryList = () => {
     { label: "Sports", value: "sports" }
   ];
 
+  // Function to check if a category is the current active category
+  const isActiveCategory = (categoryValue: string) => {
+    return location.pathname.includes(categoryValue); // This checks if the URL matches the category
+  };
+
+  console.log(location.pathname);
+
   return (
-    <div className="flex justify-evenly pt-3 pl-7">
-        {categories.map((category) => (
-          <div key={category.value}>
-            <Link to={`/category/${category.value}`} className="category-link">
-              {category.label}
-            </Link>
+    <div className="flex justify-evenly pt-3 ml-[10%]">
+      {categories.map((category) => (
+        <Link
+          key={category.value}
+          to={`/category/${category.value}`}
+        >
+          <div className={`hover:bg-gray-200 rounded-md px-7 py-3 mb-1 ${isActiveCategory(category.value) ? 'bg-gray-200' : ''}`}>
+            {category.label}
           </div>
-        ))}
+        </Link>
+      ))}
     </div>
-  );    
+  );
 };
 
 export default CategoryList;

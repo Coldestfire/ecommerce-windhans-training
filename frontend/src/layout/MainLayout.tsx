@@ -9,17 +9,16 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="flex bg-primary">
         {/* Sidebar with full height and background color */}
         <Sidebar
-          collapsed={false}
-          className="h-full text-black bg-slate-300" // Changed from "h-screen" to "h-full"
-          style={{ height: '168vh', overflowY: 'auto' }} // Added inline styles
+          className="h-full text-black bg-slate-300 w-[20%]" // Changed from "h-screen" to "h-full"
+          style={{ height: '150vh', overflowY: 'auto' }} // Added inline styles
         >
           
           <Menu>
                   {/* Menu items */}
             <MenuItem
-              component={<Link to="/landing" />}
+              component={<Link to="/home" />}
             >
-              Landing page
+              Home page
             </MenuItem>
 
         

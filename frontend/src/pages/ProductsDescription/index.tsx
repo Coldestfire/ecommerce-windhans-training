@@ -1,9 +1,16 @@
-import { useParams } from 'react-router-dom';
+// ProductDetails.tsx
+import { useParams, Link } from 'react-router-dom';
 import { useGetProductQuery } from '../../provider/queries/Products.query';
+import Rating from '@mui/material/Rating';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import { Typography, Button, Box } from '@mui/material';
+
+import { useState } from 'react';
+import ProductTabs from './components/productsTabs';
 
 function ProductDetails() {
-  const { id } = useParams();  // Get the product ID from the URL
-
+  const { id } = useParams(); // Get the product ID from the URL
+  const [value, setValue] = useState<number | null>(2); // Rating value
   const { data: product, error, isLoading } = useGetProductQuery(id);
 
   // Show loading state
@@ -16,18 +23,71 @@ function ProductDetails() {
     return <div className="text-center p-4 text-red-500">{error.message}</div>;
   }
 
-  // Render product details if fetched successfully
   return (
-    <div className="flex space-x-8 p-8 bg-white rounded-lg shadow-lg mt-3">
-      <div className="flex-shrink-0">
-        <img src={product.product.image} alt="product-image" className='w-80 h-80 object-cover rounded-lg shadow-md' />
+    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Breadcrumbs for navigation */}
+      <Breadcrumbs aria-label="breadcrumb" className="mb-6 pl-3">
+        <Link to="/home" className="text-gray-600 hover:text-blue-600">
+          Home
+        </Link>
+        <Link
+          to={`/category/${product.product.category.toLowerCase()}`}
+          className="text-gray-600 hover:text-blue-600"
+        >
+          {product.product.category}
+        </Link>
+        <Typography color="textPrimary" className="text-gray-800">
+          {product.product.name}
+        </Typography>
+      </Breadcrumbs>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white rounded-lg shadow-xl p-6">
+        {/* Product Image */}
+        <div className="flex justify-center">
+          <img
+            src={product.product.image}
+            alt="product-image"
+            className="w-full max-w-md h-auto object-cover rounded-lg shadow-lg"
+          />
+        </div>
+
+        {/* Product Details */}
+        <div className="flex flex-col space-y-6">
+          {/* Product Name */}
+          <h1 className="text-4xl font-extrabold text-gray-900 hover:text-gray-700 transition duration-300">
+            {product.product.name}
+          </h1>
+
+          {/* Rating */}
+          <div className="flex items-center space-x-2">
+            <Rating name="simple-controlled" value={value} readOnly sx={{ fontSize: '1.2rem' }} />
+            <span className="text-gray-600 text-sm">({product.product.rating} ratings)</span>
+          </div>
+
+          {/* Price */}
+          <p className="text-2xl font-semibold text-gray-800 mt-4">
+            <strong className="font-bold">Price:</strong> &#8377;{product.product.price.toFixed(2)}
+          </p>
+
+          {/* Buttons */}
+          <Box className="flex gap-4 mt-4">
+            <Button variant="contained" color="primary" sx={{ flex: 1 }}>
+              Buy Now
+            </Button>
+            <Button variant="outlined" color="primary" sx={{ flex: 1 }}>
+              Add to Cart
+            </Button>
+          </Box>
+        </div>
       </div>
-      <div className="flex flex-col justify-center">
-        <h1 className="text-2xl font-bold text-gray-800">{product.product.name}</h1>
-        <p className="mt-2 text-gray-600"><strong>Description:</strong> {product.product.description}</p>
-        <p className="mt-2 text-gray-600"><strong>Category:</strong> {product.product.category}</p>
-        
-        <p className="mt-1 text-gray-800"><strong>Price:</strong> {product.product.price.toFixed(2)} Rps</p>
+
+      {/* Add some margin for the ProductTabs section to separate it from the product details */}
+      <div className="mt-8">
+        {/* Product Tabs Component */}
+        <ProductTabs
+          description={product.product.description}
+          reviews={product.product.reviews || []} // If no reviews, send an empty array
+        />
       </div>
     </div>
   );
