@@ -12,7 +12,7 @@ const CategoryList = () => {
 
   const categories = data?.data || [];
 
-  categories.map((category)=>{
+  categories.map((category : any)=>{
     console.log("from categorylist: ", category.name);
   })
 
@@ -27,12 +27,13 @@ const CategoryList = () => {
 
   // Function to check if a category is the current active category
   const isActiveCategory = (categoryValue: string) => {
-    return location.pathname.includes(categoryValue); // This checks if the URL matches the category
+    const currentPath = decodeURIComponent(location.pathname); // Decode special characters
+    return currentPath.includes(`/category/${categoryValue}`);
   };
 
   return (
     <div className="flex justify-evenly space-x-5 pt-3 ml-[15%]">
-      {categories.map((category) => (
+      {categories.map((category: any) => (
         <Link
           key={category.name}
           to={`/category/${category.name}`}
