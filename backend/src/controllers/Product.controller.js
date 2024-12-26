@@ -4,12 +4,14 @@ const ProductService = require("../services/Product.service");
 
 class ProductController {
     static createProduct = CatchAsync(async (req, res) => {
-        const product = await ProductService.createProduct(req.body);
+        console.log("from Product controller: ", req.user)
+        console.log("from Product controller: ", req.body)
+        const product = await ProductService.createProduct(req.user, req.body);
         return res.status(201).json(product);
     });
 
     static  getProducts = CatchAsync(async (req, res) => {
-        const products = await ProductService.getProducts(req.query.page, req.query.query, req.query.category);
+        const products = await ProductService.getProducts(req.user, req.query.page, req.query.query, req.query.category);
         return res.status(200).json(products);
     });
 

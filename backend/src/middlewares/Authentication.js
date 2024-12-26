@@ -17,6 +17,7 @@ const Authentication = (req,res,next)=>{
 
                 const data =validateToken(auth_token)
                 req.user =data.userid
+                console.log("from Authentication middleware: ", req.user)  
                 next()
 
     } catch (error) {

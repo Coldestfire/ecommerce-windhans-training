@@ -106,6 +106,24 @@ const TableCard = ({ data, id }: any) => {
                                   fullWidth
                                   label="Price"
                               />
+
+                                <FormControl fullWidth required error={Boolean(errors.category)}>
+                                <InputLabel>Category</InputLabel>
+                                <Select
+                                name="category"
+                                value={editForm.category}
+                                onChange={handleFormChange}
+                                label="Category"
+                                >
+                                {categories.map((cat) => (
+                                    <MenuItem key={cat.value} value={cat.value}>
+                                    {cat.label}
+                                    </MenuItem>
+                                ))}
+                                </Select>
+                                {errors.category && <span className="MuiFormHelperText-root text-xs text-red-500 ml-4 mt-1">{errors.category}</span>}
+                            </FormControl>
+
                               <TextField
                                   type="number"
                                   name="stock"
@@ -132,22 +150,7 @@ const TableCard = ({ data, id }: any) => {
                                   label="Description"
                               />
                               
-                              <FormControl fullWidth required error={Boolean(errors.category)} sx={{ margin: 1 }}>
-                                <InputLabel>Category</InputLabel>
-                                <Select
-                                name="category"
-                                value={editForm.category}
-                                onChange={handleFormChange}
-                                label="Category"
-                                >
-                                {categories.map((cat) => (
-                                    <MenuItem key={cat.value} value={cat.value}>
-                                    {cat.label}
-                                    </MenuItem>
-                                ))}
-                                </Select>
-                                {errors.category && <span className="MuiFormHelperText-root text-xs text-red-500 ml-4 mt-1">{errors.category}</span>}
-                            </FormControl>
+                            
                               <FileUpload
                                   name="image"
                                   accept="image/*"
@@ -156,12 +159,13 @@ const TableCard = ({ data, id }: any) => {
                                   mode="basic"
                               />
                           </div>
+                          
                           <div className="mt-4 flex gap-2">
                               <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded" disabled={isUpdating}>
                                   {isUpdating ? "Updating..." : "Save"}
                               </button>
                               <button
-                                  type="button"
+                                  type="button" 
                                   onClick={() => setIsEditing(false)}
                                   className="bg-gray-500 text-white px-4 py-2 rounded"
                               >

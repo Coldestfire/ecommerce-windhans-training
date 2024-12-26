@@ -4,7 +4,7 @@ const cloudinary = require ('../config/cloudinary.config');
 
 class ProductService {
 
-    static async createProduct(body) {  
+    static async createProduct(user, body) {  
         const { image } = body;
 
         if (image) {
@@ -16,18 +16,29 @@ class ProductService {
             body.image = secure_url;
         }
     
-        const product = await ProductModel.create(body);
+        const product = await ProductModel.create({
+            ...body,
+            user,
+        });
+
         return product;
     }
     
     
-    static async getProducts(page = 1, query = "", category = "") {
+    static async getProducts(user, page = 1, query = "", category = "") {
         const validatedPage = Math.max(1, page); 
         const limit = 10; 
         const skip = (validatedPage - 1) * limit;
     
-        // Construct the filter based on query and category
-        const filter = {};
+        console.log("from ProductService: ", user);  
+    
+        // Check if the user is provided
+        if (!user) {
+            throw new Error("User is required to fetch products.");
+        }
+    
+        // Construct the filter based on query, category, and user
+        const filter = { user: user }; // Always filter by user ID
     
         // If query is provided, filter by name (optional, but can still be used if needed)
         if (query) {
@@ -65,73 +76,102 @@ class ProductService {
 
 
 
-    static async getEveryProduct() {
+    static async getEveryProduct(user) {
         try {
-            
-            const products = await ProductModel.find().sort({ createdAt: -1 });
-
-            
+            // Check if the user is provided
+            if (!user) {
+                throw new Error("User is required to fetch products.");
+            }
+    
+            // Filter by user ID
+            const filter = { user: user };
+    
+            // Fetch products for the given user
+            const products = await ProductModel.find(filter).sort({ createdAt: -1 });
+    
+            // Count the total number of matching products
             const totalCount = products.length;
-
-          
+    
             const response = {
                 data: products,
                 total: totalCount,
             };
-
+    
             return response;
         } catch (error) {
-            
             console.error("Database error in getEveryProduct:", error);
             throw new Error("Failed to fetch products. Please try again.");
         }
     }
+    
 
-    static async deleteProduct(productId) {
-        const product = await ProductModel.findByIdAndDelete(productId);
-        if (!product) {
-            throw new ApiError(404, "Product not found or could not be deleted.");
+    static async deleteProduct(productId, user) {
+        // Check if the user is logged in
+        if (!user) {
+            throw new ApiError(401, "User must be logged in to delete a product.");
         }
+    
+        // Find the product by ID and check if it belongs to the logged-in user
+        const product = await ProductModel.findById(productId);
+        if (!product) {
+            throw new ApiError(404, "Product not found.");
+        }
+    
+        // Ensure that the product belongs to the logged-in user
+        if (product.user.toString() !== user._id.toString()) {
+            throw new ApiError(403, "You are not authorized to delete this product.");
+        }
+    
+        // If the product is valid and belongs to the user, delete it
+        await ProductModel.findByIdAndDelete(productId);
+    
         return { msg: "Product deleted successfully" };
     }
-
-
-    static async updateById(id, body) {
-        const { name, price, stock, lowStockThreshold, description , image, category, stars } = body;
-        
-        // Check if the product exists
+    
+    static async updateById(id, body, user) {
+        // Check if the user is logged in
+        if (!user) {
+            throw new ApiError(401, "User must be logged in to update a product.");
+        }
+    
+        // Find the product by ID and check if it belongs to the logged-in user
         const product = await ProductModel.findById(id);
         if (!product) {
             throw new ApiError(404, 'Product not found');
         }
-
-        if (image) {
-            const { secure_url } = await cloudinary.uploader.upload(image, {
+    
+        // Ensure that the product belongs to the logged-in user
+        if (product.user.toString() !== user._id.toString()) {
+            throw new ApiError(403, "You are not authorized to update this product.");
+        }
+    
+        // If an image is provided, upload it to Cloudinary
+        if (body.image) {
+            const { secure_url } = await cloudinary.uploader.upload(body.image, {
                 folder: 'products',
                 use_filename: true,
                 unique_filename: false,
             });
             body.image = secure_url;
         }
-      
-        await ProductModel.findByIdAndUpdate(id, { name, price, stock, lowStockThreshold, description, image, category, stars });
-
+    
+        // Update the product with the provided data
+        await ProductModel.findByIdAndUpdate(id, body);
+    
         return {
             msg: 'Product updated successfully',
         };
     }
-
+    
     static async getById(id) {
-      
+        // Find the product by ID
         const product = await ProductModel.findById(id);
-
-        
         if (!product) {
             throw new ApiError(400, "Product Not Found in Record");
         }
-
+    
         return {
-            product, 
+            product,
         };
     }
 }

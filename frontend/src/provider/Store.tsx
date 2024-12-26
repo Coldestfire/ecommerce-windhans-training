@@ -3,6 +3,7 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 import { SidebarSlice } from "./slice/Sidebar.slice";
 import { AuthApi } from "./queries/Auth.query.ts";
 import { ProductApi } from "./queries/Products.query.ts";
+import { UserSlice } from "./slice/user.slice.tsx";
 // import refreshReducer from "./slice/refreshSlice";
 
 export const store = configureStore({
@@ -10,6 +11,7 @@ export const store = configureStore({
         [SidebarSlice.name]: SidebarSlice.reducer,
         [AuthApi.reducerPath]: AuthApi.reducer,
         [ProductApi.reducerPath]: ProductApi.reducer,
+        [UserSlice.name]: UserSlice.reducer,
         // refresh: refreshReducer,
         
     },
@@ -18,7 +20,7 @@ export const store = configureStore({
 
     middleware: (d) => d().concat(
         AuthApi.middleware, 
-        ProductApi.middleware 
+        ProductApi.middleware,
     )
 
 }) 

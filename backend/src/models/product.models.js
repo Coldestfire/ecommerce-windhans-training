@@ -36,7 +36,11 @@ const Schema = new mongoose.Schema({
         review: { type: String },
         createdAt: { type: Date, default: Date.now }
     }],
-    
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+        required: true
+    }
 }, { timestamps: true })
 
 const model = mongoose.model("Product", Schema)

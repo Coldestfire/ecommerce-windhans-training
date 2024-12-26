@@ -4,7 +4,8 @@ const ApiError = require("../utils/ApiError")
 const { generatoken } = require("../utils/Token.utils")
 const axios =  require("axios");
 class AuthService{
-       static  async RegisterUser(body){
+
+static  async RegisterUser(body){
 
                 // request
                 const {email,password,name} = body
@@ -36,7 +37,7 @@ class AuthService{
                 }    
 
        }
-        static  async LoginUser(body){
+static  async LoginUser(body){
         const {email,password} = body
 
                 const checkExist = await UserModel.findOne({email})
@@ -46,7 +47,7 @@ class AuthService{
                 }
 
                 if(password !==checkExist.password){
- throw new ApiError(400,"Invalid Password")
+                 throw new ApiError(400,"Invalid Password")
                     return
                 }
              
@@ -58,16 +59,14 @@ class AuthService{
                 }    
 
        }
-         static  async ProfileService(user){ 
 
-                      const checkExist = await UserModel.findById(user).select("name email")
+static  async ProfileService(user){ 
+
+                const checkExist = await UserModel.findById(user).select("name email")
                 if(!checkExist){
                     throw new ApiError(400,"User Not Registered")
                     return
                 }
-
-
-   
               
                 return {
                     msg:"Data fetched",
