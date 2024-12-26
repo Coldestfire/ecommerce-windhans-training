@@ -26,7 +26,7 @@ class ProductController {
     });
 
     static deleteProduct = CatchAsync(async (req, res) => {
-        const result = await ProductService.deleteProduct(req.params.id);
+        const result = await ProductService.deleteProduct(req.user,req.params.id);
         return res.status(204).json(result);
     });
 

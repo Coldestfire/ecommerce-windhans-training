@@ -13,7 +13,7 @@ export const Routes = createBrowserRouter([
     element: <App />, // Use JSX element here instead of Component
     children: [
       {
-        path: "/",
+        path: "/admin",
         element: <ProductsList />, // Main product listing page
       },
       {

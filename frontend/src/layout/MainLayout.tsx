@@ -23,14 +23,12 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
         
             <MenuItem
-              component={<Link to="/" />}
+              component={<Link to="/admin" />}
             >
 
               Products List
             </MenuItem>
-            
-           
-          
+    
           </Menu>
         </Sidebar>
 

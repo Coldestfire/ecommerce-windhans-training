@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, InputAdornment, CircularProgress } from "@mui/material";
 import { FileUpload } from 'primereact/fileupload';
-import { InputNumber } from 'primereact/inputnumber';
 import { useCreateProductMutation, useGetAllProductsQuery } from "../../provider/queries/Products.query";
 import Loader from "../../components/Loader";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import TableCard from "./components/Card.product";
+import TableCard from "./components/TableRowAndEdit";
 
 const ProductsPage = () => {
   const [visible, setVisible] = useState(false);

@@ -4,6 +4,7 @@ import { SidebarSlice } from "./slice/Sidebar.slice";
 import { AuthApi } from "./queries/Auth.query.ts";
 import { ProductApi } from "./queries/Products.query.ts";
 import { UserSlice } from "./slice/user.slice.tsx";
+import { CategoryApi } from "./queries/Category.query.ts";
 // import refreshReducer from "./slice/refreshSlice";
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
         [AuthApi.reducerPath]: AuthApi.reducer,
         [ProductApi.reducerPath]: ProductApi.reducer,
         [UserSlice.name]: UserSlice.reducer,
+        [CategoryApi.reducerPath]: CategoryApi.reducer,
         // refresh: refreshReducer,
         
     },
@@ -21,6 +23,7 @@ export const store = configureStore({
     middleware: (d) => d().concat(
         AuthApi.middleware, 
         ProductApi.middleware,
+        CategoryApi.middleware,
     )
 
 }) 

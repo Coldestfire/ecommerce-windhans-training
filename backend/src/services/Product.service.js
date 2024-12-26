@@ -1,6 +1,8 @@
 const { ProductModel } = require('../models')
+const { CategoryModel } =  require('../models');
 const ApiError = require("../utils/ApiError");
 const cloudinary = require ('../config/cloudinary.config');
+
 
 class ProductService {
 
@@ -37,27 +39,39 @@ class ProductService {
             throw new Error("User is required to fetch products.");
         }
     
-        // Construct the filter based on query, category, and user
-        const filter = { user: user }; // Always filter by user ID
+        // Construct the initial filter based on the user
+        const filter = { user: user };
     
-        // If query is provided, filter by name (optional, but can still be used if needed)
+        // If query is provided, filter by product name
         if (query) {
             filter.name = { $regex: query, $options: "i" };
         }
-    
-        // If category is provided, filter by category exactly
+        
+        console.log("category provided: ", category);
+        // Handle category by name (if provided)
         if (category) {
-            filter.category = category;
+            try {
+                const categoryDoc = await CategoryModel.findOne({ name: category });
+                console.log("categoryDoc: ", categoryDoc);
+                if (!categoryDoc) {
+                    throw new Error("Category not found");
+                }
+                filter.category = categoryDoc._id; // Use category ID in the filter
+            } catch (error) {
+                console.error("Error finding category:", error);
+                throw new Error("Invalid category provided.");
+            }
         }
     
         try {
-            // Fetch products with the constructed filter
+            // Fetch products and populate the category name
             const products = await ProductModel.find(filter)
                 .skip(skip)
                 .limit(limit)
-                .sort({ createdAt: -1 });
+                .sort({ createdAt: -1 })
+                .populate("category", "name"); // Populate category name only
     
-            // Count the total number of matching documents
+            // Count total matching documents
             const totalCount = await ProductModel.countDocuments(filter);
     
             const response = {
@@ -72,6 +86,8 @@ class ProductService {
             throw new Error("Failed to fetch products. Please try again.");
         }
     }
+    
+    
     
 
 
@@ -105,7 +121,7 @@ class ProductService {
     }
     
 
-    static async deleteProduct(productId, user) {
+    static async deleteProduct(user, productId) {
         // Check if the user is logged in
         if (!user) {
             throw new ApiError(401, "User must be logged in to delete a product.");

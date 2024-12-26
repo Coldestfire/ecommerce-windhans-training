@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useDeleteProductMutation, useUpdateProductMutation } from "../../../provider/queries/Products.query";
 import { FileUpload } from 'primereact/fileupload';
-import { Dropdown } from "primereact/dropdown";
 import { FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 
 const TableCard = ({ data, id }: any) => {

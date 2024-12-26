@@ -12,7 +12,6 @@ static  async RegisterUser(body){
 
                 const checkExist = await UserModel.findOne({email})
 
-
                 if(checkExist){
                     throw new ApiError(400,"User Already Registered")
                     return
