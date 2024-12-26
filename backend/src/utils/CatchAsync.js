@@ -4,5 +4,4 @@ const CatchAsync = (fn)=>(req,res,next)=>{
         next(e)
     })
 }
-
 module.exports = CatchAsync
