@@ -3,7 +3,7 @@ import { useGetCategoriesQuery } from "../provider/queries/Category.query";
 import Loader from "./Loader";
 
 const CategoryList = () => {
-  const { data, isLoading, isError } = useGetCategoriesQuery({category:""});
+  const { data, isLoading } = useGetCategoriesQuery({category:""});
   const location = useLocation();  // Get the current location
   
   if(isLoading){
@@ -15,15 +15,6 @@ const CategoryList = () => {
   categories.map((category : any)=>{
     console.log("from categorylist: ", category.name);
   })
-
-  // const categories = [
-  //   { label: "Electronics", value: "electronics" },
-  //   { label: "Clothes", value: "clothes" },
-  //   { label: "Home Appliances", value: "home-appliances" },
-  //   { label: "Books", value: "books" },
-  //   { label: "Toys", value: "toys" },
-  //   { label: "Sports", value: "sports" }
-  // ];
 
   // Function to check if a category is the current active category
   const isActiveCategory = (categoryValue: string) => {

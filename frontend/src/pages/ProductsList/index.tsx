@@ -2,20 +2,61 @@ import React, { useState } from "react";
 import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, InputAdornment, CircularProgress } from "@mui/material";
 import { FileUpload } from 'primereact/fileupload';
 import { useCreateProductMutation, useGetAllProductsQuery } from "../../provider/queries/Products.query";
+import { useGetCategoriesQuery, useCreateCategoryMutation } from "../../provider/queries/Category.query";
 import Loader from "../../components/Loader";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import TableCard from "./components/TableRowAndEdit";
 
+
 const ProductsPage = () => {
   const [visible, setVisible] = useState(false);
+
+  const { data : fetchedCategories, isLoading: isLoadingCategories } = useGetCategoriesQuery({category:""});
+  console.log("Fetched Categories:", fetchedCategories);
+
+  
+
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
-    price: null,
-    stock: null,
-    category: "",
+    price: 0,
+    stock: 1,
+    category: "", // Store ID
+    categoryName: "", // Store name (for display only)
     image: ""
   });
+
+  const handleCategoryChange = (e) => {
+    const selectedCategoryId = e.target.value; // Fix
+    
+    console.log("Selected Category ID:", selectedCategoryId);
+  
+    // Ensure categories are loaded
+    if (!fetchedCategories?.data) {
+      console.log("Categories data is not loaded yet");
+      return;
+    }
+  
+    const selectedCategory = fetchedCategories.data.find(
+      (cat) => cat._id === selectedCategoryId
+    );
+  
+    console.log("Selected Category:", selectedCategory);
+  
+    setNewProduct((prev) => ({
+      ...prev,
+      category: selectedCategoryId,        // Send ID to backend
+      categoryName: selectedCategory?.name // Display name in the UI
+    }));
+  };
+  
+  
+  const fetchedcategory = fetchedCategories?.data || [];
+  fetchedcategory.map((category : any)=>{
+    console.log("CATSSSS: ", category._id);
+  })
+  console.log("CATSSSS: ", fetchedcategory);
+
   const [errors, setErrors] = useState<any>({});
   const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
   const navigate = useNavigate();
@@ -52,10 +93,10 @@ const ProductsPage = () => {
     if (!newProduct.description) newErrors.description = "Description is required";
     if (!newProduct.price || newProduct.price <= 0) newErrors.price = "Price must be greater than 0";
     if (!newProduct.stock || newProduct.stock <= 0) newErrors.stock = "Stock must be greater than 0";
-    if (!newProduct.category) newErrors.category = "Category is required";
+    if (!newProduct.category) newErrors.category = "Category is required"; // Already works with an empty string
     if (!newProduct.image) newErrors.image = "Image is required";
     setErrors(newErrors);
-
+  
     return Object.keys(newErrors).length === 0;  // Return true if there are no errors
   };
 
@@ -71,7 +112,7 @@ const ProductsPage = () => {
         description: "",
         price: 0,
         stock: 1,
-        category: "",
+        category: null,
         image: ""
       });
       setVisible(false);
@@ -81,14 +122,18 @@ const ProductsPage = () => {
   };
 
   // Define the category options
-  const categories = [
-    { label: "Electronics", value: "electronics" },
-    { label: "Clothes", value: "clothes" },
-    { label: "Home Appliances", value: "home-appliances" },
-    { label: "Books", value: "books" },
-    { label: "Toys", value: "toys" },
-    { label: "Sports", value: "sports" }
-  ];
+  // const categories = [
+  //   { label: "Electronics", value: "electronics" },
+  //   { label: "Clothes", value: "clothes" },
+  //   { label: "Home Appliances", value: "home-appliances" },
+  //   { label: "Books", value: "books" },
+  //   { label: "Toys", value: "toys" },
+  //   { label: "Sports", value: "sports" }
+  // ];
+
+  console.log("Selected Category ID:", newProduct.category);
+  console.log("Selected Category Name:", newProduct.categoryName);
+
 
   return (
     <>
@@ -172,18 +217,25 @@ const ProductsPage = () => {
                 <InputLabel>Category</InputLabel>
                 <Select
                   name="category"
-                  value={newProduct.category}
-                  onChange={handleInputChange}
+                  value={newProduct.category}  // Use updated value
+                  onChange={handleCategoryChange} // Use new handler
                   label="Category"
                 >
-                  {categories.map((cat) => (
-                    <MenuItem key={cat.value} value={cat.value}>
-                      {cat.label}
+                  {fetchedCategories?.data?.map((cat) => (
+                    <MenuItem key={cat._id} value={String(cat._id)}>
+                      {cat.name}
                     </MenuItem>
                   ))}
+
                 </Select>
-                {errors.category && <span className="MuiFormHelperText-root text-xs text-red-500 ml-4 mt-1">{errors.category}</span>}
+                {errors.category && (
+                  <span className="MuiFormHelperText-root text-xs text-red-500 ml-4 mt-1">
+                    {errors.category}
+                  </span>
+                )}
               </FormControl>
+
+
 
               <FileUpload
                 name="image"

@@ -58,18 +58,18 @@ export const CategoryApi = createApi({
       providesTags: ['Categories'],
     }),
 
-    // // Create a new category
-    // createCategory: builder.mutation<Category, CreateCategoryDTO>({
-    //   query: (data) => ({
-    //     url: '/categories',
-    //     method: 'POST',
-    //     body: data,
-    //     headers: {
-    //       'Authorization': 'Bearer ' + localStorage.getItem("token"),
-    //     },
-    //   }),
-    //   invalidatesTags: ['Categories'],
-    // }),
+    // Create a new category
+    createCategory: builder.mutation<Category, CreateCategoryDTO>({
+      query: (data) => ({
+        url: '/categories',
+        method: 'POST',
+        body: data,
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("token"),
+        },
+      }),
+      invalidatesTags: ['Categories'],
+    }),
 
     // // Update an existing product
     // updateProduct: builder.mutation<Product, { id: string; data: Partial<CreateProductDTO> }>({
@@ -124,5 +124,6 @@ export const CategoryApi = createApi({
 
 export const {
   useGetCategoriesQuery,
-  useGetCategoryByIdQuery
+  useGetCategoryByIdQuery,
+  useCreateCategoryMutation
 } = CategoryApi;

@@ -27,8 +27,8 @@ const Schema = new mongoose.Schema({
         type: String
     },
     category: {
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
     },
     ratings: [{
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },

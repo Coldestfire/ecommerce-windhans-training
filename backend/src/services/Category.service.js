@@ -35,7 +35,7 @@ class CategoryService {
     }
     
 
-    static async deleteCategory(categoryId, user) {
+    static async deleteCategory(user, categoryId) {
         // Check if the user is logged in
         if (!user) {
             throw new ApiError(401, "User must be logged in to delete a category.");
@@ -43,17 +43,13 @@ class CategoryService {
     
         // Find the category by ID and check if it belongs to the logged-in user
         const category = await CategoryModel.findById(categoryId);
+        console.log("from querying CategoryService: ", category)
         if (!category) {
             throw new ApiError(404, "Category not found.");
         }
     
-        // Ensure that the category belongs to the logged-in user
-        if (category.user.toString() !== user._id.toString()) {
-            throw new ApiError(403, "You are not authorized to delete this category.");
-        }
-    
         // If the category is valid and belongs to the user, delete it
-        await CategoryModelModel.findByIdAndDelete(categoryId);
+        await CategoryModel.findByIdAndDelete(categoryId);
     
         return { msg: "category deleted successfully" };
     }

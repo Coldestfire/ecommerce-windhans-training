@@ -20,7 +20,7 @@ class CategoryController {
     });
 
     static deleteCategory = CatchAsync(async (req, res) => {
-        const result = await CategoryService.deleteCategory(req.params.id);
+        const result = await CategoryService.deleteCategory(req.user, req.params.id);
         return res.status(204).json(result);
     });
 
