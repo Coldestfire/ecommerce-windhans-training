@@ -1,26 +1,30 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useDeleteProductMutation, useUpdateProductMutation } from "../../../provider/queries/Products.query";
-import { useDeleteCategoryMutation } from "../../../provider/queries/Category.query";
+import { useDeleteCategoryMutation, useGetCategoriesQuery, useUpdateCategoryMutation } from "../../../provider/queries/Category.query";
 import { FileUpload } from 'primereact/fileupload';
 import { FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const TableCard = ({ data, id }: any) => {
     const [isEditing, setIsEditing] = useState(false);
+    const { data : fetchedCategories, isLoading: isLoadingCategories } = useGetCategoriesQuery({category:""})
     const [editForm, setEditForm] = useState({
         name: data.name,
         description: data.description,
         price: data.price,
         stock: data.stock,
         image: data.image ,
-        category: data.category
+        category: data.category,
+        categoryName: fetchedCategories?.data?.find((cat) => cat._id === data.category)?.name
     });
 
-      const [errors, setErrors] = useState<any>({});
+;
+    const [errors, setErrors] = useState<any>({});
     const [deleteProduct] = useDeleteProductMutation();
     const [deleteCategory] = useDeleteCategoryMutation();
     const [updateProduct, { isLoading: isUpdating, error: updateError }] = useUpdateProductMutation();
+    const [updateCategory, {isLoading: isUpdatingCategory, error: updateErrorCategory}] = useUpdateCategoryMutation();
 
 
     const handleDelete = (id: string) => {
@@ -50,7 +54,9 @@ const TableCard = ({ data, id }: any) => {
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+
         // if (!validateForm()) return;
+        await updateCategory({ id: data.category, data: fetchedCategories?.data?.find((cat) => cat._id === data.category)?.name });
         await updateProduct({ id: data._id, data: editForm });
         setIsEditing(false);
     };
@@ -59,15 +65,29 @@ const TableCard = ({ data, id }: any) => {
         await deleteCategory(categoryId);
     };
 
-     // Define the category options
-     const categories = [
-    { label: "Electronics", value: "electronics" },
-    { label: "Clothes", value: "clothes" },
-    { label: "Home Appliances", value: "home-appliances" },
-    { label: "Books", value: "books" },
-    { label: "Toys", value: "toys" },
-    { label: "Sports", value: "sports" }
-  ];
+
+    const handleCategoryChange = (e) => {
+        const selectedCategoryId = e.target.value; 
+        console.log("Selected Category ID:", selectedCategoryId);
+      
+        // Ensure categories are loaded
+        if (!fetchedCategories?.data) {
+          console.log("Categories data is not loaded yet");
+          return;
+        }
+      
+        const selectedCategory = fetchedCategories.data.find(
+          (cat) => cat._id === selectedCategoryId
+        );
+      
+        console.log("Selected Category:from edit form", selectedCategory.name);
+      
+        setEditForm((prev) => ({
+          ...prev,
+          category: selectedCategoryId,        // Send ID to backend
+          categoryName: selectedCategory?.name // Display name in the UI
+        }));
+      };
 
   const validateForm = () => {
     const newErrors = {};
@@ -82,7 +102,7 @@ const TableCard = ({ data, id }: any) => {
     return Object.keys(newErrors).length === 0;  // Return true if there are no errors
   };
 
-
+console.log("lmao ", editForm)
     return (
         <>
             {isEditing ? (
@@ -113,31 +133,56 @@ const TableCard = ({ data, id }: any) => {
                                   label="Price"
                               />
 
-                                <FormControl fullWidth required error={Boolean(errors.category)}>
-                                <InputLabel>Category</InputLabel>
-                                <Select
+                            <FormControl fullWidth required error={Boolean(errors.category)} sx={{ margin: 1 }}>
+                            <InputLabel>Category</InputLabel>
+                            <Select
                                 name="category"
-                                value={editForm.category}
-                                onChange={handleFormChange}
+                                value={editForm.category} // FIX 1: Bind to editForm.category
+                                onChange={handleCategoryChange}
                                 label="Category"
+                                MenuProps={{
+                                PaperProps: {
+                                    style: {
+                                    maxHeight: 250,
+                                    overflowY: 'auto',
+                                    },
+                                },
+                                }}
+                                renderValue={() => editForm.categoryName || ""} // FIX 2: Use categoryName directly
+                            >
+                                {fetchedCategories?.data?.map((cat) => (
+                                <MenuItem
+                                    key={cat._id}
+                                    value={String(cat._id)}
+                                    sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    }}
                                 >
-                                {categories.map((cat) => (
-                                <MenuItem key={cat.value} value={cat.value}>
-                                {cat.label}
+                                    <span>{cat.name}</span> {/* Display category name */}
 
-                                    <IconButton 
-                                    onClick={() => handleDeleteCategory(cat.value)} 
-                                    size="small" 
-                                    sx={{ marginLeft: 2 }}
+                                    {/* Delete Icon Button */}
+                                    <IconButton
+                                    onClick={(e) => {
+                                        e.stopPropagation(); // Prevent Select's onChange from firing
+                                        handleDeleteCategory(cat._id);
+                                    }}
+                                    size="small"
                                     >
                                     <DeleteIcon fontSize="small" />
                                     </IconButton>
-                                    
-                                    </MenuItem>
+                                </MenuItem>
                                 ))}
-                                </Select>
-                                {errors.category && <span className="MuiFormHelperText-root text-xs text-red-500 ml-4 mt-1">{errors.category}</span>}
+                            </Select>
+
+                            {errors.category && (
+                                <span className="MuiFormHelperText-root text-xs text-red-500 ml-4 mt-1">
+                                {errors.category}
+                                </span>
+                            )}
                             </FormControl>
+
 
                               <TextField
                                   type="number"

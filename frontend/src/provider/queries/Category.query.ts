@@ -70,20 +70,20 @@ export const CategoryApi = createApi({
       invalidatesTags: ['Categories'],
     }),
 
-    // // Update an existing product
-    // updateProduct: builder.mutation<Product, { id: string; data: Partial<CreateProductDTO> }>({
-    //   query: ({ id, data }) => ({
-    //     url: `/products/${id}`,
-    //     method: 'PATCH',
-    //     body: data,
-    //     headers: {
-    //       'Authorization': 'Bearer ' + localStorage.getItem("token"),
-    //     },
-    //   }),
-    //   invalidatesTags: ['Products', 'ProductStats'],
-    // }),
+    // Update an existing category
+    updateCategory: builder.mutation<Category, { id: string; data: Partial<CreateCategoryDTO> }>({
+      query: ({ id, data }) => ({
+        url: `/products/${id}`,
+        method: 'PATCH',
+        body: data,
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("token"),
+        },
+      }),
+      invalidatesTags: ['Categories'],
+    }),
 
-    // Delete a product
+    // Delete a category
     deleteCategory: builder.mutation<void, string>({
       query: (id) => ({
         url: `/categories/${id}`,
@@ -102,5 +102,6 @@ export const {
   useGetCategoriesQuery,
   useGetCategoryByIdQuery,
   useCreateCategoryMutation,
+  useUpdateCategoryMutation,
   useDeleteCategoryMutation
 } = CategoryApi;

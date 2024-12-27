@@ -11,12 +11,12 @@ class ProductController {
     });
 
     static  getProducts = CatchAsync(async (req, res) => {
-        const products = await ProductService.getProducts(req.user, req.query.page, req.query.query, req.query.category);
+        const products = await ProductService.getProducts(req.query.page, req.query.query, req.query.category);
         return res.status(200).json(products);
     });
 
     static  getEveryProduct = CatchAsync(async (req, res) => {
-        const products = await ProductService.getEveryProduct(req.user);
+        const products = await ProductService.getEveryProduct();
         return res.status(200).json(products);
     });
 

@@ -1,52 +1,44 @@
 import { Button, TextField, Box, CircularProgress } from "@mui/material";
 import { useCreateCategoryMutation } from "../../../provider/queries/Category.query";
 import { useState } from "react";
+import { buttonStyles } from "../../../themes/buttonStyles";
 
 const AddCategory = () => {
-  // Mutation hook for creating a new category
   const [createCategory, { isLoading: isCreatingCategory }] = useCreateCategoryMutation();
-
-  // States for modal visibility, category input, and error handling
-  const [visible, setVisible] = useState(false);
-  const [newCategory, setNewCategory] = useState(""); // Simplified state for category name
+  const [newCategory, setNewCategory] = useState(""); // Category name
   const [error, setError] = useState(""); // For validation or API errors
+  const [visible, setVisible] = useState(false); // State to manage modal visibility
 
-  // Opens the modal
+
   const handleOpenModal = () => {
-    setVisible(true);
-    setError(""); // Clear any previous errors
+    setVisible(true); // Open the modal
+    setError(""); // Clear previous errors
   };
 
-  // Closes the modal and resets state
   const handleCloseModal = () => {
-    setVisible(false);
-    setNewCategory("");
-    setError("");
+    setVisible(false); // Close the modal
+    setNewCategory(""); // Reset category input
+    setError(""); // Clear error messages
   };
 
-  // Handles form submission
   const handleFormSubmit = async () => {
-    // Validation: Ensure category name is not empty
     if (!newCategory.trim()) {
       setError("Category name is required.");
       return;
     }
 
     try {
-      // Call API to create a new category
       await createCategory({ name: newCategory }).unwrap();
-      handleCloseModal(); // Close modal only on success
+      handleCloseModal(); // Close modal on successful creation
     } catch (err) {
-      console.error("Failed to create category:", err);
-      setError("Failed to create category. Please try again."); // Show error message
+      setError("Failed to create category. Please try again.");
     }
   };
 
-  // Handles Enter key press for form submission
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      e.preventDefault(); // Prevents default form submission behavior
-      handleFormSubmit(); // Submits the form
+      e.preventDefault(); // Prevent form submission when pressing Enter
+      handleFormSubmit(); // Call form submit logic
     }
   };
 
@@ -60,39 +52,35 @@ const AddCategory = () => {
             component="form"
             onKeyDown={handleKeyPress} // Allows submission on Enter key press
           >
-            {/* Modal Header */}
             <h2 className="text-lg font-semibold mb-4">Add New Category</h2>
 
-            {/* Input Field */}
+            {/* Category Name Input */}
             <TextField
               label="Category Name"
               variant="outlined"
               fullWidth
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
-              error={Boolean(error)} // Error style if validation fails
-              helperText={error} // Displays error text below the input field
+              error={Boolean(error)}
+              helperText={error}
               autoFocus
             />
 
             {/* Modal Buttons */}
             <div className="flex justify-end gap-4 mt-6">
-              {/* Cancel Button */}
               <Button
                 variant="outlined"
                 color="secondary"
-                onClick={handleCloseModal}
+                onClick={handleCloseModal} // Close modal
                 sx={{ padding: "8px 20px" }}
               >
                 Cancel
               </Button>
-
-              {/* Submit Button */}
               <Button
                 variant="contained"
                 color="primary"
                 sx={{ padding: "8px 20px" }}
-                disabled={isCreatingCategory} // Disable during submission
+                disabled={isCreatingCategory}
                 onClick={handleFormSubmit}
               >
                 {isCreatingCategory ? <CircularProgress size={24} /> : "Submit"}
@@ -103,17 +91,19 @@ const AddCategory = () => {
       )}
 
       {/* Add Category Button */}
-      {!visible && (
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <Button
           variant="contained"
           disableElevation
           color="primary"
-          sx={{ flex: 1, marginLeft: 1, padding: 1, marginBottom: 2 }}
-          onClick={handleOpenModal}
+         sx={{
+          ...buttonStyles,
+            }}
+          onClick={handleOpenModal} // Open modal when clicked
         >
-          Add New Category
+          Add Category
         </Button>
-      )}
+      </div>
     </>
   );
 };

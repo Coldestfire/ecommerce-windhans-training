@@ -44,7 +44,7 @@ const Login = () => {
       toast.success('Logged in Successfully', { duration: 1000 })
 
       resetForm()
-      navigate('/admin')
+      navigate('/home')
       console.log("going to reload")
       window.location.reload()
       console.log("reloaded")

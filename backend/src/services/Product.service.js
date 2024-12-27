@@ -27,27 +27,21 @@ class ProductService {
     }
     
     
-    static async getProducts(user, page = 1, query = "", category = "") {
+    static async getProducts(page = 1, query = "", category = "") {
         const validatedPage = Math.max(1, page); 
         const limit = 10; 
         const skip = (validatedPage - 1) * limit;
     
-        console.log("from ProductService: ", user);  
-    
-        // Check if the user is provided
-        if (!user) {
-            throw new Error("User is required to fetch products.");
-        }
-    
-        // Construct the initial filter based on the user
-        const filter = { user: user };
+        // Construct the initial filter object (no user constraint)
+        const filter = {};
     
         // If query is provided, filter by product name
         if (query) {
             filter.name = { $regex: query, $options: "i" };
         }
-        
+    
         console.log("category provided: ", category);
+    
         // Handle category by name (if provided)
         if (category) {
             try {
@@ -89,23 +83,16 @@ class ProductService {
     
     
     
+    
 
 
 
-    static async getEveryProduct(user) {
+    static async getEveryProduct() {
         try {
-            // Check if the user is provided
-            if (!user) {
-                throw new Error("User is required to fetch products.");
-            }
+            // Fetch all products, no user filtering required
+            const products = await ProductModel.find().sort({ createdAt: -1 });
     
-            // Filter by user ID
-            const filter = { user: user };
-    
-            // Fetch products for the given user
-            const products = await ProductModel.find(filter).sort({ createdAt: -1 });
-    
-            // Count the total number of matching products
+            // Count the total number of products
             const totalCount = products.length;
     
             const response = {

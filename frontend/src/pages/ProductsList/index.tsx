@@ -4,10 +4,12 @@ import { FileUpload } from 'primereact/fileupload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useCreateProductMutation, useGetAllProductsQuery } from "../../provider/queries/Products.query";
 import { useGetCategoriesQuery, useDeleteCategoryMutation } from "../../provider/queries/Category.query";
-import Loader from "../../components/Loader";
+
 import { useSearchParams } from "react-router-dom";
 import TableCard from "./components/TableRowAndEdit";
 import AddCategory from "./components/AddCategory";
+
+import { buttonStyles } from "../../themes/buttonStyles";
 
 
 
@@ -140,17 +142,28 @@ const ProductsPage = () => {
   console.log("Selected Category Name:", newProduct.categoryName);
 
 
+
   return (
     <>
-      <div className="flex justify-end items-center w-[90%] mx-auto mb-4">
-        <button
-          onClick={() => setVisible(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2"
-        >
-          Add Product
-        </button>
-      </div>
+      <div  className="flex justify-end items-center w-[90%] mx-auto mb-4 gap-4">
 
+                <Button
+                onClick={() => setVisible(true)}
+                variant="contained"
+                color="primary"
+                disableElevation
+                sx={{
+                 ...buttonStyles,
+                }}
+              >
+                Add Product
+              </Button>
+
+
+            <AddCategory />
+          </div>
+
+      
       {visible && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded shadow w-[90%] max-w-lg relative pr-9">
