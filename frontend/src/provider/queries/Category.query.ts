@@ -83,46 +83,24 @@ export const CategoryApi = createApi({
     //   invalidatesTags: ['Products', 'ProductStats'],
     // }),
 
-    // // Delete a product
-    // deleteProduct: builder.mutation<void, string>({
-    //   query: (id) => ({
-    //     url: `/products/${id}`,
-    //     method: 'DELETE',
-    //     headers: {
-    //       'Authorization': 'Bearer ' + localStorage.getItem("token"),
-    //     },
-    //   }),
-    //   invalidatesTags: ['Products', 'ProductStats'],
-    // }),
+    // Delete a product
+    deleteCategory: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/categories/${id}`,
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("token"),
+        },
+      }),
+      invalidatesTags: ['Categories'],
+    }),
 
-    // // Get product statistics for dashboard
-    // getProductStats: builder.query<ProductStats, void>({
-    //   query: () => ({
-    //     url: '/products/stats',
-    //     method: 'GET',
-    //     headers: {
-    //       'Authorization': 'Bearer ' + localStorage.getItem("token"),
-    //     },
-    //   }),
-    //   providesTags: ['ProductStats'],
-    // }),
-
-    // // Get products for search/dropdown
-    // getProductsForSearch: builder.query<Product[], void>({
-    //   query: () => ({
-    //     url: '/products/search',
-    //     method: 'GET',
-    //     headers: {
-    //       'Authorization': 'Bearer ' + localStorage.getItem("token"),
-    //     },
-    //   }),
-    //   providesTags: ['Products'],
-    // }),
   }),
 });
 
 export const {
   useGetCategoriesQuery,
   useGetCategoryByIdQuery,
-  useCreateCategoryMutation
+  useCreateCategoryMutation,
+  useDeleteCategoryMutation
 } = CategoryApi;

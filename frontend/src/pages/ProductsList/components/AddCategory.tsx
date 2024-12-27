@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, Box, CircularProgress } from "@mui/material";
 import { useCreateCategoryMutation } from "../../../provider/queries/Category.query";
 import { useState } from "react";
 
@@ -8,40 +8,45 @@ const AddCategory = () => {
 
   // States for modal visibility, category input, and error handling
   const [visible, setVisible] = useState(false);
-  const [newCategory, setNewCategory] = useState({ name: "" });
+  const [newCategory, setNewCategory] = useState(""); // Simplified state for category name
   const [error, setError] = useState(""); // For validation or API errors
 
   // Opens the modal
-  const handleAddCategoryButton = () => {
+  const handleOpenModal = () => {
     setVisible(true);
     setError(""); // Clear any previous errors
   };
 
-  // Handles input changes for category name
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setNewCategory((prev) => ({ ...prev, [name]: value }));
+  // Closes the modal and resets state
+  const handleCloseModal = () => {
+    setVisible(false);
+    setNewCategory("");
+    setError("");
   };
 
   // Handles form submission
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleFormSubmit = async () => {
     // Validation: Ensure category name is not empty
-    if (!newCategory.name.trim()) {
-      setError("Category name is required."); // Set error message
+    if (!newCategory.trim()) {
+      setError("Category name is required.");
       return;
     }
 
     try {
       // Call API to create a new category
-      await createCategory(newCategory).unwrap(); // Ensure the promise resolves properly
-      setVisible(false); // Close modal only on success
-      setNewCategory({ name: "" }); // Clear input field
-      setError(""); // Reset error state
+      await createCategory({ name: newCategory }).unwrap();
+      handleCloseModal(); // Close modal only on success
     } catch (err) {
       console.error("Failed to create category:", err);
       setError("Failed to create category. Please try again."); // Show error message
+    }
+  };
+
+  // Handles Enter key press for form submission
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevents default form submission behavior
+      handleFormSubmit(); // Submits the form
     }
   };
 
@@ -50,51 +55,50 @@ const AddCategory = () => {
       {/* Modal */}
       {visible && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded shadow w-[90%] max-w-lg relative pr-9">
-
+          <Box
+            className="bg-white p-6 rounded shadow-lg w-[90%] max-w-md relative"
+            component="form"
+            onKeyDown={handleKeyPress} // Allows submission on Enter key press
+          >
             {/* Modal Header */}
-            <h2 className="text-lg font-semibold mb-4 pl-3">Add New Category</h2>
+            <h2 className="text-lg font-semibold mb-4">Add New Category</h2>
 
-            {/* Removed <form> tag from here */}
+            {/* Input Field */}
             <TextField
-              name="name"
               label="Category Name"
               variant="outlined"
               fullWidth
-              value={newCategory.name}
-              sx={{ marginBottom: "16px" }}
-              onChange={handleInputChange}
-              error={Boolean(error)} // Shows error styling if there's an error
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              error={Boolean(error)} // Error style if validation fails
               helperText={error} // Displays error text below the input field
+              autoFocus
             />
 
             {/* Modal Buttons */}
-            <div className="flex justify-end gap-4 mt-4">
+            <div className="flex justify-end gap-4 mt-6">
               {/* Cancel Button */}
               <Button
-                type="button"
                 variant="outlined"
                 color="secondary"
-                onClick={() => setVisible(false)} // Close modal
-                sx={{ padding: "10px 20px" }}
+                onClick={handleCloseModal}
+                sx={{ padding: "8px 20px" }}
               >
                 Cancel
               </Button>
 
               {/* Submit Button */}
               <Button
-                type="button" // Changed to type="button" to prevent form submission
                 variant="contained"
                 color="primary"
+                sx={{ padding: "8px 20px" }}
                 disabled={isCreatingCategory} // Disable during submission
-                sx={{ padding: "10px 20px" }}
-                onClick={handleFormSubmit} // Trigger the submit logic directly
+                onClick={handleFormSubmit}
               >
-                Submit
+                {isCreatingCategory ? <CircularProgress size={24} /> : "Submit"}
               </Button>
             </div>
-            {/* End of modal buttons */}
-          </div>
+          </Box>
         </div>
       )}
 
@@ -105,9 +109,9 @@ const AddCategory = () => {
           disableElevation
           color="primary"
           sx={{ flex: 1, marginLeft: 1, padding: 1, marginBottom: 2 }}
-          onClick={handleAddCategoryButton}
+          onClick={handleOpenModal}
         >
-          Add Category
+          Add New Category
         </Button>
       )}
     </>

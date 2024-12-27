@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, InputAdornment, CircularProgress } from "@mui/material";
+import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, InputAdornment, CircularProgress, IconButton } from "@mui/material";
 import { FileUpload } from 'primereact/fileupload';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useCreateProductMutation, useGetAllProductsQuery } from "../../provider/queries/Products.query";
-import { useGetCategoriesQuery, useCreateCategoryMutation } from "../../provider/queries/Category.query";
+import { useGetCategoriesQuery, useDeleteCategoryMutation } from "../../provider/queries/Category.query";
 import Loader from "../../components/Loader";
 import { useSearchParams } from "react-router-dom";
 import TableCard from "./components/TableRowAndEdit";
@@ -13,6 +14,8 @@ import AddCategory from "./components/AddCategory";
 const ProductsPage = () => {
   const [visible, setVisible] = useState(false);
   const [SearchParams] = useSearchParams();
+
+  const [deleteCategory] = useDeleteCategoryMutation();
 
 
 //get all categories
@@ -67,6 +70,11 @@ const ProductsPage = () => {
       categoryName: selectedCategory?.name // Display name in the UI
     }));
   };
+
+
+  const handleDeleteCategory = (categoryId: string) => {
+    deleteCategory(categoryId);
+ };
   
   
   const fetchedcategory = fetchedCategories?.data || [];
@@ -214,30 +222,57 @@ const ProductsPage = () => {
                 <InputLabel>Category</InputLabel>
                 <Select
                   name="category"
-                  value={newProduct.category}  // Use updated value
-                  onChange={handleCategoryChange} // Use new handler
+                  value={newProduct.category}
+                  onChange={handleCategoryChange}
                   label="Category"
                   MenuProps={{
                     PaperProps: {
                       style: {
-                        maxHeight: 250,  // Adjust the maxHeight as needed
-                        overflowY: 'auto',  // Enable vertical scrolling
+                        maxHeight: 250,
+                        overflowY: 'auto',
                       },
                     },
                   }}
+                  // Fix: Display only the category name in the input box
+                  renderValue={(selected) => {
+                    const selectedCategory = fetchedCategories?.data?.find((cat) => String(cat._id) === selected);
+                    return selectedCategory ? selectedCategory.name : "";
+                  }}
                 >
                   {fetchedCategories?.data?.map((cat) => (
-                    <MenuItem key={cat._id} value={String(cat._id)}>
-                      {cat.name}
+                    <MenuItem
+                      key={cat._id}
+                      value={String(cat._id)}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span>{cat.name}</span> {/* Display category name */}
+
+                      {/* Delete Icon Button */}
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent Select's onChange from firing
+                          handleDeleteCategory(cat._id);
+                        }}
+                        size="small"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                     </MenuItem>
                   ))}
                 </Select>
+
                 {errors.category && (
                   <span className="MuiFormHelperText-root text-xs text-red-500 ml-4 mt-1">
                     {errors.category}
                   </span>
                 )}
               </FormControl>
+
+
 
 
               <AddCategory />

@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useDeleteProductMutation, useUpdateProductMutation } from "../../../provider/queries/Products.query";
+import { useDeleteCategoryMutation } from "../../../provider/queries/Category.query";
 import { FileUpload } from 'primereact/fileupload';
-import { FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const TableCard = ({ data, id }: any) => {
     const [isEditing, setIsEditing] = useState(false);
@@ -17,6 +19,7 @@ const TableCard = ({ data, id }: any) => {
 
       const [errors, setErrors] = useState<any>({});
     const [deleteProduct] = useDeleteProductMutation();
+    const [deleteCategory] = useDeleteCategoryMutation();
     const [updateProduct, { isLoading: isUpdating, error: updateError }] = useUpdateProductMutation();
 
 
@@ -50,6 +53,10 @@ const TableCard = ({ data, id }: any) => {
         // if (!validateForm()) return;
         await updateProduct({ id: data._id, data: editForm });
         setIsEditing(false);
+    };
+
+    const handleDeleteCategory = async (categoryId: string) => {
+        await deleteCategory(categoryId);
     };
 
      // Define the category options
@@ -115,8 +122,17 @@ const TableCard = ({ data, id }: any) => {
                                 label="Category"
                                 >
                                 {categories.map((cat) => (
-                                    <MenuItem key={cat.value} value={cat.value}>
-                                    {cat.label}
+                                <MenuItem key={cat.value} value={cat.value}>
+                                {cat.label}
+
+                                    <IconButton 
+                                    onClick={() => handleDeleteCategory(cat.value)} 
+                                    size="small" 
+                                    sx={{ marginLeft: 2 }}
+                                    >
+                                    <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                    
                                     </MenuItem>
                                 ))}
                                 </Select>
