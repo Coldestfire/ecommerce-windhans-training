@@ -133,12 +133,6 @@ class ProductService {
             throw new ApiError(404, "Product not found.");
         }
     
-        // Ensure that the product belongs to the logged-in user
-        if (product.user.toString() !== user._id.toString()) {
-            throw new ApiError(403, "You are not authorized to delete this product.");
-        }
-    
-        // If the product is valid and belongs to the user, delete it
         await ProductModel.findByIdAndDelete(productId);
     
         return { msg: "Product deleted successfully" };

@@ -6,12 +6,14 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { Typography, Button, Box } from '@mui/material';
 
 import { useState } from 'react';
-import ProductTabs from './components/productsTabs';
+import ProductTabs from './components/ProductsTabs';
+import { useGetCategoriesQuery } from '../../provider/queries/Category.query';           
 
 function ProductDetails() {
   const { id } = useParams(); // Get the product ID from the URL
   const [value, setValue] = useState<number | null>(2); // Rating value
-  const { data: product, error, isLoading } = useGetProductQuery(id);
+  const { data: product, error, isLoading } = useGetProductQuery(id);   
+  const { data: fetchedCategories, isLoading: isLoadingCategories } = useGetCategoriesQuery({category:""});
 
   // Show loading state
   if (isLoading) {
@@ -23,6 +25,15 @@ function ProductDetails() {
     return <div className="text-center p-4 text-red-500">{error.message}</div>;
   }
 
+  // Assuming fetchedCategories.data contains the categories
+const categoryDetails = fetchedCategories?.data?.find(
+  (cat) => cat._id === product?.product.category
+
+);
+
+const categoryName = categoryDetails?.name || "Unknown Category";
+
+
   return (
     <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumbs for navigation */}
@@ -31,10 +42,11 @@ function ProductDetails() {
           Home
         </Link>
         <Link
-          to={`/category/${product.product.category.toLowerCase()}`}
+          to={`/category/${categoryDetails?.name}`}
           className="text-gray-600 hover:text-blue-600"
         >
-          {product.product.category}
+          {console.log("product.product: ", product.product)}
+          {categoryDetails?.name}
         </Link>
         <Typography color="textPrimary" className="text-gray-800">
           {product.product.name}

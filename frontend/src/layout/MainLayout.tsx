@@ -10,7 +10,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         {/* Sidebar with full height and background color */}
         <Sidebar
           className="h-full text-black bg-slate-300 w-[20%]" // Changed from "h-screen" to "h-full"
-          style={{ height: '150vh', overflowY: 'auto' }} // Added inline styles
+          style={{ height: '90vh', overflowY: 'auto' }} // Added inline styles
         >
           
           <Menu>

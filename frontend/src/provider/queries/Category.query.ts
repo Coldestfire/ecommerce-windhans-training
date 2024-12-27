@@ -15,7 +15,6 @@ interface Category {
 
 interface CreateCategoryDTO {
   name: string;
-  description: string;
 }
 
 interface GetAllCategoryResponse {

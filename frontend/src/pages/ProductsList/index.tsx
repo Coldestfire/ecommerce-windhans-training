@@ -4,18 +4,37 @@ import { FileUpload } from 'primereact/fileupload';
 import { useCreateProductMutation, useGetAllProductsQuery } from "../../provider/queries/Products.query";
 import { useGetCategoriesQuery, useCreateCategoryMutation } from "../../provider/queries/Category.query";
 import Loader from "../../components/Loader";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import TableCard from "./components/TableRowAndEdit";
+import AddCategory from "./components/AddCategory";
+
 
 
 const ProductsPage = () => {
   const [visible, setVisible] = useState(false);
+  const [SearchParams] = useSearchParams();
 
+
+//get all categories
   const { data : fetchedCategories, isLoading: isLoadingCategories } = useGetCategoriesQuery({category:""});
   console.log("Fetched Categories:", fetchedCategories);
 
-  
+//get all products
+  const { data, isLoading, isError } = useGetAllProductsQuery({
+    query: SearchParams.get("query") || "",
+    page: Number(SearchParams.get("page")) || 1,
+    category: SearchParams.get("category") || ""
+  });
 
+  // if (isLoading) return <Loader />;
+  if (isError) return <h1>Something went wrong</h1>;
+
+  const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
+
+
+  const [errors, setErrors] = useState<any>({});
+
+  
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
@@ -27,8 +46,7 @@ const ProductsPage = () => {
   });
 
   const handleCategoryChange = (e) => {
-    const selectedCategoryId = e.target.value; // Fix
-    
+    const selectedCategoryId = e.target.value; 
     console.log("Selected Category ID:", selectedCategoryId);
   
     // Ensure categories are loaded
@@ -57,19 +75,6 @@ const ProductsPage = () => {
   })
   console.log("CATSSSS: ", fetchedcategory);
 
-  const [errors, setErrors] = useState<any>({});
-  const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
-  const navigate = useNavigate();
-  const [SearchParams] = useSearchParams();
-
-  const { data, isLoading, isError } = useGetAllProductsQuery({
-    query: SearchParams.get("query") || "",
-    page: Number(SearchParams.get("page")) || 1,
-    category: SearchParams.get("category") || ""
-  });
-
-  if (isLoading) return <Loader />;
-  if (isError) return <h1>Something went wrong</h1>;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -86,6 +91,8 @@ const ProductsPage = () => {
       reader.readAsDataURL(file);
     }
   };
+
+
 
   const validateForm = () => {
     const newErrors = {};
@@ -120,16 +127,6 @@ const ProductsPage = () => {
       console.error("Error creating a product:", error);
     }
   };
-
-  // Define the category options
-  // const categories = [
-  //   { label: "Electronics", value: "electronics" },
-  //   { label: "Clothes", value: "clothes" },
-  //   { label: "Home Appliances", value: "home-appliances" },
-  //   { label: "Books", value: "books" },
-  //   { label: "Toys", value: "toys" },
-  //   { label: "Sports", value: "sports" }
-  // ];
 
   console.log("Selected Category ID:", newProduct.category);
   console.log("Selected Category Name:", newProduct.categoryName);
@@ -220,13 +217,20 @@ const ProductsPage = () => {
                   value={newProduct.category}  // Use updated value
                   onChange={handleCategoryChange} // Use new handler
                   label="Category"
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: 250,  // Adjust the maxHeight as needed
+                        overflowY: 'auto',  // Enable vertical scrolling
+                      },
+                    },
+                  }}
                 >
                   {fetchedCategories?.data?.map((cat) => (
                     <MenuItem key={cat._id} value={String(cat._id)}>
                       {cat.name}
                     </MenuItem>
                   ))}
-
                 </Select>
                 {errors.category && (
                   <span className="MuiFormHelperText-root text-xs text-red-500 ml-4 mt-1">
@@ -235,6 +239,8 @@ const ProductsPage = () => {
                 )}
               </FormControl>
 
+
+              <AddCategory />
 
 
               <FileUpload
