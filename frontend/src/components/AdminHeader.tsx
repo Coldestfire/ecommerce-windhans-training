@@ -1,5 +1,5 @@
 
-import LogoutButton from "./LogoutButton";
+import LogoutButton from "./HeaderComponents/LogoutButton";
 
 const AdminHeader = () => {
   return (

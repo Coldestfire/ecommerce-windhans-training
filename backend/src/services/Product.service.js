@@ -81,11 +81,6 @@ class ProductService {
         }
     }
     
-    
-    
-    
-
-
 
     static async getEveryProduct() {
         try {

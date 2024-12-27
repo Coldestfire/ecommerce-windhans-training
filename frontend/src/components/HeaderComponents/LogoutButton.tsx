@@ -3,7 +3,7 @@ import { Button, Typography, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';  // For showing success/error notifications
 import { useDispatch, useSelector } from 'react-redux'
-import { removeUser } from '../provider/slice/user.slice'
+import { removeUser } from '../../provider/slice/user.slice'
 
 const LogoutButton: React.FC = () => {
   const navigate = useNavigate();

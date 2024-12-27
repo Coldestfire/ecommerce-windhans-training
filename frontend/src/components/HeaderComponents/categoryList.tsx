@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { useGetCategoriesQuery } from "../provider/queries/Category.query";
-import Loader from "./Loader";
+import { useGetCategoriesQuery } from "../../provider/queries/Category.query";
+import Loader from "../Loader";
 
 const CategoryList = () => {
   const { data, isLoading } = useGetCategoriesQuery({category:""});
