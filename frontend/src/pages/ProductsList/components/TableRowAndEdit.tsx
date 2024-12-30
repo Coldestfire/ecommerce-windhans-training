@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useDeleteProductMutation, useUpdateProductMutation } from "../../../provider/queries/Products.query";
+import { useDeleteProductMutation, useUpdateProductMutation, useGetAllProductsQuery } from "../../../provider/queries/Products.query";
 import { useDeleteCategoryMutation, useGetCategoriesQuery, useUpdateCategoryMutation } from "../../../provider/queries/Category.query";
 import { FileUpload } from 'primereact/fileupload';
 import { FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from "@mui/material";
@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const TableCard = ({ data, id }: any) => {
     const [isEditing, setIsEditing] = useState(false);
     const { data : fetchedCategories, isLoading: isLoadingCategories } = useGetCategoriesQuery({category:""})
+   
     const [editForm, setEditForm] = useState({
         name: data.name,
         description: data.description,
@@ -16,10 +17,11 @@ const TableCard = ({ data, id }: any) => {
         stock: data.stock,
         image: data.image ,
         category: data.category,
-        categoryName: fetchedCategories?.data?.find((cat) => cat._id === data.category)?.name
+        categoryName: data.category.name
     });
 
-;
+
+
     const [errors, setErrors] = useState<any>({});
     const [deleteProduct] = useDeleteProductMutation();
     const [deleteCategory] = useDeleteCategoryMutation();
@@ -58,7 +60,7 @@ const TableCard = ({ data, id }: any) => {
         console.log("Edit form data category :", editForm.category);
         console.log("E: ", e);
         // if (!validateForm()) return;
-        await updateCategory({ id: data.category, data: fetchedCategories?.data?.find((cat) => cat._id === data.category)?.name });
+        // await updateCategory({ id: data.category, data: fetchedCategories?.data?.find((cat) => cat._id === data.category)?.name });
         await updateProduct({ id: data._id, data: editForm });
         setIsEditing(false);
     };
@@ -137,7 +139,7 @@ console.log("lmao ", editForm)
                                   label="Price"
                               />
 
-                            <FormControl fullWidth required error={Boolean(errors.category)} sx={{ margin: 1 }}>
+                            <FormControl fullWidth required error={Boolean(errors.category)}>
                             <InputLabel>Category</InputLabel>
                             <Select
                                 name="category"
@@ -214,14 +216,17 @@ console.log("lmao ", editForm)
                                   label="Description"
                               />
                               
-                            
+                              <div>
+                              <p className="mb-1 ml-1">Change Image:</p>
                               <FileUpload
                                   name="image"
                                   accept="image/*"
                                   onSelect={handleImageChange}
                                   className="w-full"
                                   mode="basic"
+                                  
                               />
+                              </div>
                           </div>
                           
                           <div className="mt-4 flex gap-2">
