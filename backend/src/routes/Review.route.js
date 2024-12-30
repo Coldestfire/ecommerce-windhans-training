@@ -3,7 +3,7 @@ const router = express.Router();
 const ReviewController = require('../controllers/Review.controller');
 const Authentication = require("../middlewares/Authentication");
 
-// router.get('/', CategoryController.getCategory);
+router.get('/', ReviewController.getReviews);
 
 router.use(Authentication);
 

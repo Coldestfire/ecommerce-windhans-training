@@ -18,57 +18,23 @@ class ReviewService {
     }
     
     
-    static async getProducts(page = 1, query = "", category = "") {
-        const validatedPage = Math.max(1, page); 
-        const limit = 10; 
-        const skip = (validatedPage - 1) * limit;
-    
-        // Construct the initial filter object (no user constraint)
-        const filter = {};
-    
-        // If query is provided, filter by product name
-        if (query) {
-            filter.name = { $regex: query, $options: "i" };
-        }
-    
-        console.log("category provided: ", category);
-    
-        // Handle category by name (if provided)
-        if (category) {
-            try {
-                const categoryDoc = await CategoryModel.findOne({ name: category });
-                console.log("categoryDoc: ", categoryDoc);
-                if (!categoryDoc) {
-                    throw new Error("Category not found");
-                }
-                filter.category = categoryDoc._id; // Use category ID in the filter
-            } catch (error) {
-                console.error("Error finding category:", error);
-                throw new Error("Invalid category provided.");
-            }
-        }
-    
+    static async getReviews(id="") {
         try {
-            // Fetch products and populate the category name
-            const products = await ProductModel.find(filter)
-                .skip(skip)
-                .limit(limit)
-                .sort({ createdAt: -1 })
-                .populate("category", "name"); // Populate category name only
-    
-            // Count total matching documents
-            const totalCount = await ProductModel.countDocuments(filter);
-    
+            let filter = {};
+
+            // Apply filter if category name is provided
+            if (id) {
+                filter.productId = { $regex: new RegExp("^" + id + "$", "i") }; // Case-insensitive search
+            }
+
+            const reviews = await ReviewModel.find(filter);
             const response = {
-                data: products,
-                total: totalCount,
-                hasMore: skip + products.length < totalCount,
+                data: reviews,
             };
-    
             return response;
+
         } catch (error) {
-            console.error("Database error in getProducts:", error);
-            throw new Error("Failed to fetch products. Please try again.");
+            throw new Error("Failed to fetch reviews. Please try again.");
         }
     }
     
