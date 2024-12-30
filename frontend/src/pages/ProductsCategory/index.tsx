@@ -67,11 +67,14 @@ const ProductCategory = () => {
                       component="img"
                       height="200"
                       image={product.images[0]}
+                      
                       alt={product.name}
                       sx={{
-                        objectFit: 'cover',
+                        objectFit: 'contain',
                         borderRadius: 2,
                         transition: 'transform 0.3s ease-in-out',
+                        height: "200px", // Maintain the fixed height
+                        width: "100%", // Ensure image takes full width
                       }}
                     />
                     <CardContent sx={{ flexGrow: 1 }}>

@@ -7,7 +7,7 @@ import CardSkeleton from "../../components/CardSkeleton";
 const ProductsLanding = () => {
   const { data, error, isLoading } = useGetEveryProductQuery({});
   const navigate = useNavigate();
-  const [value, setValue] = useState<number | null>(2);
+  const [value, setValue] = useState<number | null>(3);
 
   // Show loading skeleton while fetching data
   if (isLoading) {
