@@ -21,7 +21,7 @@ class ProductController {
     });
 
     static updateProduct = CatchAsync(async (req, res) => {
-        const product = await ProductService.updateById(req.params.id, req.body);
+        const product = await ProductService.updateById(req.user, req.params.id, req.body);
         return res.status(200).json(product);
     });
 

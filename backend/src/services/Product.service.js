@@ -120,11 +120,8 @@ class ProductService {
         return { msg: "Product deleted successfully" };
     }
     
-    static async updateById(id, body, user) {
-        // Check if the user is logged in
-        if (!user) {
-            throw new ApiError(401, "User must be logged in to update a product.");
-        }
+    static async updateById(user,id, body) {
+
     
         // Find the product by ID and check if it belongs to the logged-in user
         const product = await ProductModel.findById(id);
@@ -132,11 +129,7 @@ class ProductService {
             throw new ApiError(404, 'Product not found');
         }
     
-        // Ensure that the product belongs to the logged-in user
-        if (product.user.toString() !== user._id.toString()) {
-            throw new ApiError(403, "You are not authorized to update this product.");
-        }
-    
+
         // If an image is provided, upload it to Cloudinary
         if (body.image) {
             const { secure_url } = await cloudinary.uploader.upload(body.image, {

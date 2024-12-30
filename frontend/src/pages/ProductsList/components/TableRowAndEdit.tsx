@@ -54,7 +54,9 @@ const TableCard = ({ data, id }: any) => {
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-
+        console.log("Edit form data:", editForm);
+        console.log("Edit form data category :", editForm.category);
+        console.log("E: ", e);
         // if (!validateForm()) return;
         await updateCategory({ id: data.category, data: fetchedCategories?.data?.find((cat) => cat._id === data.category)?.name });
         await updateProduct({ id: data._id, data: editForm });
@@ -87,6 +89,8 @@ const TableCard = ({ data, id }: any) => {
           category: selectedCategoryId,        // Send ID to backend
           categoryName: selectedCategory?.name // Display name in the UI
         }));
+
+        
       };
 
   const validateForm = () => {
