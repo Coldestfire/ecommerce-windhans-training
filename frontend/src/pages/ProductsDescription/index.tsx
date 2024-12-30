@@ -1,12 +1,12 @@
-// ProductDetails.tsx
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+
 import { useParams, Link } from 'react-router-dom';
 import { useGetProductQuery } from '../../provider/queries/Products.query';
 import Rating from '@mui/material/Rating';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { Typography, Button, Box } from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import Slider from 'react-slick';  // Importing react-slick Slider component
 import { useState } from 'react';
 import ProductTabs from './components/ProductsTabs';
 import { useGetCategoriesQuery } from '../../provider/queries/Category.query';
@@ -36,6 +36,18 @@ function ProductDetails() {
     setSelectedImage(initialImage);
   }
 
+  // Slider settings for vertical carousel
+  const sliderSettings = {
+    vertical: true, // Enables vertical mode
+    dots: false, // Optional: show navigation dots
+    infinite: true,
+    speed: 500,
+    slidesToShow: 4, // Number of images visible at a time
+    slidesToScroll: 1, // Scroll one image at a time
+    initialSlide: 0,
+    focusOnSelect: true, // Allows clicking on image to select it
+  };
+
   return (
     <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Breadcrumbs aria-label="breadcrumb" className="mb-6 pl-3">
@@ -49,27 +61,37 @@ function ProductDetails() {
       </Breadcrumbs>
 
       <div className="flex flex-col lg:flex-row gap-3 bg-white rounded-lg shadow-xl p-6">
-  {/* Small Images List Section */}
-  <div className="flex flex-col space-y-2 items-start w-full lg:w-1/6">
-    {product.product.images.map((img, index) => (
-      <img
-        key={index}
-        src={img}
-        alt={`product-thumbnail-${index}`}
-        className="w-32 h-32 object-cover cursor-pointer rounded-md hover:border-4 hover:border-blue-600 "
-        onClick={() => setSelectedImage(img)}
-      />
-    ))}
-  </div>
+        {/* Small Images List Section - Vertical Carousel */}
+        <div className="w-full lg:w-1/6">
+          <Slider {...sliderSettings}>
+            {product.product.images.map((img, index) => (
+              <div key={index}>
+                <img
+                  src={img}
+                  alt={`product-thumbnail-${index}`}
+                  className="w-32 h-32 object-cover cursor-pointer rounded-md hover:border-4 hover:border-blue-600"
+                  onClick={() => setSelectedImage(img)}
+                />
+              </div>
+            ))}
+          </Slider>
+        </div>
 
-  {/* Main Image Display */}
-  <div className="flex justify-center items-center w-full lg:w-5/6">
-    <img
-      src={selectedImage}
-      alt="Selected Product"
-      className="w-full h-auto object-cover rounded-lg shadow-lg"
-    />
-  </div>
+        {/* Main Image Display */}
+        <div className="flex justify-center items-center w-full lg:w-5/6">
+          <img
+            src={selectedImage}
+            alt="Selected Product"
+            className="object-contain rounded-lg shadow-lg"
+            style={{
+              // You can adjust these values as per your needs
+              width: '100%', // Adjust width (100% means the image will scale to the full width of the container)
+              height: 'auto', // This ensures the aspect ratio is maintained
+              maxWidth: '100%', // This ensures the image doesn't overflow horizontally
+              maxHeight: '600px', // Adjust the maximum height (change as per desired size)
+            }}
+          />
+        </div>
 
         {/* Product Details Section */}
         <div className="flex flex-col space-y-6 w-full lg:w-1/2">

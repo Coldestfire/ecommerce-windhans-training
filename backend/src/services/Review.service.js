@@ -1,37 +1,21 @@
 const { ProductModel } = require('../models')
 const { CategoryModel } =  require('../models');
+const { ReviewModel } = require('../models');
 const ApiError = require("../utils/ApiError");
 const cloudinary = require ('../config/cloudinary.config');
 
 
-class ProductService {
+class ReviewService {
 
-    static async createProduct(user, body) {  
-        const { images } = body; // Accept multiple images
-    
-        if (images && images.length > 0) {
-            // Upload multiple images to Cloudinary
-            const uploadedImages = await Promise.all(
-                images.map(async (image) => {
-                    const { secure_url } = await cloudinary.uploader.upload(image, {
-                        folder: 'products',
-                        use_filename: true,
-                        unique_filename: false,
-                    });
-                    return secure_url; // Return the secure URL
-                })
-            );
-            body.images = uploadedImages; // Replace 'images' with uploaded URLs
-        }
-    
-        const product = await ProductModel.create({
-            ...body,
+    static async createReview(user, body) {  
+        console.log("from ReviewService: ", user)
+        const review = await ReviewModel.create({
             user,
+            ...body,
         });
-    
-        return product;
+        console.log("from querying reviewService: ", review)
+        return review;
     }
-    
     
     
     static async getProducts(page = 1, query = "", category = "") {
@@ -91,11 +75,8 @@ class ProductService {
 
     static async getEveryProduct() {
         try {
-            // Fetch all products and ensure images are included
+            // Fetch all products, no user filtering required
             const products = await ProductModel.find().sort({ createdAt: -1 });
-    
-            // Optionally, log the products to verify images are included
-            console.log(products);  // Check images field
     
             // Count the total number of products
             const totalCount = products.length;
@@ -111,7 +92,6 @@ class ProductService {
             throw new Error("Failed to fetch products. Please try again.");
         }
     }
-    
     
 
     static async deleteProduct(user, productId) {
@@ -160,16 +140,16 @@ class ProductService {
     }
     
     static async getById(id) {
-        const product = await ProductModel.findById(id).populate('category');
+        // Find the product by ID
+        const product = await ProductModel.findById(id);
         if (!product) {
             throw new ApiError(400, "Product Not Found in Record");
         }
+    
         return {
             product,
         };
     }
-    
-    }
+}
 
-
-module.exports = ProductService;
+module.exports = ReviewService;

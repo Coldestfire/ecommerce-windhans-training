@@ -23,9 +23,11 @@ const Schema = new mongoose.Schema({
         type: Number,
         default: 10
     },
-    image:{
-        type: String
-    },
+    images: [ // <-- Changed 'image' to 'images' (array)
+        {
+            type: String, // Store multiple image URLs
+        }
+    ],
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',

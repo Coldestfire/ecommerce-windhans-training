@@ -4,12 +4,12 @@ const ApiError = require("../utils/ApiError");
 class CategoryService {
 
     static async createCategory(user, body) {
-        console.log("from CategoryService: ", body)
+        
         const category = await CategoryModel.create({
             ...body,
             user,
         });
-        console.log("from querying CategoryService: ", category)
+       
         return category;
     }
     

@@ -58,13 +58,14 @@ const ProductsLanding = () => {
               {/* Product Image */}
               <CardMedia
                 component="img"
-                height="200"
                 image={product.images[0]}
                 alt={product.name}
                 sx={{
-                  objectFit: "cover",
+                  objectFit: "contain", // Ensures the image fits within the container
                   borderRadius: 2,
                   transition: "transform 0.3s ease-in-out",
+                  height: "200px", // Maintain the fixed height
+                  width: "100%", // Ensure image takes full width
                 }}
               />
               

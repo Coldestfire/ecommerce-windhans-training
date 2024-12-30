@@ -14,6 +14,10 @@ const routes= [
         path:'/categories',
         route:require("./Category.route")
     },
+    {
+        path:'/reviews',
+        route:require("./Review.route")
+    },
     
 ]
 

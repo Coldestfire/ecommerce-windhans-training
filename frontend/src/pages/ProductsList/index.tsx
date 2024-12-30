@@ -15,6 +15,7 @@ import { buttonStyles } from "../../themes/buttonStyles";
 
 const ProductsPage = () => {
   const [visible, setVisible] = useState(false);
+
   const [SearchParams] = useSearchParams();
 
   const [deleteCategory] = useDeleteCategoryMutation();

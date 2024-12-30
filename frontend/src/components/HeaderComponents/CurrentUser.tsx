@@ -27,7 +27,7 @@ const CurrentUser = () => {
     }
 
     return (
-        <Box display="flex" justifyContent="center" alignItems="center" mt={4} >
+        <Box display="flex" justifyContent="center" alignItems="center" >
             <Paper 
                 elevation={3} 
                 sx={{
@@ -36,7 +36,7 @@ const CurrentUser = () => {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     borderRadius: '30px',
-                    width: '250px',
+                    width: '200px',
                     boxShadow: 4,
                     cursor: 'pointer',
                     '&:hover': {
