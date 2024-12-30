@@ -47,7 +47,7 @@ const ProductsPage = () => {
     stock: 1,
     category: "", // Store ID
     categoryName: "", // Store name (for display only)
-    image: ""
+    images: [],
   });
 
   const handleCategoryChange = (e) => {
@@ -92,15 +92,25 @@ const ProductsPage = () => {
   };
 
   const handleImageChange = (e) => {
-    const file = e.files[0];
-    if (file) {
+    const files = e.files; // Access all selected files
+    const imageArray = [];
+  
+    // Read each file and convert to Base64
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       const reader = new FileReader();
       reader.onloadend = () => {
-        setNewProduct((prev) => ({ ...prev, image: reader.result }));
+        imageArray.push(reader.result); // Add Base64 string to the array
+  
+        // Update state after processing all files
+        if (imageArray.length === files.length) {
+          setNewProduct((prev) => ({ ...prev, images: imageArray }));
+        }
       };
       reader.readAsDataURL(file);
     }
   };
+  
 
 
 
@@ -111,7 +121,10 @@ const ProductsPage = () => {
     if (!newProduct.price || newProduct.price <= 0) newErrors.price = "Price must be greater than 0";
     if (!newProduct.stock || newProduct.stock <= 0) newErrors.stock = "Stock must be greater than 0";
     if (!newProduct.category) newErrors.category = "Category is required"; // Already works with an empty string
-    if (!newProduct.image) newErrors.image = "Image is required";
+    if (!newProduct.images || newProduct.images.length === 0) {
+      newErrors.image = "At least one image is required";
+    }
+    
     setErrors(newErrors);
   
     return Object.keys(newErrors).length === 0;  // Return true if there are no errors
@@ -123,14 +136,18 @@ const ProductsPage = () => {
     if (!validateForm()) return;
 
     try {
-      await createProduct(newProduct);
+      await createProduct({
+        ...newProduct,
+        images: newProduct.images, // Send images as an array
+      });
+      
       setNewProduct({
         name: "",
         description: "",
         price: 0,
         stock: 1,
-        category: null,
-        image: ""
+        category: "",
+        images: null,
       });
       setVisible(false);
     } catch (error) {
@@ -298,6 +315,7 @@ const ProductsPage = () => {
                 className="w-full"
                 mode="basic"
                 style={{paddingLeft: 8, paddingTop: 3}}
+                multiple
               />
               {errors.image && <span className="MuiFormHelperText-root text-xs text-red-500 ml-7 mt-1">{errors.image}</span>}
 

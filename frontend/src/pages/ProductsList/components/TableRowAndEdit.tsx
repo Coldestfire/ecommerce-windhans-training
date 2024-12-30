@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useDeleteProductMutation, useUpdateProductMutation, useGetAllProductsQuery } from "../../../provider/queries/Products.query";
-import { useDeleteCategoryMutation, useGetCategoriesQuery, useUpdateCategoryMutation } from "../../../provider/queries/Category.query";
+import { useDeleteProductMutation, useUpdateProductMutation } from "../../../provider/queries/Products.query";
+import { useDeleteCategoryMutation, useGetCategoriesQuery } from "../../../provider/queries/Category.query";
 import { FileUpload } from 'primereact/fileupload';
 import { FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const TableCard = ({ data, id }: any) => {
     const [isEditing, setIsEditing] = useState(false);
-    const { data : fetchedCategories, isLoading: isLoadingCategories } = useGetCategoriesQuery({category:""})
+    const { data : fetchedCategories } = useGetCategoriesQuery({category:""})
    
     const [editForm, setEditForm] = useState({
         name: data.name,
@@ -25,8 +25,7 @@ const TableCard = ({ data, id }: any) => {
     const [errors, setErrors] = useState<any>({});
     const [deleteProduct] = useDeleteProductMutation();
     const [deleteCategory] = useDeleteCategoryMutation();
-    const [updateProduct, { isLoading: isUpdating, error: updateError }] = useUpdateProductMutation();
-    const [updateCategory, {isLoading: isUpdatingCategory, error: updateErrorCategory}] = useUpdateCategoryMutation();
+    const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
 
 
     const handleDelete = (id: string) => {
@@ -59,8 +58,7 @@ const TableCard = ({ data, id }: any) => {
         console.log("Edit form data:", editForm);
         console.log("Edit form data category :", editForm.category);
         console.log("E: ", e);
-        // if (!validateForm()) return;
-        // await updateCategory({ id: data.category, data: fetchedCategories?.data?.find((cat) => cat._id === data.category)?.name });
+
         await updateProduct({ id: data._id, data: editForm });
         setIsEditing(false);
     };
@@ -95,18 +93,6 @@ const TableCard = ({ data, id }: any) => {
         
       };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!editForm.name) newErrors.name = "Product name is required";
-    if (!editForm.description) newErrors.description = "Description is required";
-    if (!editForm.price || editForm.price <= 0) newErrors.price = "Price must be greater than 0";
-    if (!editForm.stock || editForm.stock <= 0) newErrors.stock = "Stock must be greater than 0";
-    if (!editForm.category) newErrors.category = "Category is required";
-    if (!editForm.image) newErrors.image = "Image is required";
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;  // Return true if there are no errors
-  };
 
 console.log("lmao ", editForm)
     return (

@@ -4,48 +4,43 @@ import { useGetProductQuery } from '../../provider/queries/Products.query';
 import Rating from '@mui/material/Rating';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { Typography, Button, Box } from '@mui/material';
-
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 import { useState } from 'react';
 import ProductTabs from './components/ProductsTabs';
-import { useGetCategoriesQuery } from '../../provider/queries/Category.query';           
+import { useGetCategoriesQuery } from '../../provider/queries/Category.query';
 
 function ProductDetails() {
-  const { id } = useParams(); // Get the product ID from the URL
-  const [value, setValue] = useState<number | null>(2); // Rating value
+  const { id } = useParams();
+  const [value, setValue] = useState<number | null>(2); 
+  const [selectedImage, setSelectedImage] = useState<string>(''); // State to store selected image
   const { data: product, error, isLoading } = useGetProductQuery(id);   
-  const { data: fetchedCategories, isLoading: isLoadingCategories } = useGetCategoriesQuery({category:""});
+  const { data: fetchedCategories } = useGetCategoriesQuery({ category: "" });
 
-  // Show loading state
   if (isLoading) {
     return <div className="text-center p-4">Loading...</div>;
   }
 
-  // Show error message if fetching fails
   if (error) {
     return <div className="text-center p-4 text-red-500">{error.message}</div>;
   }
 
-  // Assuming fetchedCategories.data contains the categories
-const categoryDetails = fetchedCategories?.data?.find(
-  (cat) => cat._id === product?.product.category
+  const categoryDetails = fetchedCategories?.data?.find(
+    (cat) => cat._id === product?.product.category._id
+  );
 
-);
-
-const categoryName = categoryDetails?.name || "Unknown Category";
-
+  // Set the default image when the product is loaded
+  const initialImage = product.product.images[0];
+  if (!selectedImage) {
+    setSelectedImage(initialImage);
+  }
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Breadcrumbs for navigation */}
       <Breadcrumbs aria-label="breadcrumb" className="mb-6 pl-3">
-        <Link to="/home" className="text-gray-600 hover:text-blue-600">
-          Home
-        </Link>
-        <Link
-          to={`/category/${categoryDetails?.name}`}
-          className="text-gray-600 hover:text-blue-600"
-        >
-          {console.log("product.product: ", product.product)}
+        <Link to="/home" className="text-gray-600 hover:text-blue-600">Home</Link>
+        <Link to={`/category/${categoryDetails?.name}`} className="text-gray-600 hover:text-blue-600">
           {categoryDetails?.name}
         </Link>
         <Typography color="textPrimary" className="text-gray-800">
@@ -53,35 +48,44 @@ const categoryName = categoryDetails?.name || "Unknown Category";
         </Typography>
       </Breadcrumbs>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white rounded-lg shadow-xl p-6">
-        {/* Product Image */}
-        <div className="flex justify-center">
-          <img
-            src={product.product.image}
-            alt="product-image"
-            className="w-full max-w-md h-auto object-cover rounded-lg shadow-lg"
-          />
-        </div>
+      <div className="flex flex-col lg:flex-row gap-3 bg-white rounded-lg shadow-xl p-6">
+  {/* Small Images List Section */}
+  <div className="flex flex-col space-y-2 items-start w-full lg:w-1/6">
+    {product.product.images.map((img, index) => (
+      <img
+        key={index}
+        src={img}
+        alt={`product-thumbnail-${index}`}
+        className="w-32 h-32 object-cover cursor-pointer rounded-md hover:border-4 hover:border-blue-600 "
+        onClick={() => setSelectedImage(img)}
+      />
+    ))}
+  </div>
 
-        {/* Product Details */}
-        <div className="flex flex-col space-y-6">
-          {/* Product Name */}
+  {/* Main Image Display */}
+  <div className="flex justify-center items-center w-full lg:w-5/6">
+    <img
+      src={selectedImage}
+      alt="Selected Product"
+      className="w-full h-auto object-cover rounded-lg shadow-lg"
+    />
+  </div>
+
+        {/* Product Details Section */}
+        <div className="flex flex-col space-y-6 w-full lg:w-1/2">
           <h1 className="text-4xl font-extrabold text-gray-900 hover:text-gray-700 transition duration-300">
             {product.product.name}
           </h1>
 
-          {/* Rating */}
           <div className="flex items-center space-x-2">
             <Rating name="simple-controlled" value={value} readOnly sx={{ fontSize: '1.2rem' }} />
             <span className="text-gray-600 text-sm">({product.product.rating} ratings)</span>
           </div>
 
-          {/* Price */}
           <p className="text-2xl font-semibold text-gray-800 mt-4">
             <strong className="font-bold">Price:</strong> &#8377;{product.product.price.toFixed(2)}
           </p>
 
-          {/* Buttons */}
           <Box className="flex gap-4 mt-4">
             <Button variant="contained" color="primary" sx={{ flex: 1 }}>
               Buy Now
@@ -93,13 +97,8 @@ const categoryName = categoryDetails?.name || "Unknown Category";
         </div>
       </div>
 
-      {/* Add some margin for the ProductTabs section to separate it from the product details */}
       <div className="mt-8">
-        {/* Product Tabs Component */}
-        <ProductTabs
-          description={product.product.description}
-          reviews={product.product.reviews || []} // If no reviews, send an empty array
-        />
+        <ProductTabs description={product.product.description} reviews={product.product.reviews || []} />
       </div>
     </div>
   );

@@ -66,7 +66,7 @@ const ProductCategory = () => {
                     <CardMedia
                       component="img"
                       height="200"
-                      image={product.image}
+                      image={product.images[0]}
                       alt={product.name}
                       sx={{
                         objectFit: 'cover',

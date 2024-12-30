@@ -2,13 +2,13 @@ import { Button, TextField, Box, CircularProgress } from "@mui/material";
 import { useCreateCategoryMutation } from "../../../provider/queries/Category.query";
 import { useState } from "react";
 import { buttonStyles } from "../../../themes/buttonStyles";
+import { toast } from "sonner"; // Import Sonner toast
 
 const AddCategory = () => {
   const [createCategory, { isLoading: isCreatingCategory }] = useCreateCategoryMutation();
   const [newCategory, setNewCategory] = useState(""); // Category name
   const [error, setError] = useState(""); // For validation or API errors
   const [visible, setVisible] = useState(false); // State to manage modal visibility
-
 
   const handleOpenModal = () => {
     setVisible(true); // Open the modal
@@ -29,9 +29,12 @@ const AddCategory = () => {
 
     try {
       await createCategory({ name: newCategory }).unwrap();
+      toast.success("Category created successfully!", { duration: 1500 });
+
       handleCloseModal(); // Close modal on successful creation
     } catch (err) {
       setError("Failed to create category. Please try again.");
+      toast.error("Failed to create category."); // Show error toast
     }
   };
 

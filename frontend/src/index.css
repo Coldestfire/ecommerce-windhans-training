@@ -5,3 +5,19 @@
 .p-inputtext{
     padding: 10px !important;
 }
+
+/* Custom arrow styles */
+.slick-prev, .slick-next {
+    font-size: 40px;
+    color: #000;
+    z-index: 1;
+  }
+  
+  .slick-prev {
+    left: 10px;
+  }
+  
+  .slick-next {
+    right: 10px;
+  }
+  

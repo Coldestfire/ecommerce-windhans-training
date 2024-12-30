@@ -21,6 +21,10 @@ const ProductsLanding = () => {
     return <div className="text-center p-4 text-red-500">{error.message}</div>;
   }
 
+  data?.data?.map((product: any) => {
+    console.log("product: ", product.images[0]);
+  });
+
   // Render product details once the data is available
   return (
     <Grid
@@ -55,7 +59,7 @@ const ProductsLanding = () => {
               <CardMedia
                 component="img"
                 height="200"
-                image={product.image}
+                image={product.images[0]}
                 alt={product.name}
                 sx={{
                   objectFit: "cover",
@@ -63,6 +67,7 @@ const ProductsLanding = () => {
                   transition: "transform 0.3s ease-in-out",
                 }}
               />
+              
               <CardContent sx={{ flexGrow: 1 }}>
                 {/* Product Name */}
                 <Typography variant="h6" component="div" sx={{ fontWeight: "bold", color: "#333" }}>
