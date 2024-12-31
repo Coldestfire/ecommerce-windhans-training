@@ -1,14 +1,41 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { 
+  TextField, 
+  Button, 
+  FormControl, 
+  InputLabel, 
+  MenuItem, 
+  Select, 
+  IconButton,
+  Paper,
+  Box,
+  Typography,
+  Grid,
+  Collapse
+} from "@mui/material";
+import { FileUpload } from 'primereact/fileupload';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useDeleteProductMutation, useUpdateProductMutation } from "../../../provider/queries/Products.query";
 import { useDeleteCategoryMutation, useGetCategoriesQuery } from "../../../provider/queries/Category.query";
-import { FileUpload } from 'primereact/fileupload';
-import { FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete';
 
-const TableCard = ({ data, id }: any) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const { data : fetchedCategories } = useGetCategoriesQuery({category:""})
+const TableCard = ({ 
+  data, 
+  id, 
+  isEditing, 
+  onEditStart, 
+  onEditEnd 
+}: {
+  data: any;
+  id: number;
+  isEditing: boolean;
+  onEditStart: () => void;
+  onEditEnd: () => void;
+}) => {
+    const { data: fetchedCategories } = useGetCategoriesQuery({category:""})
    
     const [editForm, setEditForm] = useState({
         name: data.name,
@@ -33,7 +60,7 @@ const TableCard = ({ data, id }: any) => {
     };
 
     const handleEditClick = () => {
-        setIsEditing(true);
+        onEditStart();
     };
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -60,7 +87,7 @@ const TableCard = ({ data, id }: any) => {
         console.log("E: ", e);
 
         await updateProduct({ id: data._id, data: editForm });
-        setIsEditing(false);
+        onEditEnd();
     };
 
     const handleDeleteCategory = async (categoryId: string) => {
@@ -93,166 +120,204 @@ const TableCard = ({ data, id }: any) => {
         
       };
 
+    const handleCancelClick = () => {
+        onEditEnd();
+    };
 
-console.log("lmao ", editForm)
     return (
-        <>
+        <tr className="hover:bg-gray-50 transition-colors">
             {isEditing ? (
-                  <tr className="bg-white border-b">
-                  <td colSpan={5} className="px-6 py-4">
-                      <form onSubmit={handleFormSubmit}>
-                          <div className="grid grid-cols-2 gap-4">
-                              <TextField
-                                  type="text"
-                                  name="name"
-                                  value={editForm.name}
-                                  onChange={handleFormChange}
-                                  placeholder="Name"
-                                  className="border rounded px-4 py-2"
-                                  required
-                                  fullWidth
-                                  label="Name"
-                              />
-                              <TextField
-                                  type="number"
-                                  name="price"
-                                  value={editForm.price}
-                                  onChange={handleFormChange}
-                                  placeholder="Price"
-                                  className="border rounded px-4 py-2"
-                                  required
-                                  fullWidth
-                                  label="Price"
-                              />
+                <td colSpan={5}>
+                    <Collapse in={isEditing}>
+                        <Paper elevation={0} sx={{ p: 3, bgcolor: 'grey.50' }}>
+                            <form onSubmit={handleFormSubmit}>
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            name="name"
+                                            label="Name"
+                                            value={editForm.name}
+                                            onChange={handleFormChange}
+                                            fullWidth
+                                            required
+                                            variant="outlined"
+                                            sx={{ bgcolor: 'white' }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3}>
+                                        <TextField
+                                            name="price"
+                                            label="Price"
+                                            type="number"
+                                            value={editForm.price}
+                                            onChange={handleFormChange}
+                                            fullWidth
+                                            required
+                                            variant="outlined"
+                                            sx={{ bgcolor: 'white' }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3}>
+                                        <TextField
+                                            name="stock"
+                                            label="Stock"
+                                            type="number"
+                                            value={editForm.stock}
+                                            onChange={handleFormChange}
+                                            fullWidth
+                                            required
+                                            variant="outlined"
+                                            sx={{ bgcolor: 'white' }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <FormControl fullWidth required sx={{ bgcolor: 'white' }}>
+                                            <InputLabel>Category</InputLabel>
+                                            <Select
+                                                value={editForm.category}
+                                                onChange={handleCategoryChange}
+                                                label="Category"
+                                                renderValue={() => editForm.categoryName || ""}
+                                            >
+                                                {fetchedCategories?.data?.map((cat) => (
+                                                    <MenuItem key={cat._id} value={String(cat._id)}>
+                                                        <Box sx={{ 
+                                                            display: "flex", 
+                                                            justifyContent: "space-between",
+                                                            alignItems: "center",
+                                                            width: '100%'
+                                                        }}>
+                                                            <span>{cat.name}</span>
+                                                            <IconButton
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDeleteCategory(cat._id);
+                                                                }}
+                                                                size="small"
+                                                            >
+                                                                <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Box>
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            name="description"
+                                            label="Description"
+                                            value={editForm.description}
+                                            onChange={handleFormChange}
+                                            fullWidth
+                                            multiline
+                                            rows={4}
+                                            variant="outlined"
+                                            sx={{ bgcolor: 'white' }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Box sx={{ 
+                                            p: 2, 
+                                            border: '1px dashed',
+                                            borderColor: 'divider',
+                                            borderRadius: 1,
+                                            bgcolor: 'white'
+                                        }}>
+                                            <FileUpload
+                                                name="image"
+                                                accept="image/*"
+                                                onSelect={handleImageChange}
+                                                mode="basic"
+                                                chooseLabel="Change Image"
+                                            />
+                                        </Box>
+                                    </Grid>
+                                </Grid>
 
-                            <FormControl fullWidth required error={Boolean(errors.category)}>
-                            <InputLabel>Category</InputLabel>
-                            <Select
-                                name="category"
-                                value={editForm.category} // FIX 1: Bind to editForm.category
-                                onChange={handleCategoryChange}
-                                label="Category"
-                                MenuProps={{
-                                PaperProps: {
-                                    style: {
-                                    maxHeight: 250,
-                                    overflowY: 'auto',
-                                    },
-                                },
-                                }}
-                                renderValue={() => editForm.categoryName || ""} // FIX 2: Use categoryName directly
-                            >
-                                {fetchedCategories?.data?.map((cat) => (
-                                <MenuItem
-                                    key={cat._id}
-                                    value={String(cat._id)}
-                                    sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    }}
-                                >
-                                    <span>{cat.name}</span> {/* Display category name */}
-
-                                    {/* Delete Icon Button */}
-                                    <IconButton
-                                    onClick={(e) => {
-                                        e.stopPropagation(); // Prevent Select's onChange from firing
-                                        handleDeleteCategory(cat._id);
-                                    }}
-                                    size="small"
+                                <Box sx={{ 
+                                    display: 'flex', 
+                                    gap: 2, 
+                                    mt: 3,
+                                    justifyContent: 'flex-end' 
+                                }}>
+                                    <Button
+                                        type="button"
+                                        onClick={handleCancelClick}
+                                        variant="outlined"
+                                        startIcon={<CancelIcon />}
+                                        sx={{ textTransform: 'none' }}
                                     >
-                                    <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </MenuItem>
-                                ))}
-                            </Select>
-
-                            {errors.category && (
-                                <span className="MuiFormHelperText-root text-xs text-red-500 ml-4 mt-1">
-                                {errors.category}
-                                </span>
-                            )}
-                            </FormControl>
-
-
-                              <TextField
-                                  type="number"
-                                  name="stock"
-                                  value={editForm.stock}
-                                  onChange={handleFormChange}
-                                  placeholder="Stock"
-                                  className="border rounded px-4 py-2"
-                                  required
-                                  fullWidth
-                                  label="Stock"
-                              />
-                              
-                              {/* Description field with increased height */}
-                              <TextField
-                                  name="description"
-                                  value={editForm.description}
-                                  onChange={handleFormChange}
-                                  placeholder="Description"
-                                  className="border rounded px-4 py-2"
-                                  multiline
-                                  rows={5} // Adjust the number of rows for desired height
-                                  fullWidth
-                                  required
-                                  label="Description"
-                              />
-                              
-                              <div>
-                              <p className="mb-1 ml-1">Change Image:</p>
-                              <FileUpload
-                                  name="image"
-                                  accept="image/*"
-                                  onSelect={handleImageChange}
-                                  className="w-full"
-                                  mode="basic"
-                                  
-                              />
-                              </div>
-                          </div>
-                          
-                          <div className="mt-4 flex gap-2">
-                              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded" disabled={isUpdating}>
-                                  {isUpdating ? "Updating..." : "Save"}
-                              </button>
-                              <button
-                                  type="button" 
-                                  onClick={() => setIsEditing(false)}
-                                  className="bg-gray-500 text-white px-4 py-2 rounded"
-                              >
-                                  Cancel
-                              </button>
-                          </div>
-                      </form>
-                  </td>
-              </tr>
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        disabled={isUpdating}
+                                        startIcon={<SaveIcon />}
+                                        sx={{ textTransform: 'none' }}
+                                    >
+                                        {isUpdating ? "Saving..." : "Save Changes"}
+                                    </Button>
+                                </Box>
+                            </form>
+                        </Paper>
+                    </Collapse>
+                </td>
             ) : (
-                <tr className="bg-white border-b">
-                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                        {id}
-                    </th>
-                    <td className="px-6 py-4">
-                        <Link to={`/product/${data._id}`} className="text-blue-500 hover:underline">
+                <>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {id}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                    <Link 
+                        to={`/product/${data._id}`}
+                        sx={{
+                            color: 'primary.main',
+                            textDecoration: 'none',
+                            fontWeight: 500,
+                            '&:hover': {
+                                textDecoration: 'underline',
+                            }
+                        }}
+                    >
+                        <Typography color="primary" sx={{ fontWeight: 500 }}>
                             {data.name}
-                        </Link>
-                    </td>
-                    <td className="px-6 py-4">&#8377;{data.price}</td>
-                    <td className="px-6 py-4">{data.stock}</td>
-                    <td className="px-6 py-4">
-                        <button onClick={handleEditClick} className="text-blue-500 hover:underline mr-4">
+                        </Typography>
+                    </Link>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                    <Typography sx={{ fontWeight: 500 }}>
+                        ₹{data.price.toFixed(2)}
+                    </Typography>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {data.stock}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button
+                            onClick={handleEditClick}
+                            startIcon={<EditIcon />}
+                            size="small"
+                            sx={{ textTransform: 'none' }}
+                        >
                             Edit
-                        </button>
-                        <button onClick={() => handleDelete(data._id)} className="text-red-500 hover:underline">
+                        </Button>
+                        <Button
+                            onClick={() => handleDelete(data._id)}
+                            startIcon={<DeleteIcon />}
+                            color="error"
+                            size="small"
+                            sx={{ textTransform: 'none' }}
+                        >
                             Delete
-                        </button>
-                    </td>
-                </tr>
-            )}
-        </>
+                        </Button>
+                    </Box>
+                </td>
+            </>
+        )}
+    </tr>
     );
 };
 

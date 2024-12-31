@@ -1,14 +1,25 @@
-import { Button, TextField, Box, CircularProgress } from "@mui/material";
+import { 
+  Button, 
+  TextField, 
+  Box, 
+  CircularProgress, 
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+  Typography
+} from "@mui/material";
 import { useCreateCategoryMutation } from "../../../provider/queries/Category.query";
 import { useState } from "react";
-import { buttonStyles } from "../../../themes/buttonStyles";
-import { toast } from "sonner"; // Import Sonner toast
+import { toast } from "sonner";
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
 
 const AddCategory = () => {
   const [createCategory, { isLoading: isCreatingCategory }] = useCreateCategoryMutation();
-  const [newCategory, setNewCategory] = useState(""); // Category name
-  const [error, setError] = useState(""); // For validation or API errors
-  const [visible, setVisible] = useState(false); // State to manage modal visibility
+  const [newCategory, setNewCategory] = useState("");
+  const [error, setError] = useState("");
+  const [visible, setVisible] = useState(false);
 
   const handleOpenModal = () => {
     setVisible(true); // Open the modal
@@ -47,17 +58,39 @@ const AddCategory = () => {
 
   return (
     <>
-      {/* Modal */}
-      {visible && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
-          <Box
-            className="bg-white p-6 rounded shadow-lg w-[90%] max-w-md relative"
-            component="form"
-            onKeyDown={handleKeyPress} // Allows submission on Enter key press
-          >
-            <h2 className="text-lg font-semibold mb-4">Add New Category</h2>
+      <Dialog 
+        open={visible} 
+        onClose={handleCloseModal}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: { 
+            borderRadius: 2,
+            overflow: 'hidden'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          p: 2,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          bgcolor: 'grey.50'
+        }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Add New Category
+          </Typography>
+          <IconButton onClick={handleCloseModal} size="small">
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
 
-            {/* Category Name Input */}
+        <DialogContent sx={{ p: 3 }}>
+          <Box
+            component="form"
+            onKeyDown={handleKeyPress}
+            sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
+          >
             <TextField
               label="Category Name"
               variant="outlined"
@@ -67,46 +100,61 @@ const AddCategory = () => {
               error={Boolean(error)}
               helperText={error}
               autoFocus
+              sx={{ mt: 1 }}
             />
 
-            {/* Modal Buttons */}
-            <div className="flex justify-end gap-4 mt-6">
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
               <Button
                 variant="outlined"
-                color="secondary"
-                onClick={handleCloseModal} // Close modal
-                sx={{ padding: "8px 20px" }}
+                onClick={handleCloseModal}
+                sx={{ 
+                  px: 3,
+                  py: 1,
+                  textTransform: 'none',
+                  fontWeight: 500
+                }}
               >
                 Cancel
               </Button>
               <Button
                 variant="contained"
-                color="primary"
-                sx={{ padding: "8px 20px" }}
-                disabled={isCreatingCategory}
                 onClick={handleFormSubmit}
+                disabled={isCreatingCategory}
+                sx={{ 
+                  px: 3,
+                  py: 1,
+                  textTransform: 'none',
+                  fontWeight: 500
+                }}
               >
-                {isCreatingCategory ? <CircularProgress size={24} /> : "Submit"}
+                {isCreatingCategory ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  'Add Category'
+                )}
               </Button>
-            </div>
+            </Box>
           </Box>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
-      {/* Add Category Button */}
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button
-          variant="contained"
-          disableElevation
-          color="primary"
-         sx={{
-          ...buttonStyles,
-            }}
-          onClick={handleOpenModal} // Open modal when clicked
-        >
-          Add Category
-        </Button>
-      </div>
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        onClick={handleOpenModal}
+        sx={{
+          textTransform: 'none',
+          fontWeight: 500,
+          px: 2,
+          py: 1,
+          bgcolor: 'primary.main',
+          '&:hover': {
+            bgcolor: 'primary.dark',
+          }
+        }}
+      >
+        Add Category
+      </Button>
     </>
   );
 };
