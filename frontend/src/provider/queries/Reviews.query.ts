@@ -14,7 +14,8 @@ interface Category {
 
 
 interface CreateCategoryDTO {
-  name: string;
+  rating: number;
+  review: string;
 }
 
 interface GetAllCategoryResponse {
@@ -23,85 +24,71 @@ interface GetAllCategoryResponse {
 }
 
 
-export const CategoryApi = createApi({
-  reducerPath: 'CategoryApi',
+export const ReviewApi = createApi({
+  reducerPath: 'ReviewApi',
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000/api" }),
   
-  tagTypes: ['Categories'],
+  tagTypes: ['Reviews'],
   endpoints: (builder) => ({
 
-    // Get all categories with pagination and search
-    getCategories: builder.query<GetAllCategoryResponse, { category: string }>({
-      query: ({ category }) => ({
-        url: `/categories`,
+    // Get all Reviews with pagination and search
+    getReview: builder.query<any, any>({
+      query: (productId ) => ({
+        url: `/reviews`,
         method: 'GET',
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem("token"),
         },
         params: {
-          category,  // Category filter
+          productId,  // Category filter
         },
       }),
-      providesTags: ['Categories'],
+      providesTags: ['Reviews'],
     }),
 
-    // Get a single category
-    getCategoryById: builder.query<Category, string>({
-      query: (id) => ({
-        url: `/categories/${id}`,
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem("token"),
-        },
-      }),
-      providesTags: ['Categories'],
-    }),
 
-    // Create a new category
-    createCategory: builder.mutation<Category, CreateCategoryDTO>({
+    // Create a new review
+    createReview: builder.mutation<any, any>({
       query: (data) => ({
-        url: '/categories',
+        url: '/reviews',
         method: 'POST',
         body: data,
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem("token"),
         },
       }),
-      invalidatesTags: ['Categories'],
+      invalidatesTags: ['Reviews'],
     }),
 
-    // Update an existing category
-    updateCategory: builder.mutation<Category, { id: string; data: Partial<CreateCategoryDTO> }>({
-      query: ({ id, data }) => ({
-        url: `/products/${id}`,
-        method: 'PATCH',
-        body: data,
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem("token"),
-        },
-      }),
-      invalidatesTags: ['Categories'],
-    }),
+    // // Update an existing category
+    // updateCategory: builder.mutation<Category, { id: string; data: Partial<CreateCategoryDTO> }>({
+    //   query: ({ id, data }) => ({
+    //     url: `/products/${id}`,
+    //     method: 'PATCH',
+    //     body: data,
+    //     headers: {
+    //       'Authorization': 'Bearer ' + localStorage.getItem("token"),
+    //     },
+    //   }),
+    //   invalidatesTags: ['Categories'],
+    // }),
 
-    // Delete a category
-    deleteCategory: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/categories/${id}`,
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem("token"),
-        },
-      }),
-      invalidatesTags: ['Categories'],
-    }),
+    // // Delete a category
+    // deleteCategory: builder.mutation<void, string>({
+    //   query: (id) => ({
+    //     url: `/categories/${id}`,
+    //     method: 'DELETE',
+    //     headers: {
+    //       'Authorization': 'Bearer ' + localStorage.getItem("token"),
+    //     },
+    //   }),
+    //   invalidatesTags: ['Categories'],
+    // }),
 
   }),
 });
 
 export const {
-  useGetCategoriesQuery,
-  useGetCategoryByIdQuery,
-  useCreateCategoryMutation,
-  useUpdateCategoryMutation,
-  useDeleteCategoryMutation
-} = CategoryApi;
+  useGetReviewQuery,
+  useCreateReviewMutation
+} = ReviewApi;

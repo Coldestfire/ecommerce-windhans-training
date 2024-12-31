@@ -3,20 +3,22 @@ import 'slick-carousel/slick/slick-theme.css';
 
 import { useParams, Link } from 'react-router-dom';
 import { useGetProductQuery } from '../../provider/queries/Products.query';
-import Rating from '@mui/material/Rating';
+
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { Typography, Button, Box } from '@mui/material';
 import Slider from 'react-slick';  // Importing react-slick Slider component
 import { useState } from 'react';
 import ProductTabs from './components/ProductsTabs';
 import { useGetCategoriesQuery } from '../../provider/queries/Category.query';
+import ProductRating from '../../components/Rating';
 
 function ProductDetails() {
   const { id } = useParams();
-  const [value, setValue] = useState<number | null>(2); 
+
   const [selectedImage, setSelectedImage] = useState<string>(''); // State to store selected image
   const { data: product, error, isLoading } = useGetProductQuery(id);   
   const { data: fetchedCategories } = useGetCategoriesQuery({ category: "" });
+
 
   if (isLoading) {
     return <div className="text-center p-4">Loading...</div>;
@@ -100,7 +102,7 @@ function ProductDetails() {
           </h1>
 
           <div className="flex items-center space-x-2">
-            <Rating name="simple-controlled" value={value} readOnly sx={{ fontSize: '1.2rem' }} />
+            <ProductRating id={id} />
             <span className="text-gray-600 text-sm">({product.product.rating} ratings)</span>
           </div>
 
@@ -120,7 +122,7 @@ function ProductDetails() {
       </div>
 
       <div className="mt-8">
-        <ProductTabs description={product.product.description} reviews={product.product.reviews || []} />
+        <ProductTabs description={product.product.description} reviews={product.product.reviews || []} id={id} />
       </div>
     </div>
   );

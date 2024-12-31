@@ -5,6 +5,7 @@ import { AuthApi } from "./queries/Auth.query.ts";
 import { ProductApi } from "./queries/Products.query.ts";
 import { UserSlice } from "./slice/user.slice.tsx";
 import { CategoryApi } from "./queries/Category.query.ts";
+import { ReviewApi } from "./queries/Reviews.query.ts";
 // import refreshReducer from "./slice/refreshSlice";
 
 export const store = configureStore({
@@ -14,6 +15,7 @@ export const store = configureStore({
         [ProductApi.reducerPath]: ProductApi.reducer,
         [UserSlice.name]: UserSlice.reducer,
         [CategoryApi.reducerPath]: CategoryApi.reducer,
+        [ReviewApi.reducerPath]: ReviewApi.reducer,
         // refresh: refreshReducer,
         
     },
@@ -24,6 +26,7 @@ export const store = configureStore({
         AuthApi.middleware, 
         ProductApi.middleware,
         CategoryApi.middleware,
+        ReviewApi.middleware,
     )
 
 }) 

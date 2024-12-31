@@ -9,10 +9,12 @@ class ReviewController {
         return res.status(201).json(review);
     });
 
-    static  getReviews = CatchAsync(async (req, res) => {
-        const reviews = await ReviewService.getReviews(req.query.review);
+    static getReviews = CatchAsync(async (req, res) => {
+        // Fetch reviews by productId from query params
+        const reviews = await ReviewService.getReviews(req.query.productId); 
         return res.status(200).json(reviews);
     });
+    
 
     // static updateCategory = CatchAsync(async (req, res) => {
     //     const product = await CategoryService.updateById(req.params.id, req.body);

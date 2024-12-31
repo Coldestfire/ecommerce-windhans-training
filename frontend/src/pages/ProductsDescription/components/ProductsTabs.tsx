@@ -1,13 +1,19 @@
 import { Box, Tabs, Tab, Collapse, Typography, Paper, Divider } from '@mui/material';
 import { useState } from 'react';
+import { useGetReviewQuery } from '../../../provider/queries/Reviews.query';
 
 interface ProductTabsProps {
   description: string;
   reviews: string[];
+  id: string;
 }
 
-const ProductTabs: React.FC<ProductTabsProps> = ({ description, reviews }) => {
+const ProductTabs: React.FC<ProductTabsProps> = ({ description, reviews, id }) => {
   const [tabIndex, setTabIndex] = useState(0);
+
+  const { data: Productreviews } = useGetReviewQuery(id);
+  console.log("from ProductTabs: ", Productreviews)
+
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
@@ -54,29 +60,34 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ description, reviews }) => {
           </Collapse>
         )}
 
-        {tabIndex === 1 && (
-          <Collapse in={true}>
-            <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-              <strong className="text-gray-900">Reviews:</strong>
-              {reviews.length > 0 ? (
-                <Box sx={{ mt: 2 }}>
-                  {reviews.map((review, index) => (
-                    <Box key={index} sx={{ mb: 1 }}>
-                      <Divider sx={{ my: 1 }} />
-                      <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-                        "{review}"
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
-              ) : (
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                  No reviews yet.
-                </Typography>
-              )}
-            </Typography>
-          </Collapse>
-        )}
+{tabIndex === 1 && (
+  <Collapse in={true}>
+    <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+      <strong className="text-gray-900">Reviews:</strong>
+      {Productreviews.data.length > 0 ? (
+        <Box sx={{ mt: 2 }}>
+          {Productreviews.data.map((review, index) => (
+            <Box key={index} sx={{ mb: 1 }}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                "{review.review}" {/* This accesses the review text */}
+              </Typography>
+              {/* Optionally display more details about the review */}
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                Rating: {review.rating} stars
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      ) : (
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          No reviews yet.
+        </Typography>
+      )}
+    </Typography>
+  </Collapse>
+)}
+
       </Box>
     </Box>
   );

@@ -1,5 +1,6 @@
-import { Rating, Card, CardContent, CardMedia, Typography, Grid, CardActionArea, Box, Skeleton } from "@mui/material";
+import { Card, CardContent, CardMedia, Typography, Grid, CardActionArea, Box, Skeleton } from "@mui/material";
 import { useGetEveryProductQuery } from "../../provider/queries/Products.query";
+import ProductRating from '../../components/Rating';
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import CardSkeleton from "../../components/CardSkeleton";
@@ -76,9 +77,9 @@ const ProductsLanding = () => {
                 </Typography>
 
                 {/* Rating and Price */}
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", mt: 2 }}>
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", mt: 1 }}>
                   {/* Rating */}
-                  <Rating name="read-only" value={value} readOnly sx={{ fontSize: "1.2rem" }} />
+                 <ProductRating id={product._id} />
 
                   {/* Product Price */}
                   <Typography variant="h6" component="p" sx={{ fontWeight: "bold", mt: 1 }}>

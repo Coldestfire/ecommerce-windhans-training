@@ -18,25 +18,24 @@ class ReviewService {
     }
     
     
-    static async getReviews(id="") {
+    static async getReviews(id = "") {
         try {
-            let filter = {};
-
-            // Apply filter if category name is provided
-            if (id) {
-                filter.productId = { $regex: new RegExp("^" + id + "$", "i") }; // Case-insensitive search
-            }
-
+            // Apply filter only if id is provided
+            const filter = id ? { productId: id } : {};
+    
+            // Query the database with the filter
             const reviews = await ReviewModel.find(filter);
-            const response = {
+    
+            // Return the response
+            return {
                 data: reviews,
             };
-            return response;
-
+    
         } catch (error) {
             throw new Error("Failed to fetch reviews. Please try again.");
         }
     }
+    
     
 
     static async getEveryProduct() {
