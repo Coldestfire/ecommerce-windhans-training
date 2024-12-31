@@ -3,7 +3,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import { useParams, Link } from 'react-router-dom';
 import { useGetProductQuery } from '../../provider/queries/Products.query';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import { Typography, Button, Box, Chip, Divider } from '@mui/material';
+import { Typography, Button, Chip, Divider } from '@mui/material';
 import Slider from 'react-slick';
 import { useState } from 'react';
 import ProductTabs from './components/ProductsTabs';
@@ -13,12 +13,13 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SecurityIcon from '@mui/icons-material/Security';
 import CachedIcon from '@mui/icons-material/Cached';
+import AddReview from './components/AddReview';
 
 function ProductDetails() {
   const { id } = useParams();
 
   const [selectedImage, setSelectedImage] = useState<string>(''); // State to store selected image
-  const { data: product, error, isLoading } = useGetProductQuery(id);   
+  const { data: product, error, isLoading, refetch } = useGetProductQuery(id);   
   const { data: fetchedCategories } = useGetCategoriesQuery({ category: "" });
 
 
@@ -65,6 +66,11 @@ function ProductDetails() {
         }
       }
     ]
+  };
+
+  const handleReviewAdded = () => {
+    // Refetch reviews or update UI as needed
+    refetch();
   };
 
   return (
@@ -123,6 +129,11 @@ function ProductDetails() {
               <span className="text-gray-500">({product.product.rating} reviews)</span>
             </div>
           </div>
+
+          <AddReview 
+            productId={id} 
+            onReviewAdded={handleReviewAdded}
+          />
 
           <Divider />
 
