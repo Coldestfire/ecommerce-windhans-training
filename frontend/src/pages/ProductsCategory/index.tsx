@@ -1,107 +1,174 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetAllProductsQuery } from '../../provider/queries/Products.query';
-import { Grid, Card, CardActionArea, CardMedia, CardContent, Typography, Rating, Box, Button } from '@mui/material';
-import { useState } from 'react';
+import { 
+  Grid, 
+  Card, 
+  CardActionArea, 
+  CardMedia, 
+  CardContent, 
+  Typography, 
+  Box, 
+  Container,
+  IconButton,
+  Button
+} from '@mui/material';
+import ProductRating from '../../components/Rating';
 import CardSkeleton from '../../components/CardSkeleton';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const ProductCategory = () => {
-  const { category } = useParams(); // Get the category from the URL
+  const { category } = useParams();
   const { data, error, isLoading } = useGetAllProductsQuery({ category });
   const navigate = useNavigate();
-  const [value, setValue] = useState<number | null>(2); // Rating value
 
-  // Show loading state
-  if (isLoading) {
-    return (
-        <CardSkeleton />
-    );
-  }
-
-  // Show error message if fetching fails
-  if (error) {
-    return <div className="text-center p-4 text-red-500">{error.message}</div>;
-  }
+  if (isLoading) return <CardSkeleton />;
+  if (error) return <div className="text-center p-4 text-red-500">{error.message}</div>;
 
   return (
-    <>
-      
-      {/* Category title */}
-      <div className="mt-">
-        <div className="mt-6">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-        {category.charAt(0).toUpperCase() + category.slice(1)}
-        </h2>
-      </div>
-      {/* Back Button */}
-      <div>
-          <Button label="Back" icon="pi pi-chevron-left" onClick={() => navigate(-1)}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Header Section */}
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        mb: 4,
+        gap: 2
+      }}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(-1)}
+          sx={{
+            color: 'text.secondary',
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            },
+            textTransform: 'none',
+            fontWeight: 500
+          }}
+        >
           Back
         </Button>
-      </div>
-      
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          sx={{ 
+            fontWeight: 'bold',
+            color: '#1a237e',
+            flex: 1,
+            textAlign: 'center'
+          }}
+        >
+          {category.charAt(0).toUpperCase() + category.slice(1)}
+        </Typography>
+        <Box sx={{ width: 100 }} /> {/* Spacer for alignment */}
+      </Box>
 
-        {/* If no products, show a "No products" message */}
-        {data?.data?.length === 0 ? (
-          <Typography variant="h6" color="textSecondary" align="center">
-            No products available in this category.
-          </Typography>
-        ) : (
-          <Grid container spacing={4} justifyContent="flex-start" sx={{ mt: 4, px: 2 }}>
-            {data?.data?.map((product) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
-                <Card
-                  sx={{
+      {data?.data?.length === 0 ? (
+        <Typography variant="h6" color="textSecondary" align="center">
+          No products available in this category.
+        </Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {data?.data?.map((product) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+              <Card
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
+                  },
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                }}
+              >
+                <CardActionArea onClick={() => navigate(`/product/${product._id}`)}>
+                  <CardMedia
+                    component="img"
+                    image={product.images[0]}
+                    alt={product.name}
+                    sx={{
+                      height: 200,
+                      objectFit: 'contain',
+                      backgroundColor: '#f5f5f5',
+                      p: 2
+                    }}
+                  />
+                </CardActionArea>
+
+                <CardContent 
+                  sx={{ 
+                    p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: '100%',
-                    transition: 'transform 0.3s ease-in-out',
-                    '&:hover': {
-                      transform: 'scale(1.05)', // Slight zoom on hover for a better effect
-                      boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-                    },
+                    gap: 1,
+                    height: '180px',
                   }}
                 >
-                  <CardActionArea onClick={() => navigate(`/product/${product._id}`)} sx={{ height: '100%' }}>
-                    {/* Product Image */}
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={product.images[0]}
-                      
-                      alt={product.name}
-                      sx={{
-                        objectFit: 'contain',
-                        borderRadius: 2,
-                        transition: 'transform 0.3s ease-in-out',
-                        height: "200px", // Maintain the fixed height
-                        width: "100%", // Ensure image takes full width
+                  <Box sx={{ 
+                    minHeight: '48px',
+                    maxHeight: '48px',
+                    mb: 1
+                  }}>
+                    <Typography 
+                      variant="h6" 
+                      sx={{ 
+                        fontWeight: 600,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        lineHeight: '1.2',
+                        fontSize: '1rem'
                       }}
-                    />
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      {/* Product Name */}
-                      <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: '#333' }}>
-                        {product.name}
-                      </Typography>
+                    >
+                      {product.name}
+                    </Typography>
+                  </Box>
 
-                      {/* Rating and Price */}
-                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mt: 2 }}>
-                        {/* Rating */}
-                        <Rating name="read-only" value={value} readOnly sx={{ fontSize: '1.2rem' }} />
-                        
-                        {/* Product Price */}
-                        <Typography variant="h6" component="p" sx={{ fontWeight: 'bold', mt: 1 }}>
-                          &#8377;{product.price.toFixed(2)}
-                        </Typography>
-                      </Box>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
-      </div>
-    </>
+                  <Box sx={{ height: '24px', display: 'flex', alignItems: 'center' }}>
+                    <ProductRating id={product._id} />
+                  </Box>
+
+                  <Box sx={{ height: '32px', display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
+                      ₹{product.price.toFixed(2)}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ 
+                    height: '40px',
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mt: 'auto'
+                  }}>
+                    <IconButton 
+                      color="primary" 
+                      size="small"
+                      sx={{ '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' } }}
+                    >
+                      <ShoppingCartIcon />
+                    </IconButton>
+                    <IconButton 
+                      size="small"
+                      sx={{ '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.04)' } }}
+                    >
+                      <FavoriteIcon color="error" />
+                    </IconButton>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+    </Container>
   );
 };
 

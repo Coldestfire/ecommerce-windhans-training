@@ -84,5 +84,21 @@
   body {
     @apply bg-background text-foreground;
     }
+} */
+  
+.product-thumbnails .slick-slide {
+  padding: 4px;
 }
-   */
+
+.product-thumbnails .slick-current img {
+  border-color: #3b82f6;
+  border-width: 2px;
+}
+
+@media (max-width: 768px) {
+  .product-thumbnails {
+    max-width: 100%;
+    margin-top: 1rem;
+  }
+}
+  

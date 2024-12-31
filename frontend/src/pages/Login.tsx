@@ -1,9 +1,10 @@
 import { ErrorMessage, Field, Formik } from 'formik'
-import { Button, TextField, Typography, Box, Container } from '@mui/material'
+import { Button, TextField, Typography, Box, Container, Paper } from '@mui/material'
 import { Link, useNavigate } from 'react-router-dom'
 import * as yup from 'yup'
 import { useLoginUserMutation } from '../provider/queries/Auth.query.ts'
 import { toast } from 'sonner'
+import LoginIcon from '@mui/icons-material/Login';
 
 const Login = () => {
   const [LoginUser, LoginUserResponse] = useLoginUserMutation()
@@ -54,93 +55,137 @@ const Login = () => {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ height: '70vh' }}>
-      <Box
+    <Container maxWidth="sm" sx={{ 
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      py: 4
+    }}>
+      <Paper
+        elevation={3}
         sx={{
+          width: '100%',
+          p: { xs: 3, sm: 4 },
+          borderRadius: 2,
+          bgcolor: 'background.paper',
+        }}
+      >
+        <Box sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '10vh',
-          backgroundColor: '#f5f5f5',
-          padding: 2,
-          borderRadius: 2,
-          boxShadow: 3,
-          marginTop: 25
-        }}
-      >
-        <Typography variant="h3" gutterBottom align="center">
-          Login
-        </Typography>
+          gap: 2
+        }}>
+          <LoginIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+          <Typography 
+            variant="h4" 
+            gutterBottom 
+            sx={{ 
+              fontWeight: 700,
+              color: 'primary.main',
+              mb: 3
+            }}
+          >
+            Login
+          </Typography>
 
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={OnSubmitHandler}
-        >
-          {({ values, handleSubmit }) => (
-            <form
-              onSubmit={handleSubmit}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-                width: '100%',
-                marginTop: '20px'
-              }}
-            >
-              <Field
-                name="email"
-                type="email"
-                as={TextField}
-                label="Email"
-                variant="outlined"
-                fullWidth
-                required
-                helperText={<ErrorMessage name="email" />}
-                error={!!values.email && !!values.email.length === 0}
-              />
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={OnSubmitHandler}
+          >
+            {({ values, handleSubmit }) => (
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  width: '100%',
+                }}
+              >
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                  <Field
+                    name="email"
+                    type="email"
+                    as={TextField}
+                    label="Email"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    helperText={<ErrorMessage name="email" />}
+                    error={!!values.email && !!values.email.length === 0}
+                  />
 
-              <Field
-                name="password"
-                type="password"
-                as={TextField}
-                label="Password"
-                variant="outlined"
-                fullWidth
-                required
-                helperText={<ErrorMessage name="password" />}
-                error={!!values.password && !!values.password.length === 0}
-              />
+                  <Field
+                    name="password"
+                    type="password"
+                    as={TextField}
+                    label="Password"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    helperText={<ErrorMessage name="password" />}
+                    error={!!values.password && !!values.password.length === 0}
+                  />
 
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  fullWidth
-                  disabled={LoginUserResponse.isLoading}
-                >
-                  {LoginUserResponse.isLoading ? 'Submitting...' : 'Submit'}
-                </Button>
-              </Box>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    fullWidth
+                    disabled={LoginUserResponse.isLoading}
+                    sx={{
+                      py: 1.5,
+                      mt: 1,
+                      textTransform: 'none',
+                      fontSize: '1rem',
+                      fontWeight: 500,
+                      boxShadow: 'none',
+                      '&:hover': {
+                        boxShadow: 'none',
+                      }
+                    }}
+                  >
+                    {LoginUserResponse.isLoading ? 'Logging in...' : 'Login'}
+                  </Button>
 
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Typography variant="body2">
-                  Don't have an account?{' '}
-                  <Link to="/register" style={{ textDecoration: 'none' }}>
-                    <Typography variant="body2" color="primary" component="span">
-                      Register
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    mt: 2 
+                  }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Don't have an account?{' '}
+                      <Link 
+                        to="/register" 
+                        style={{ 
+                          textDecoration: 'none',
+                          color: 'inherit'
+                        }}
+                      >
+                        <Typography 
+                          variant="body2" 
+                          component="span"
+                          sx={{ 
+                            color: 'primary.main',
+                            fontWeight: 500,
+                            '&:hover': {
+                              textDecoration: 'underline'
+                            }
+                          }}
+                        >
+                          Register
+                        </Typography>
+                      </Link>
                     </Typography>
-                  </Link>
-                </Typography>
-              </Box>
-            </form>
-          )}
-        </Formik>
-      </Box>
+                  </Box>
+                </Box>
+              </form>
+            )}
+          </Formik>
+        </Box>
+      </Paper>
     </Container>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

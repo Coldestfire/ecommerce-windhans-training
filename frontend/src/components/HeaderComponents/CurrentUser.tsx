@@ -1,11 +1,32 @@
 import React, { useState } from 'react';
 import { useGetProfileQuery } from "../../provider/queries/Auth.query";
-import { CircularProgress, Paper, Typography, Box, Popover, Button, Avatar } from "@mui/material";
-import LogoutButton from "./LogoutButton"; // Assuming you have this component
+import { 
+  CircularProgress, 
+  Paper, 
+  Typography, 
+  Box, 
+  Popover, 
+  Avatar,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  IconButton,
+  Badge
+} from "@mui/material";
+import LogoutButton from "./LogoutButton";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import SettingsIcon from '@mui/icons-material/Settings';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import { useNavigate } from 'react-router-dom';
 
 const CurrentUser = () => {
     const { data, isLoading } = useGetProfileQuery({});
     const [anchorEl, setAnchorEl] = useState(null);
+    const navigate = useNavigate();
 
     const handlePopoverOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -16,65 +37,99 @@ const CurrentUser = () => {
     };
 
     const open = Boolean(anchorEl);
-    const id = open ? 'simple-popover' : undefined;
+    const id = open ? 'user-popover' : undefined;
 
     if (isLoading) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                <CircularProgress size={24} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1 }}>
+                <CircularProgress size={20} thickness={4} />
             </Box>
         );
     }
 
     return (
-        <Box display="flex" justifyContent="center" alignItems="center" >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* Action Icons */}
+            <Box sx={{ display: 'flex', gap: 1 }}>
+                <IconButton size="small" color="primary">
+                    <Badge badgeContent={3} color="error">
+                        <NotificationsIcon />
+                    </Badge>
+                </IconButton>
+                <IconButton size="small" color="primary">
+                    <Badge badgeContent={2} color="error">
+                        <ShoppingCartIcon />
+                    </Badge>
+                </IconButton>
+                <IconButton size="small" color="primary">
+                    <Badge badgeContent={1} color="error">
+                        <FavoriteIcon />
+                    </Badge>
+                </IconButton>
+            </Box>
+
+            <Divider orientation="vertical" flexItem />
+
+            {/* User Profile Button */}
             <Paper 
-                elevation={3} 
+                elevation={0} 
                 sx={{
-                    padding: '8px 16px',  // Adjust padding to remove unnecessary right padding
-                    paddingRight: 0,  // Remove right padding
+                    padding: '6px 12px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
-                    borderRadius: '30px',
-                    width: '250px',
-                    boxShadow: 4,
+                    gap: 1.5,
+                    borderRadius: '40px',
                     cursor: 'pointer',
+                    transition: 'all 0.2s ease-in-out',
+                    backgroundColor: 'transparent',
+                    border: '1px solid',
+                    borderColor: 'divider',
                     '&:hover': {
-                        boxShadow: 6,
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        transform: 'translateY(-1px)',
                     }
                 }}
-                onClick={handlePopoverOpen}  // Open popover when clicking anywhere in the Paper
+                onClick={handlePopoverOpen}
             >
-                <Box display="flex" alignItems="center" gap={1}>
-                    <Typography variant="body2" color="textSecondary" fontWeight={500}>
-                        Logged in as
-                    </Typography>
-
-                    <Typography variant="subtitle2" color="primary" fontWeight={600}>
-                        {data?.user?.name}
-                    </Typography>
-
-                    <Avatar
-                        alt="User Avatar"
-                        src={data?.user?.avatar || '/broken-image.jpg'}  // Use actual avatar if available
-                        sx={{
-                            width: 32, 
-                            height: 32,  // Size of the avatar
-                            fontSize: 14,  // Adjust the letter size inside the avatar
-                            display: 'flex',  // Ensure the content is centered
-                            alignItems: 'center',  // Vertically center the letter
-                            justifyContent: 'center',  // Horizontally center the letter
-                            padding: 0,  // Remove any default padding
+                <Avatar
+                    alt={data?.user?.name}
+                    src={data?.user?.avatar}
+                    sx={{
+                        width: 32,
+                        height: 32,
+                        bgcolor: 'primary.main',
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        border: '2px solid',
+                        borderColor: 'primary.main'
+                    }}
+                >
+                    {data?.user?.name?.charAt(0).toUpperCase()}
+                </Avatar>
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                    <Typography 
+                        variant="subtitle2" 
+                        sx={{ 
+                            fontWeight: 600,
+                            color: 'text.primary',
+                            lineHeight: 1.2
                         }}
                     >
-                        R
-                    </Avatar>
+                        {data?.user?.name}
+                    </Typography>
+                    <Typography 
+                        variant="caption" 
+                        sx={{ 
+                            color: 'text.secondary',
+                            fontSize: '0.7rem'
+                        }}
+                    >
+                        {data?.user?.email}
+                    </Typography>
                 </Box>
             </Paper>
 
-
-
+            {/* Dropdown Menu */}
             <Popover
                 id={id}
                 open={open}
@@ -82,23 +137,87 @@ const CurrentUser = () => {
                 onClose={handlePopoverClose}
                 anchorOrigin={{
                     vertical: 'bottom',
-                    horizontal: 'center',
+                    horizontal: 'right',
                 }}
                 transformOrigin={{
                     vertical: 'top',
-                    horizontal: 'center',
-                }
-            }
+                    horizontal: 'right',
+                }}
+                PaperProps={{
+                    elevation: 4,
+                    sx: {
+                        mt: 1.5,
+                        borderRadius: 2,
+                        minWidth: 220,
+                        overflow: 'hidden'
+                    }
+                }}
             >
-                <Box sx={{
-                    padding: 1,
-                    minWidth: '180px',
-                    backgroundColor: '#f4f6f8',
-                    borderRadius: '10px',
+                {/* User Info Header */}
+                <Box sx={{ 
+                    p: 2, 
+                    bgcolor: 'primary.main', 
+                    color: 'white'
                 }}>
-                    <LogoutButton />
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        {data?.user?.name}
+                    </Typography>
+                    <Typography variant="caption">
+                        {data?.user?.email}
+                    </Typography>
                 </Box>
-                
+
+                <List sx={{ p: 1 }}>
+                    <ListItem 
+                        button 
+                        onClick={() => navigate('/profile')}
+                        sx={{ 
+                            borderRadius: 1,
+                            '&:hover': { bgcolor: 'action.hover' }
+                        }}
+                    >
+                        <ListItemIcon>
+                            <AccountCircleIcon color="primary" />
+                        </ListItemIcon>
+                        <ListItemText 
+                            primary="Profile" 
+                            primaryTypographyProps={{ 
+                                variant: 'body2',
+                                fontWeight: 500
+                            }} 
+                        />
+                    </ListItem>
+                    <ListItem 
+                        button 
+                        onClick={() => navigate('/settings')}
+                        sx={{ 
+                            borderRadius: 1,
+                            '&:hover': { bgcolor: 'action.hover' }
+                        }}
+                    >
+                        <ListItemIcon>
+                            <SettingsIcon color="primary" />
+                        </ListItemIcon>
+                        <ListItemText 
+                            primary="Settings" 
+                            primaryTypographyProps={{ 
+                                variant: 'body2',
+                                fontWeight: 500
+                            }} 
+                        />
+                    </ListItem>
+                    <Divider sx={{ my: 1 }} />
+                    <ListItem sx={{ p: 1 }}>
+                        <LogoutButton 
+                            fullWidth 
+                            sx={{
+                                borderRadius: '8px',
+                                textTransform: 'none',
+                                py: 1
+                            }}
+                        />
+                    </ListItem>
+                </List>
             </Popover>
         </Box>
     );

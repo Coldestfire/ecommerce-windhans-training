@@ -70,7 +70,7 @@ function App() {
        <QueryClientProvider client={queryClient}>
         
       {/* Conditionally render Header or AdminHeader based on the current path */}
-      {excludeHeaderPaths.includes(location.pathname) ? <AdminHeader /> : <Header />}
+      {/* {excludeHeaderPaths.includes(location.pathname) ? <AdminHeader /> : <Header />} */}
 
        <MainLayout>
 

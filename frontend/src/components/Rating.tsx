@@ -1,42 +1,86 @@
 import Rating from '@mui/material/Rating';
 import { useGetReviewQuery } from '../provider/queries/Reviews.query';
+import { Box, Skeleton, Typography } from '@mui/material';
+import StarIcon from '@mui/icons-material/Star';
 
 interface ProductRatingProps {
-  id: string; // Define props explicitly
+  id: string;
+  showCount?: boolean;
 }
 
-const ProductRating: React.FC<ProductRatingProps> = ({ id }) => {
-  console.log("from ProductRating: ", id);
-
-  // Fetch reviews
+const ProductRating: React.FC<ProductRatingProps> = ({ id, showCount = false }) => {
   const { data: reviews, error: reviewsError, isLoading: reviewsLoading } = useGetReviewQuery(id);
 
-  console.log("from ProductRating array of reviews: ", reviews);
-
-  // Handle loading state
+  // Handle loading state with skeleton
   if (reviewsLoading) {
-    return <div className="text-center p-4">Loading reviews...</div>;
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Skeleton variant="rounded" width={120} height={24} />
+        {showCount && <Skeleton variant="text" width={60} />}
+      </Box>
+    );
   }
 
-  // Handle error state
-  if (reviewsError || !reviews || !reviews.data || reviews.data.length === 0) {
-    return <div className="text-center p-1 text-red-500">No reviews</div>;
+  // Handle error or no reviews state
+  if (reviewsError || !reviews?.data?.length) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 1,
+        color: 'text.secondary'
+      }}>
+        <Rating
+          name="no-rating"
+          value={0}
+          readOnly
+          emptyIcon={<StarIcon style={{ opacity: 0.3 }} fontSize="inherit" />}
+          sx={{ 
+            fontSize: '1.2rem',
+            opacity: 0.7
+          }}
+        />
+        {showCount && (
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            No reviews yet
+          </Typography>
+        )}
+      </Box>
+    );
   }
 
-  // Calculate average rating safely
-  const avgRating =
-    reviews.data.reduce((acc: number, curr: { rating: number }) => acc + curr.rating, 0) /
-    reviews.data.length;
-
-  console.log("from ProductRating avgRating: ", avgRating);
+  // Calculate average rating
+  const avgRating = reviews.data.reduce((acc: number, curr: { rating: number }) => acc + curr.rating, 0) / reviews.data.length;
 
   return (
-    <Rating
-      name="simple-controlled"
-      value={avgRating || 0} // Default to 0 if no rating
-      readOnly
-      sx={{ fontSize: '1.2rem' }}
-    />
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Rating
+        name="product-rating"
+        value={avgRating}
+        precision={0.5}
+        readOnly
+        sx={{ 
+          fontSize: '1.2rem',
+          '& .MuiRating-iconFilled': {
+            color: '#faaf00',
+          },
+          '& .MuiRating-iconHover': {
+            color: '#faaf00',
+          }
+        }}
+      />
+      {showCount && (
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: 'text.secondary',
+            fontSize: '0.875rem'
+          }}
+        >
+          ({reviews.data.length})
+        </Typography>
+      )}
+    </Box>
   );
 };
 

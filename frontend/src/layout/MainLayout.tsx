@@ -1,40 +1,54 @@
-import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
-
 import { Link } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Box, Container, Divider } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import CurrentUser from '../components/HeaderComponents/CurrentUser';
+import CategoryList from '../components/HeaderComponents/categoryList';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
-
   return (
     <>
-      <div className="flex bg-primary">
-        {/* Sidebar with full height and background color */}
-        <Sidebar
-          className="h-full text-black bg-slate-300 w-[20%]" // Changed from "h-screen" to "h-full"
-          style={{ height: '90vh', overflowY: 'auto' }} // Added inline styles
-        >
-          
-          <Menu>
-                  {/* Menu items */}
-            <MenuItem
-              component={<Link to="/home" />}
-            >
-              Home page
-            </MenuItem>
-
-        
-            <MenuItem
-              component={<Link to="/admin" />}
-            >
-
-              Products List
-            </MenuItem>
-    
-          </Menu>
-        </Sidebar>
-
-        {/* Main content area */}
-        <div className="w-full">{children}</div>
-      </div>
+      <AppBar position="sticky" sx={{ backgroundColor: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+        <Container maxWidth="xl">
+          <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 1, sm: 2 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Button
+                component={Link}
+                to="/home"
+                startIcon={<HomeIcon />}
+                sx={{
+                  color: 'text.primary',
+                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
+                  textTransform: 'none',
+                  fontWeight: 500
+                }}
+              >
+                Home
+              </Button>
+              <Divider orientation="vertical" flexItem sx={{ height: 24, my: 'auto' }} />
+              <CategoryList />
+              <Divider orientation="vertical" flexItem sx={{ height: 24, my: 'auto' }} />
+              <Button
+                component={Link}
+                to="/admin"
+                startIcon={<AdminPanelSettingsIcon />}
+                sx={{
+                  color: 'text.primary',
+                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
+                  textTransform: 'none',
+                  fontWeight: 500
+                }}
+              >
+                Admin
+              </Button>
+            </Box>
+            <CurrentUser />
+          </Toolbar>
+        </Container>
+      </AppBar>
+      <Box component="main" sx={{ minHeight: 'calc(100vh - 64px)', bgcolor: '#f5f7fa' }}>
+        {children}
+      </Box>
     </>
   );
 };

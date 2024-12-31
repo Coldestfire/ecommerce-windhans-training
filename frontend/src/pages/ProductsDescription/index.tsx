@@ -1,16 +1,18 @@
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-
 import { useParams, Link } from 'react-router-dom';
 import { useGetProductQuery } from '../../provider/queries/Products.query';
-
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import { Typography, Button, Box } from '@mui/material';
-import Slider from 'react-slick';  // Importing react-slick Slider component
+import { Typography, Button, Box, Chip, Divider } from '@mui/material';
+import Slider from 'react-slick';
 import { useState } from 'react';
 import ProductTabs from './components/ProductsTabs';
 import { useGetCategoriesQuery } from '../../provider/queries/Category.query';
 import ProductRating from '../../components/Rating';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import SecurityIcon from '@mui/icons-material/Security';
+import CachedIcon from '@mui/icons-material/Cached';
 
 function ProductDetails() {
   const { id } = useParams();
@@ -40,38 +42,57 @@ function ProductDetails() {
 
   // Slider settings for vertical carousel
   const sliderSettings = {
-    vertical: true, // Enables vertical mode
-    dots: false, // Optional: show navigation dots
-    infinite: true,
+    vertical: true,
+    dots: false,
+    infinite: false,
     speed: 500,
-    slidesToShow: 4, // Number of images visible at a time
-    slidesToScroll: 1, // Scroll one image at a time
+    slidesToShow: 3,
+    slidesToScroll: 1,
     initialSlide: 0,
-    focusOnSelect: true, // Allows clicking on image to select it
+    focusOnSelect: true,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+        }
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          vertical: false,
+          slidesToShow: 4,
+        }
+      }
+    ]
   };
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Breadcrumbs aria-label="breadcrumb" className="mb-6 pl-3">
-        <Link to="/home" className="text-gray-600 hover:text-blue-600">Home</Link>
-        <Link to={`/category/${categoryDetails?.name}`} className="text-gray-600 hover:text-blue-600">
+    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-50">
+      {/* Breadcrumbs with enhanced styling */}
+      <Breadcrumbs aria-label="breadcrumb" className="mb-8 pl-3 bg-white p-4 rounded-lg shadow-sm">
+        <Link to="/home" className="text-gray-600 hover:text-blue-600 transition-colors">
+          Home
+        </Link>
+        <Link to={`/category/${categoryDetails?.name}`} className="text-gray-600 hover:text-blue-600 transition-colors">
           {categoryDetails?.name}
         </Link>
-        <Typography color="textPrimary" className="text-gray-800">
+        <Typography color="textPrimary" className="text-gray-800 font-medium">
           {product.product.name}
         </Typography>
       </Breadcrumbs>
 
-      <div className="flex flex-col lg:flex-row gap-3 bg-white rounded-lg shadow-xl p-6">
-        {/* Small Images List Section - Vertical Carousel */}
-        <div className="w-full lg:w-1/6">
-          <Slider {...sliderSettings}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white rounded-xl shadow-lg p-8">
+        {/* Thumbnail Carousel */}
+        <div className="lg:col-span-2 order-2 lg:order-1">
+          <Slider {...sliderSettings} className="product-thumbnails">
             {product.product.images.map((img, index) => (
-              <div key={index}>
+              <div key={index} className="p-2">
                 <img
                   src={img}
                   alt={`product-thumbnail-${index}`}
-                  className="w-32 h-32 object-cover cursor-pointer rounded-md hover:border-4 hover:border-blue-600"
+                  className={`w-full aspect-square object-cover cursor-pointer rounded-lg transition-all
+                    ${selectedImage === img ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-300'}`}
                   onClick={() => setSelectedImage(img)}
                 />
               </div>
@@ -79,50 +100,98 @@ function ProductDetails() {
           </Slider>
         </div>
 
-        {/* Main Image Display */}
-        <div className="flex justify-center items-center w-full lg:w-5/6">
-          <img
-            src={selectedImage}
-            alt="Selected Product"
-            className="object-contain rounded-lg shadow-lg"
-            style={{
-              // You can adjust these values as per your needs
-              width: '100%', // Adjust width (100% means the image will scale to the full width of the container)
-              height: 'auto', // This ensures the aspect ratio is maintained
-              maxWidth: '100%', // This ensures the image doesn't overflow horizontally
-              maxHeight: '600px', // Adjust the maximum height (change as per desired size)
-            }}
-          />
+        {/* Main Image */}
+        <div className="lg:col-span-6 order-1 lg:order-2">
+          <div className="bg-white rounded-xl p-4 flex items-center justify-center">
+            <img
+              src={selectedImage}
+              alt="Selected Product"
+              className="object-contain rounded-lg transition-opacity duration-300"
+              style={{ maxHeight: '500px', width: '100%' }}
+            />
+          </div>
         </div>
 
-        {/* Product Details Section */}
-        <div className="flex flex-col space-y-6 w-full lg:w-1/2">
-          <h1 className="text-4xl font-extrabold text-gray-900 hover:text-gray-700 transition duration-300">
-            {product.product.name}
-          </h1>
-
-          <div className="flex items-center space-x-2">
-            <ProductRating id={id} />
-            <span className="text-gray-600 text-sm">({product.product.rating} ratings)</span>
+        {/* Product Details */}
+        <div className="lg:col-span-4 order-3 space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {product.product.name}
+            </h1>
+            <div className="flex items-center gap-4 mb-4">
+              <ProductRating id={id} />
+              <span className="text-gray-500">({product.product.rating} reviews)</span>
+            </div>
           </div>
 
-          <p className="text-2xl font-semibold text-gray-800 mt-4">
-            <strong className="font-bold">Price:</strong> &#8377;{product.product.price.toFixed(2)}
-          </p>
+          <Divider />
 
-          <Box className="flex gap-4 mt-4">
-            <Button variant="contained" color="primary" sx={{ flex: 1 }}>
-              Buy Now
-            </Button>
-            <Button variant="outlined" color="primary" sx={{ flex: 1 }}>
-              Add to Cart
-            </Button>
-          </Box>
+          <div className="space-y-4">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold text-blue-600">
+                ₹{product.product.price.toFixed(2)}
+              </span>
+              <Chip label="Free Delivery" color="success" size="small" />
+            </div>
+
+            <div className="flex gap-4">
+              <Button 
+                variant="contained" 
+                color="primary" 
+                size="large"
+                startIcon={<ShoppingCartIcon />}
+                fullWidth
+                sx={{ 
+                  py: 1.5,
+                  textTransform: 'none',
+                  fontSize: '1.1rem'
+                }}
+              >
+                Add to Cart
+              </Button>
+              <Button 
+                variant="outlined" 
+                color="primary"
+                size="large"
+                fullWidth
+                sx={{ 
+                  py: 1.5,
+                  textTransform: 'none',
+                  fontSize: '1.1rem'
+                }}
+              >
+                Buy Now
+              </Button>
+            </div>
+          </div>
+
+          <Divider />
+
+          {/* Product Features */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-2 text-gray-600">
+              <LocalShippingIcon />
+              <span>Free Delivery</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <SecurityIcon />
+              <span>Secure Payment</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <CachedIcon />
+              <span>Easy Returns</span>
+            </div>
+          </div>
         </div>
       </div>
 
+      {/* Product Tabs */}
       <div className="mt-8">
-        <ProductTabs description={product.product.description} reviews={product.product.reviews || []} id={id} />
+        <ProductTabs 
+          description={product.product.description} 
+          reviews={product.product.reviews || []} 
+          id={id} 
+        />
       </div>
     </div>
   );
