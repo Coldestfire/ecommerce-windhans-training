@@ -1,4 +1,4 @@
-import { Card, CardContent, CardMedia, Typography, Grid, CardActionArea, Box, Skeleton } from "@mui/material";
+import { Card, CardContent, CardMedia, Typography, Grid, CardActionArea, Box } from "@mui/material";
 import { useGetEveryProductQuery } from "../../provider/queries/Products.query";
 import ProductRating from '../../components/Rating';
 import { useNavigate } from "react-router-dom";
@@ -22,10 +22,6 @@ const ProductsLanding = () => {
     return <div className="text-center p-4 text-red-500">{error.message}</div>;
   }
 
-  data?.data?.map((product: any) => {
-    console.log("product: ", product.images[0]);
-  });
-
   // Render product details once the data is available
   return (
     <Grid
@@ -46,6 +42,7 @@ const ProductsLanding = () => {
                 transform: "scale(1.05)",
                 boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
               },
+              boxShadow: 2, // Adding a subtle shadow to the card
             }}
           >
             <CardActionArea
@@ -77,15 +74,16 @@ const ProductsLanding = () => {
                 </Typography>
 
                 {/* Rating and Price */}
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", mt: 1 }}>
-                  {/* Rating */}
-                 <ProductRating id={product._id} />
+                <div className="flex flex-col items-start mt-1 ml-10">
+                {/* Rating */}
+                <ProductRating id={product._id} />
+                
+                {/* Product Price */}
+                <p className="text-lg font-bold mt-1">
+                  &#8377;{product.price.toFixed(2)}
+                </p>
+              </div>
 
-                  {/* Product Price */}
-                  <Typography variant="h6" component="p" sx={{ fontWeight: "bold", mt: 1 }}>
-                    &#8377;{product.price.toFixed(2)}
-                  </Typography>
-                </Box>
               </CardContent>
             </CardActionArea>
           </Card>

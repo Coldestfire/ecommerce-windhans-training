@@ -20,7 +20,7 @@ const ProductRating: React.FC<ProductRatingProps> = ({ id }) => {
 
   // Handle error state
   if (reviewsError || !reviews || !reviews.data || reviews.data.length === 0) {
-    return <div className="text-center p-4 text-red-500">No reviews available</div>;
+    return <div className="text-center p-1 text-red-500">No reviews</div>;
   }
 
   // Calculate average rating safely
