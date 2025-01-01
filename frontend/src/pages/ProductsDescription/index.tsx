@@ -45,12 +45,18 @@ function ProductDetails() {
   const sliderSettings = {
     vertical: true,
     dots: false,
-    infinite: false,
+    infinite: true,
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 1,
-    initialSlide: 0,
+    centerMode: true,
+    centerPadding: '0px',
     focusOnSelect: true,
+    mouseWheel: true,
+    beforeChange: (current: number, next: number) => {
+      const newSelectedImage = product.product.images[next];
+      setSelectedImage(newSelectedImage);
+    },
     responsive: [
       {
         breakpoint: 1024,
@@ -62,7 +68,8 @@ function ProductDetails() {
         breakpoint: 768,
         settings: {
           vertical: false,
-          slidesToShow: 4,
+          slidesToShow: 3,
+          centerMode: true,
         }
       }
     ]
@@ -126,7 +133,7 @@ function ProductDetails() {
             </h1>
             <div className="flex items-center gap-4 mb-4">
               <ProductRating id={id} />
-              <span className="text-gray-500">({product.product.rating} reviews)</span>
+              <span className="text-gray-500">{product.product.rating}</span>
             </div>
           </div>
 

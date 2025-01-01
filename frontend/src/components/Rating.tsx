@@ -40,11 +40,9 @@ const ProductRating: React.FC<ProductRatingProps> = ({ id, showCount = false }) 
             opacity: 0.7
           }}
         />
-        {showCount && (
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            No reviews yet
-          </Typography>
-        )}
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          (0 reviews)
+        </Typography>
       </Box>
     );
   }
@@ -69,17 +67,15 @@ const ProductRating: React.FC<ProductRatingProps> = ({ id, showCount = false }) 
           }
         }}
       />
-      {showCount && (
-        <Typography 
-          variant="body2" 
-          sx={{ 
-            color: 'text.secondary',
-            fontSize: '0.875rem'
-          }}
-        >
-          ({reviews.data.length})
-        </Typography>
-      )}
+      <Typography 
+        variant="body2" 
+        sx={{ 
+          color: 'text.secondary',
+          fontSize: '0.875rem'
+        }}
+      >
+        ({reviews.data.length} {reviews.data.length === 1 ? 'review' : 'reviews'})
+      </Typography>
     </Box>
   );
 };

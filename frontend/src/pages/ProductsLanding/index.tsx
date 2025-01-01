@@ -6,6 +6,7 @@ import CardSkeleton from "../../components/CardSkeleton";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import IconButton from '@mui/material/IconButton';
+import NewProductsCarousel from './components/NewProductsCarousel';
 
 const ProductsLanding = () => {
   const { data, error, isLoading } = useGetEveryProductQuery({});
@@ -14,8 +15,13 @@ const ProductsLanding = () => {
   if (isLoading) return <CardSkeleton />;
   if (error) return <div className="text-center p-4 text-red-500">{error.message}</div>;
 
+  // Get the 3 newest products
+  const newestProducts = data?.data?.slice(0, 3) || [];
+
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <NewProductsCarousel products={newestProducts} />
+
       <Typography 
         variant="h4" 
         component="h1" 
@@ -26,7 +32,7 @@ const ProductsLanding = () => {
           textAlign: { xs: 'center', md: 'left' }
         }}
       >
-        Featured Products
+        Latest Products
       </Typography>
 
       <Grid container spacing={3}>
