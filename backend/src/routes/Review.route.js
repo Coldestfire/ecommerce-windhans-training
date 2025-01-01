@@ -9,8 +9,8 @@ router.use(Authentication);
 
 
 router.post('/', ReviewController.createReview); 
-// router.patch('/:id', CategoryController.updateCategory); 
-// router.delete('/:id', CategoryController.deleteCategory); 
+router.patch('/:id', ReviewController.updateReview); 
+router.delete('/:id', ReviewController.deleteReview); 
 
 
 module.exports = router;

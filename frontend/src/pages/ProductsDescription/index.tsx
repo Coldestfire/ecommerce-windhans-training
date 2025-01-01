@@ -13,7 +13,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SecurityIcon from '@mui/icons-material/Security';
 import CachedIcon from '@mui/icons-material/Cached';
-import AddReview from './components/AddReview';
+import ReviewAction from './components/ReviewAction';
 
 function ProductDetails() {
   const { id } = useParams();
@@ -137,9 +137,9 @@ function ProductDetails() {
             </div>
           </div>
 
-          <AddReview 
+          <ReviewAction 
             productId={id} 
-            onReviewAdded={handleReviewAdded}
+            onReviewAction={handleReviewAdded}
           />
 
           <Divider />

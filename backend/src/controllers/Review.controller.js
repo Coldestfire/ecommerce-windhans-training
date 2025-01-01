@@ -16,20 +16,16 @@ class ReviewController {
     });
     
 
-    // static updateCategory = CatchAsync(async (req, res) => {
-    //     const product = await CategoryService.updateById(req.params.id, req.body);
-    //     return res.status(200).json(product);
-    // });
+    static updateReview = CatchAsync(async (req, res) => {
+        const review = await ReviewService.updateReview(req.user ,req.params.id, req.body);
+        return res.status(200).json(review);
+    });
 
-    // static deleteCategory = CatchAsync(async (req, res) => {
-    //     const result = await CategoryService.deleteCategory(req.user, req.params.id);
-    //     return res.status(204).json(result);
-    // });
+    static deleteReview = CatchAsync(async (req, res) => {
+        const result = await ReviewService.deleteReview(req.user, req.params.id);
+        return res.status(204).json(result);
+    });
 
-    // static getCategoryById = CatchAsync(async (req, res) => {
-    //     const stats = await CategoryService.getById( req.params.id);
-    //     return res.status(200).json(stats);
-    // });
 }
 
 module.exports = ReviewController;
