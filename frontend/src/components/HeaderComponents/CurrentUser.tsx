@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useGetProfileQuery } from "../../provider/queries/Auth.query";
+import { useGetCartQuery } from "../../provider/queries/Cart.query";
 import { 
   CircularProgress, 
   Paper, 
@@ -25,8 +26,12 @@ import { useNavigate } from 'react-router-dom';
 
 const CurrentUser = () => {
     const { data, isLoading } = useGetProfileQuery({});
+    const { data: cartData } = useGetCartQuery();
     const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
+
+    // Calculate total items in cart (including quantities)
+    const cartItemsCount = cartData?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
 
     const handlePopoverOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -52,17 +57,21 @@ const CurrentUser = () => {
             {/* Action Icons */}
             <Box sx={{ display: 'flex', gap: 1 }}>
                 <IconButton size="small" color="primary">
-                    <Badge badgeContent={3} color="error">
+                    <Badge badgeContent={0} color="error">
                         <NotificationsIcon />
                     </Badge>
                 </IconButton>
-                <IconButton size="small" color="primary">
-                    <Badge badgeContent={2} color="error">
+                <IconButton 
+                    size="small" 
+                    color="primary"
+                    onClick={() => navigate('/cart')}
+                >
+                    <Badge badgeContent={cartItemsCount} color="error">
                         <ShoppingCartIcon />
                     </Badge>
                 </IconButton>
                 <IconButton size="small" color="primary">
-                    <Badge badgeContent={1} color="error">
+                    <Badge badgeContent={0} color="error">
                         <FavoriteIcon />
                     </Badge>
                 </IconButton>

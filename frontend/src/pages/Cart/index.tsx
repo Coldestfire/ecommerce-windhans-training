@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { toast } from "react-toastify";
+import { formatIndianPrice } from "../../themes/formatPrices";
 
 const CartPage = () => {
   const { data: cart, isLoading } = useGetCartQuery();
@@ -16,7 +17,7 @@ const CartPage = () => {
 
     try {
       await updateCartItem({ productId, quantity: newQuantity }).unwrap();
-    } catch (error) {
+    } catch (error) {   
       toast.error('Failed to update quantity');
     }
   };
@@ -52,7 +53,9 @@ const CartPage = () => {
                 <CardContent sx={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
                   <Box>
                     <Typography variant="h6">{item.productId.name}</Typography>
-                    <Typography variant="body1" color="primary">₹{item.price}</Typography>
+                    <Typography variant="body1" color="primary">
+                      {formatIndianPrice(item.price)}
+                    </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <IconButton onClick={() => handleUpdateQuantity(item.productId._id, item.quantity, false)}>
@@ -76,7 +79,7 @@ const CartPage = () => {
                 <Typography variant="h6" sx={{ mb: 2 }}>Order Summary</Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Typography>Total:</Typography>
-                  <Typography variant="h6">₹{cart?.totalPrice}</Typography>
+                  <Typography variant="h6">{formatIndianPrice(cart?.totalPrice)}</Typography>
                 </Box>
                 <Button variant="contained" fullWidth>
                   Proceed to Checkout

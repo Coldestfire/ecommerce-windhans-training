@@ -9,6 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import NewProductsCarousel from './components/NewProductsCarousel';
 import { useAddToCartMutation } from "../../provider/queries/Cart.query";
 import { toast } from "react-toastify";
+import { formatIndianPrice } from "../../themes/formatPrices";
 
 const ProductsLanding = () => {
   const { data, error, isLoading } = useGetEveryProductQuery({});
@@ -136,7 +137,7 @@ const ProductsLanding = () => {
                       fontSize: '1.1rem'
                     }}
                   >
-                    ₹{product.price.toFixed(2)}
+                    {formatIndianPrice(product.price)}
                   </Typography>
                 </Box>
 

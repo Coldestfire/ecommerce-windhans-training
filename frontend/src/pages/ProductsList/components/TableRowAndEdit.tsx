@@ -21,6 +21,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useDeleteProductMutation, useUpdateProductMutation } from "../../../provider/queries/Products.query";
 import { useDeleteCategoryMutation, useGetCategoriesQuery } from "../../../provider/queries/Category.query";
+import { formatIndianPrice } from "../../../themes/formatPrices";
 
 const TableCard = ({ 
   data, 
@@ -288,7 +289,7 @@ const TableCard = ({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                     <Typography sx={{ fontWeight: 500 }}>
-                        ₹{data.price.toFixed(2)}
+                        {formatIndianPrice(data.price)}
                     </Typography>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

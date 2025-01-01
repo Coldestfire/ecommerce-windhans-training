@@ -3,6 +3,7 @@ import { Box, Typography, IconButton, Card, CardMedia } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import { formatIndianPrice } from '../../../themes/formatPrices';
 
 interface Product {
   _id: string;
@@ -114,7 +115,7 @@ const NewProductsCarousel = ({ products }: NewProductsCarouselProps) => {
                     textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
                   }}
                 >
-                  ₹{product.price.toFixed(2)}
+                  {formatIndianPrice(product.price)}
                 </Typography>
               </Box>
             </Card>

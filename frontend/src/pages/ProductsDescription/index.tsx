@@ -14,6 +14,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SecurityIcon from '@mui/icons-material/Security';
 import CachedIcon from '@mui/icons-material/Cached';
 import ReviewAction from './components/ReviewAction';
+import { formatIndianPrice } from '../../themes/formatPrices';
 
 function ProductDetails() {
   const { id } = useParams();
@@ -147,7 +148,7 @@ function ProductDetails() {
           <div className="space-y-4">
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold text-blue-600">
-                ₹{product.product.price.toFixed(2)}
+                {formatIndianPrice(product.product.price)}
               </span>
       
               <Chip label="Free Delivery" color="success" size="small"/>
