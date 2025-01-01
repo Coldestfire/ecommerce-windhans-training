@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  IconButton
 } from '@mui/material';
 import { useCreateReviewMutation, useUpdateReviewMutation, useGetReviewQuery, useDeleteReviewMutation } from '../../../provider/queries/Reviews.query';
 import { toast } from 'sonner';
@@ -118,10 +117,11 @@ const ReviewAction = ({ productId, onReviewAction }: ReviewActionProps) => {
             bgcolor: 'action.hover'
           }
         }}
+        onClick={() => setIsExpanded(!isExpanded)}
       >
         <Box 
           sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}
-          onClick={() => setIsExpanded(!isExpanded)}
+         
         >
         
           {isEditing ? <EditIcon color="primary" /> : <RateReviewIcon color="primary" />}

@@ -65,7 +65,7 @@ const AddReview = ({ productId, onReviewAdded }: AddReviewProps) => {
     >
       <Box
         sx={{
-          p: 2,
+          p: 5,
           cursor: 'pointer',
           bgcolor: 'background.paper',
           display: 'flex',
