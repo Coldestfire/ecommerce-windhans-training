@@ -18,7 +18,10 @@ const routes= [
         path:'/reviews',
         route:require("./Review.route")
     },
-    
+    {
+        path:'/cart',
+        route:require("./Cart.route")
+    },
 ]
 
 routes.forEach((cur)=>{

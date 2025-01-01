@@ -7,10 +7,23 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import IconButton from '@mui/material/IconButton';
 import NewProductsCarousel from './components/NewProductsCarousel';
+import { useAddToCartMutation } from "../../provider/queries/Cart.query";
+import { toast } from "react-toastify";
 
 const ProductsLanding = () => {
   const { data, error, isLoading } = useGetEveryProductQuery({});
+  const [addToCart] = useAddToCartMutation();
   const navigate = useNavigate();
+
+  const handleAddToCart = async (e: React.MouseEvent, productId: string) => {
+    e.stopPropagation(); // Prevent navigation when clicking the cart button
+    try {
+      await addToCart({ productId, quantity: 1 }).unwrap();
+      toast.success('Product added to cart');
+    } catch (error) {
+      toast.error('Failed to add product to cart');
+    }
+  };
 
   if (isLoading) return <CardSkeleton />;
   if (error) return <div className="text-center p-4 text-red-500">{error.message}</div>;
