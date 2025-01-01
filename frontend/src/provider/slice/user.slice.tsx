@@ -1,20 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export const UserSlice = createSlice({
-    name:'UserSlice',
-    initialState:{
-        user:null
-    },
-    reducers:{
-        setUser(state,action){
-            state.user = action.payload
-        },
-        removeUser(state) {
-            state.user = null
-        }
-    }
-})
+interface User {
+    _id: string;
+    email: string;
+    name: string;
+    role: string;
+  }
+  
+  interface UserState {
+    user: User | null;
+  }
+  
+  export const UserSlice = createSlice({
+      name:'UserSlice',
+      initialState:{
+          user: null
+      },
+      reducers:{
+          setUser(state: UserState, action: PayloadAction<User>){
+              state.user = action.payload
+          },
+          removeUser(state: UserState) {
+              state.user = null
+          }
+      }
+  })
 
 
 export const { removeUser,setUser} = UserSlice.actions;

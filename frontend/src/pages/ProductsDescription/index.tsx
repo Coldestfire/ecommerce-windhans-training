@@ -149,8 +149,12 @@ function ProductDetails() {
               <span className="text-3xl font-bold text-blue-600">
                 ₹{product.product.price.toFixed(2)}
               </span>
-              <Chip label="Free Delivery" color="success" size="small" />
+      
+              <Chip label="Free Delivery" color="success" size="small"/>
+
             </div>
+
+          
 
             <div className="flex gap-4">
               <Button 

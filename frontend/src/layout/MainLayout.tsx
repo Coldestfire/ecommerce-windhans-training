@@ -4,8 +4,12 @@ import HomeIcon from '@mui/icons-material/Home';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import CurrentUser from '../components/HeaderComponents/CurrentUser';
 import CategoryList from '../components/HeaderComponents/categoryList';
+import { useAuth } from '../hooks/useAuth';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
+  const { isAdmin, user } = useAuth();
+  console.log("user: ",user);
+  console.log("isAdmin: ",isAdmin);
   return (
     <>
       <AppBar position="sticky" sx={{ backgroundColor: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
@@ -27,20 +31,24 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
               </Button>
               <Divider orientation="vertical" flexItem sx={{ height: 24, my: 'auto' }} />
               <CategoryList />
-              <Divider orientation="vertical" flexItem sx={{ height: 24, my: 'auto' }} />
-              <Button
-                component={Link}
-                to="/admin"
-                startIcon={<AdminPanelSettingsIcon />}
-                sx={{
-                  color: 'text.primary',
-                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
-                  textTransform: 'none',
-                  fontWeight: 500
-                }}
-              >
-                Admin
-              </Button>
+              {isAdmin && (
+                <>
+                  <Divider orientation="vertical" flexItem sx={{ height: 24, my: 'auto' }} />
+                  <Button
+                    component={Link}
+                    to="/admin"
+                    startIcon={<AdminPanelSettingsIcon />}
+                    sx={{
+                      color: 'text.primary',
+                      '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
+                      textTransform: 'none',
+                      fontWeight: 500
+                    }}
+                  >
+                    Admin
+                  </Button>
+                </>
+              )}
             </Box>
             <CurrentUser />
           </Toolbar>

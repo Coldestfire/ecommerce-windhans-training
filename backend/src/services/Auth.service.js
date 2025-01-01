@@ -61,7 +61,7 @@ static  async LoginUser(body){
 
 static  async ProfileService(user){ 
 
-                const checkExist = await UserModel.findById(user).select("name email")
+                const checkExist = await UserModel.findById(user).select("name email role")
                 if(!checkExist){
                     throw new ApiError(400,"User Not Registered")
                     return
