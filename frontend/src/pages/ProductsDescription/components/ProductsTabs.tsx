@@ -88,7 +88,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ description, reviews, id }) =
                       </Avatar>
                       <Box>
                         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                          Customer Review
+                          {review.user.name}
                         </Typography>
                         <Rating 
                           value={review.rating} 

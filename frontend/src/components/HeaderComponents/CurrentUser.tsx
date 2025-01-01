@@ -168,7 +168,7 @@ const CurrentUser = () => {
                 </Box>
 
                 <List sx={{ p: 1 }}>
-                    <ListItem 
+                    {/* <ListItem 
                         button 
                         onClick={() => navigate('/profile')}
                         sx={{ 
@@ -205,7 +205,7 @@ const CurrentUser = () => {
                                 fontWeight: 500
                             }} 
                         />
-                    </ListItem>
+                    </ListItem> */}
                     <Divider sx={{ my: 1 }} />
                     <ListItem sx={{ p: 1 }}>
                         <LogoutButton 
