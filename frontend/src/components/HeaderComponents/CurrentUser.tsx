@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGetProfileQuery } from "../../provider/queries/Auth.query";
 import { useGetCartQuery } from "../../provider/queries/Cart.query";
+import { useGetWishlistQuery } from "../../provider/queries/Wishlist.query";
 import { 
   CircularProgress, 
   Paper, 
@@ -27,11 +28,13 @@ import { useNavigate } from 'react-router-dom';
 const CurrentUser = () => {
     const { data, isLoading } = useGetProfileQuery({});
     const { data: cartData } = useGetCartQuery();
+    const { data: wishlistData } = useGetWishlistQuery();
     const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
 
     // Calculate total items in cart (including quantities)
     const cartItemsCount = cartData?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
+    const wishlistItemsCount = wishlistData?.items?.length || 0;
 
     const handlePopoverOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -56,11 +59,6 @@ const CurrentUser = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {/* Action Icons */}
             <Box sx={{ display: 'flex', gap: 1 }}>
-                <IconButton size="small" color="primary">
-                    <Badge badgeContent={0} color="error">
-                        <NotificationsIcon />
-                    </Badge>
-                </IconButton>
                 <IconButton 
                     size="small" 
                     color="primary"
@@ -70,8 +68,12 @@ const CurrentUser = () => {
                         <ShoppingCartIcon />
                     </Badge>
                 </IconButton>
-                <IconButton size="small" color="primary">
-                    <Badge badgeContent={0} color="error">
+                <IconButton 
+                    size="small" 
+                    color="primary"
+                    onClick={() => navigate('/wishlist')}
+                >
+                    <Badge badgeContent={wishlistItemsCount} color="error">
                         <FavoriteIcon />
                     </Badge>
                 </IconButton>

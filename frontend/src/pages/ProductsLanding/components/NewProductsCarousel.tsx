@@ -94,7 +94,7 @@ const NewProductsCarousel = ({ products }: NewProductsCarouselProps) => {
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                  background: 'linear-gradient(transparent, rgba(0,0,0,0.9))',
                   color: 'white',
                   p: 3
                 }}
@@ -103,7 +103,7 @@ const NewProductsCarousel = ({ products }: NewProductsCarouselProps) => {
                   variant="h5" 
                   sx={{ 
                     mb: 1,
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.9)'
                   }}
                 >
                   {product.name}

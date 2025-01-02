@@ -22,6 +22,10 @@ const routes= [
         path:'/cart',
         route:require("./Cart.route")
     },
+    {
+        path:'/wishlist',
+        route:require("./Wishlist.route")
+    }
 ]
 
 routes.forEach((cur)=>{

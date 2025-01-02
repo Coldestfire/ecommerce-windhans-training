@@ -77,10 +77,91 @@ const CartPage = () => {
             <Card>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>Order Summary</Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                  <Typography>Total:</Typography>
-                  <Typography variant="h6">{formatIndianPrice(cart?.totalPrice)}</Typography>
+                
+                {/* Product List */}
+                <Box sx={{ mb: 2 }}>
+                  {cart?.items?.map((item) => (
+                    <Box 
+                      key={item.productId._id} 
+                      sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        mb: 1,
+                        minHeight: '24px',
+                        alignItems: 'flex-start',
+                        '&:not(:last-child)': {
+                          borderBottom: '1px solid #eee',
+                          pb: 1
+                        }
+                      }}
+                    >
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: 'text.secondary',
+                          maxWidth: '60%',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 1,
+                          WebkitBoxOrient: 'vertical',
+                          lineHeight: '1.5',
+                          mt: '2px'
+                        }}
+                      >
+                        {item.productId.name}
+                      </Typography>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        gap: 1, 
+                        alignItems: 'center',
+                        flexShrink: 0
+                      }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            color: 'text.secondary',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          × {item.quantity}
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          color="primary.main" 
+                          sx={{ 
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {formatIndianPrice(item.price * item.quantity)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
                 </Box>
+
+                {/* Total Items */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography color="text.secondary">Total Items:</Typography>
+                  <Typography>
+                    {cart?.items?.reduce((acc, item) => acc + item.quantity, 0)}
+                  </Typography>
+                </Box>
+
+                {/* Total Amount */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  mb: 2,
+                  pt: 1,
+                  borderTop: '1px solid #eee'
+                }}>
+                  <Typography fontWeight="bold">Total Amount:</Typography>
+                  <Typography variant="h6" color="primary.main">
+                    {formatIndianPrice(cart?.totalPrice)}
+                  </Typography>
+                </Box>
+
                 <Button variant="contained" fullWidth>
                   Proceed to Checkout
                 </Button>

@@ -24,7 +24,6 @@ const CategoryList = () => {
     const value = event.target.value;
     setSelectedCategory(value);
     
-    // Navigate to home if "All Categories" is selected, otherwise go to category page
     if (value === "") {
       navigate('/home');
     } else {
@@ -33,8 +32,16 @@ const CategoryList = () => {
   };
 
   if (isLoading) {
-    return null; // Or a small loading indicator if preferred
+    return null;
   }
+
+  // You can adjust these values to control the dropdown appearance
+  const MENU_CONFIG = {
+    maxHeight: '150px',        // Maximum height of the dropdown
+    itemPadding: '8px 16px',   // Padding for each menu item
+    scrollbarWidth: '3px',     // Width of the scrollbar
+    scrollbarRadius: '3px'     // Border radius of the scrollbar
+  };
 
   return (
     <FormControl sx={{ minWidth: 150 }}>
@@ -62,10 +69,31 @@ const CategoryList = () => {
         MenuProps={{
           PaperProps: {
             sx: {
-              maxHeight: 300,
+              maxHeight: MENU_CONFIG.maxHeight, // Configurable maximum height
               mt: 0.5,
               boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-              borderRadius: 2
+              borderRadius: 2,
+              '& .MuiMenuItem-root': {
+                padding: MENU_CONFIG.itemPadding, // Configurable padding
+              },
+              // Custom scrollbar styling
+              '& .MuiList-root': {
+                padding: 0,
+                '&::-webkit-scrollbar': {
+                  width: MENU_CONFIG.scrollbarWidth
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: '#f1f1f1',
+                  borderRadius: MENU_CONFIG.scrollbarRadius
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: '#888',
+                  borderRadius: MENU_CONFIG.scrollbarRadius,
+                  '&:hover': {
+                    background: '#666'
+                  }
+                }
+              }
             }
           }
         }}

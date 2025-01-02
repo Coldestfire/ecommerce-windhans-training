@@ -7,22 +7,101 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import IconButton from '@mui/material/IconButton';
 import NewProductsCarousel from './components/NewProductsCarousel';
-import { useAddToCartMutation } from "../../provider/queries/Cart.query";
+import { useAddToCartMutation, useUpdateCartItemMutation } from "../../provider/queries/Cart.query";
 import { toast } from "react-toastify";
 import { formatIndianPrice } from "../../themes/formatPrices";
+import { useGetCartQuery } from "../../provider/queries/Cart.query";
+import AddIcon from '@mui/icons-material/Add';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useAddToWishlistMutation, useGetWishlistQuery, useRemoveFromWishlistMutation } from "../../provider/queries/Wishlist.query";
 
 const ProductsLanding = () => {
   const { data, error, isLoading } = useGetEveryProductQuery({});
   const [addToCart] = useAddToCartMutation();
+  const [updateCartItem] = useUpdateCartItemMutation();
+  const { data: cartData } = useGetCartQuery();
   const navigate = useNavigate();
+  const [addToWishlist] = useAddToWishlistMutation();
+  const { data: wishlistData } = useGetWishlistQuery();
+  const [removeFromWishlist] = useRemoveFromWishlistMutation();
+
+  // Function to check if product is in cart
+  const isProductInCart = (productId: string) => {
+    return cartData?.items?.some(item => item.productId._id === productId);
+  };
+
+  const isProductInWishlist = (productId: string) => {
+    return wishlistData?.items?.some(item => item.productId._id === productId);
+  };
 
   const handleAddToCart = async (e: React.MouseEvent, productId: string) => {
-    e.stopPropagation(); // Prevent navigation when clicking the cart button
+    e.stopPropagation();
     try {
-      await addToCart({ productId, quantity: 1 }).unwrap();
-      toast.success('Product added to cart');
+      if (isProductInCart(productId)) {
+        const cartItem = cartData?.items?.find(item => item.productId._id === productId);
+        if (cartItem) {
+          await updateCartItem({ productId, quantity: cartItem.quantity + 1 }).unwrap();
+          toast.success(`Added another ${cartItem.productId.name} to cart`, {
+            position: "top-left",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        }
+      } else {
+        await addToCart({ productId, quantity: 1 }).unwrap();
+        const productName = data?.data?.find(p => p._id === productId)?.name;
+        toast.success(`${productName} added to cart`, {
+          position: "top-left",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
     } catch (error) {
-      toast.error('Failed to add product to cart');
+      toast.error('Failed to update cart', {
+        position: "bottom-left",
+        autoClose: 2000,
+      });
+    }
+  };
+
+  const handleAddToWishlist = async (e: React.MouseEvent, productId: string) => {
+    e.stopPropagation();
+    try {
+      if (isProductInWishlist(productId)) {
+        await removeFromWishlist(productId).unwrap();
+        const productName = data?.data?.find(p => p._id === productId)?.name;
+        toast.success(`${productName} removed from wishlist`, {
+          position: "top-left",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      } else {
+        await addToWishlist(productId).unwrap();
+        const productName = data?.data?.find(p => p._id === productId)?.name;
+        toast.success(`${productName} added to wishlist`, {
+          position: "top-left",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+    } catch (error) {
+      toast.error('Failed to update wishlist', {
+        position: "top-left",
+        autoClose: 2000,
+      });
     }
   };
 
@@ -54,7 +133,7 @@ const ProductsLanding = () => {
           <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
             <Card
               sx={{
-                height: '100%',
+                height: '103%',
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'all 0.3s ease-in-out',
@@ -143,34 +222,80 @@ const ProductsLanding = () => {
 
                 {/* Action Buttons - Fixed Height */}
                 <Box sx={{ 
-                  height: '40px', // Fixed height for buttons
+                  height: '40px',
                   display: 'flex', 
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  mt: 'auto' // Push to bottom
+                  mt: 'auto',
+                  
+                  
                 }}>
-                  <IconButton 
-                    onClick={(e) => handleAddToCart(e, product._id)}
-                    color="primary" 
-                    size="small"
-                    sx={{ 
-                      '&:hover': { 
-                        backgroundColor: 'rgba(25, 118, 210, 0.04)' 
-                      } 
-                    }}
-                  >
-                    <ShoppingCartIcon />
-                  </IconButton>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <IconButton 
+                      onClick={(e) => handleAddToCart(e, product._id)}
+                      color="primary" 
+                      size="small"
+                      sx={{ 
+                        bgcolor: isProductInCart(product._id) ? 'primary.light' : 'transparent',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        borderRadius: '12px',
+                        padding: '8px 12px',
+                        width: isProductInCart(product._id) ? '80px' : '40px',
+                        '&:hover': { 
+                          backgroundColor: isProductInCart(product._id) 
+                            ? 'primary.light' 
+                            : 'rgba(25, 118, 210, 0.04)' 
+                        }
+                      }}
+                    >
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 0.5,
+                        padding: '2px 4px',
+                        borderRadius: '8px',
+                        width: '100%',
+                        justifyContent: isProductInCart(product._id) ? 'space-between' : 'center',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      }}>
+                        <ShoppingCartIcon sx={{ 
+                          color: isProductInCart(product._id) ? 'white' : 'primary.main',
+                          transition: 'color 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          fontSize: '1.2rem'
+                        }} />
+                        {isProductInCart(product._id) && (
+                          <AddIcon sx={{ 
+                            color: 'white',
+                            fontSize: '1.2rem',
+                            opacity: 1,
+                            transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            transform: 'scale(1)',
+                            animation: 'fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                          }} />
+                        )}
+                      </Box>
+                    </IconButton>
+                  </Box>
                   <IconButton 
                     onClick={(e) => handleAddToWishlist(e, product._id)}
                     size="small"
                     sx={{ 
+                      bgcolor: isProductInWishlist(product._id) ? 'error.light' : 'transparent',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': { 
-                        backgroundColor: 'rgba(244, 67, 54, 0.04)' 
+                        backgroundColor: isProductInWishlist(product._id) 
+                          ? 'error.light' 
+                          : 'rgba(244, 67, 54, 0.04)' 
                       } 
                     }}
                   >
-                    <FavoriteIcon color="error" />
+                    <FavoriteIcon 
+                      sx={{ 
+                        color: isProductInWishlist(product._id) ? 'white' : 'error.main',
+                        transition: 'color 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        fontSize: '1.5rem'
+                      }} 
+                    />
                   </IconButton>
                 </Box>
               </CardContent>
@@ -178,6 +303,19 @@ const ProductsLanding = () => {
           </Grid>
         ))}
       </Grid>
+      <ToastContainer 
+        position="top-left"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 9999 }}
+      />
     </Container>
   );
 };

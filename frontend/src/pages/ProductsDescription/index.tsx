@@ -3,7 +3,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import { useParams, Link } from 'react-router-dom';
 import { useGetProductQuery } from '../../provider/queries/Products.query';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import { Typography, Button, Chip, Divider } from '@mui/material';
+import { Typography, Button, Chip, Divider, Box } from '@mui/material';
 import Slider from 'react-slick';
 import { useState } from 'react';
 import ProductTabs from './components/ProductsTabs';
@@ -15,6 +15,12 @@ import SecurityIcon from '@mui/icons-material/Security';
 import CachedIcon from '@mui/icons-material/Cached';
 import ReviewAction from './components/ReviewAction';
 import { formatIndianPrice } from '../../themes/formatPrices';
+import { useAddToCartMutation, useUpdateCartItemMutation, useGetCartQuery } from '../../provider/queries/Cart.query';
+import { useAddToWishlistMutation, useGetWishlistQuery, useRemoveFromWishlistMutation } from '../../provider/queries/Wishlist.query';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import AddIcon from '@mui/icons-material/Add';
 
 function ProductDetails() {
   const { id } = useParams();
@@ -23,6 +29,20 @@ function ProductDetails() {
   const { data: product, error, isLoading, refetch } = useGetProductQuery(id);   
   const { data: fetchedCategories } = useGetCategoriesQuery({ category: "" });
 
+  const [addToCart] = useAddToCartMutation();
+  const [updateCartItem] = useUpdateCartItemMutation();
+  const { data: cartData } = useGetCartQuery();
+  const [addToWishlist] = useAddToWishlistMutation();
+  const [removeFromWishlist] = useRemoveFromWishlistMutation();
+  const { data: wishlistData } = useGetWishlistQuery();
+
+  const isProductInCart = (productId: string) => {
+    return cartData?.items?.some(item => item.productId._id === productId);
+  };
+
+  const isProductInWishlist = (productId: string) => {
+    return wishlistData?.items?.some(item => item.productId._id === productId);
+  };
 
   if (isLoading) {
     return <div className="text-center p-4">Loading...</div>;
@@ -105,8 +125,9 @@ function ProductDetails() {
                 <img
                   src={img}
                   alt={`product-thumbnail-${index}`}
-                  className={`w-full aspect-square object-cover cursor-pointer rounded-lg transition-all
+                  className={`w-full aspect-square object-contain cursor-pointer rounded-lg transition-all
                     ${selectedImage === img ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-300'}`}
+                  style={{ maxHeight: '100px', width: '100%', objectFit: 'contain' }}
                   onClick={() => setSelectedImage(img)}
                 />
               </div>
@@ -121,7 +142,7 @@ function ProductDetails() {
               src={selectedImage}
               alt="Selected Product"
               className="object-contain rounded-lg transition-opacity duration-300"
-              style={{ maxHeight: '500px', width: '100%' }}
+              style={{ maxHeight: '400px', width: '100%', objectFit: 'contain' }}
             />
           </div>
         </div>
@@ -161,29 +182,95 @@ function ProductDetails() {
               <Button 
                 variant="contained" 
                 color="primary" 
-                size="large"
-                startIcon={<ShoppingCartIcon />}
+                size="medium"
+                startIcon={
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 0.5,
+                  }}>
+                    <ShoppingCartIcon sx={{ fontSize: '1.2rem' }} />
+                    {isProductInCart(id) && (
+                      <AddIcon sx={{ 
+                        fontSize: '1.2rem',
+                        opacity: 1,
+                        transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      }} />
+                    )}
+                  </Box>
+                }
                 fullWidth
+                onClick={async () => {
+                  try {
+                    if (isProductInCart(id)) {
+                      const cartItem = cartData?.items?.find(item => item.productId._id === id);
+                      if (cartItem) {
+                        await updateCartItem({ productId: id, quantity: cartItem.quantity + 1 }).unwrap();
+                        toast.success(`Added another ${product.product.name} to cart`);
+                      }
+                    } else {
+                      await addToCart({ productId: id, quantity: 1 }).unwrap();
+                      toast.success(`${product.product.name} added to cart`);
+                    }
+                  } catch (error) {
+                    toast.error('Failed to update cart');
+                  }
+                }}
                 sx={{ 
-                  py: 1.5,
+                  py: 0.75,
+                  height: '36px',
                   textTransform: 'none',
-                  fontSize: '1.1rem'
+                  fontSize: '1rem',
+                  bgcolor: isProductInCart(id) ? 'primary.light' : 'primary.main',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    bgcolor: isProductInCart(id) ? 'primary.main' : 'primary.dark',
+                  }
                 }}
               >
-                Add to Cart
+                {isProductInCart(id) ? 'Add Another' : 'Add to Cart'}
               </Button>
               <Button 
                 variant="outlined" 
-                color="primary"
-                size="large"
+                color="error"
+                size="medium"
+                startIcon={
+                  <FavoriteIcon sx={{ 
+                    fontSize: '1.2rem',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  }} />
+                }
                 fullWidth
+                onClick={async () => {
+                  try {
+                    if (isProductInWishlist(id)) {
+                      await removeFromWishlist(id).unwrap();
+                      toast.success(`${product.product.name} removed from wishlist`);
+                    } else {
+                      await addToWishlist(id).unwrap();
+                      toast.success(`${product.product.name} added to wishlist`);
+                    }
+                  } catch (error) {
+                    toast.error('Failed to update wishlist');
+                  }
+                }}
                 sx={{ 
-                  py: 1.5,
+                  py: 0.75,
+                  height: '36px',
                   textTransform: 'none',
-                  fontSize: '1.1rem'
+                  fontSize: '0.875rem',
+                  bgcolor: isProductInWishlist(id) ? 'error.light' : 'transparent',
+                  color: isProductInWishlist(id) ? 'white' : 'error.main',
+                  borderWidth: 2,
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    bgcolor: isProductInWishlist(id) ? 'error.main' : 'error.light',
+                    color: 'white',
+                    borderWidth: 2
+                  }
                 }}
               >
-                Buy Now
+                {isProductInWishlist(id) ? 'Remove' : 'Add to Wishlist'}
               </Button>
             </div>
           </div>
@@ -216,6 +303,20 @@ function ProductDetails() {
           id={id} 
         />
       </div>
+
+      <ToastContainer 
+        position="top-left"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 9999 }}
+      />
     </div>
   );
 }

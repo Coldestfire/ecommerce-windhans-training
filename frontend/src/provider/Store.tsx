@@ -7,6 +7,7 @@ import { UserSlice } from "./slice/user.slice.tsx";
 import { CategoryApi } from "./queries/Category.query.ts";
 import { ReviewApi } from "./queries/Reviews.query.ts";
 import { CartApi } from "./queries/Cart.query.ts";
+import { WishlistApi } from "./queries/Wishlist.query.ts";
 // import refreshReducer from "./slice/refreshSlice";
 
 export const store = configureStore({
@@ -18,6 +19,7 @@ export const store = configureStore({
         [CategoryApi.reducerPath]: CategoryApi.reducer,
         [ReviewApi.reducerPath]: ReviewApi.reducer,
         [CartApi.reducerPath]: CartApi.reducer,
+        [WishlistApi.reducerPath]: WishlistApi.reducer,
         // refresh: refreshReducer,
         
     },
@@ -30,6 +32,7 @@ export const store = configureStore({
         CategoryApi.middleware,
         ReviewApi.middleware,
         CartApi.middleware,
+        WishlistApi.middleware,
     )
 
 }) 
