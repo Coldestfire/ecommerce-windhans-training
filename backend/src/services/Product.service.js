@@ -89,22 +89,28 @@ class ProductService {
     }
     
 
-    static async getEveryProduct() {
+    static async getEveryProduct(page = 1) {
         try {
-            // Fetch all products and ensure images are included
-            const products = await ProductModel.find().sort({ createdAt: -1 });
-    
-            // Optionally, log the products to verify images are included
-            console.log(products);  // Check images field
-    
-            // Count the total number of products
-            const totalCount = products.length;
-    
+            const limit = 8;
+            const skip = (page - 1) * limit;
+
+            // Fetch paginated products
+            const products = await ProductModel.find()
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit);
+
+            // Get total count for pagination
+            const totalCount = await ProductModel.countDocuments();
+
             const response = {
                 data: products,
                 total: totalCount,
+                currentPage: page,
+                totalPages: Math.ceil(totalCount / limit),
+                hasMore: skip + products.length < totalCount,
             };
-    
+
             return response;
         } catch (error) {
             console.error("Database error in getEveryProduct:", error);

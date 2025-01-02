@@ -31,13 +31,11 @@ interface CreateProductDTO {
 }
 
 interface GetAllProductsResponse {
-  hasMore: GetAllProductsResponse | undefined;
-  data : Product[];
-  name: string;
-  description: string;
-  price: number;
-  stock: number | null;
-  lowStockThreshold?: number;
+  data: Product[];
+  total: number;
+  currentPage: number;
+  totalPages: number;
+  hasMore: boolean;
 }
 
 
@@ -64,9 +62,9 @@ export const ProductApi = createApi({
       providesTags: ['Products'],
     }),
 
-    getEveryProduct: builder.query<GetAllProductsResponse, any>({
-      query: () => ({
-        url: `/products/every`,
+    getEveryProduct: builder.query<GetAllProductsResponse, { page: number }>({
+      query: ({ page }) => ({
+        url: `/products/every?page=${page}`,
         method: 'GET',
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem("token"),

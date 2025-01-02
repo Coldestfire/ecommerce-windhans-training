@@ -1,2 +1,14 @@
 TODO:
+make page accessible for users who are not logged in []
 
+when user is not logged in, show login button when doing a user action []
+
+make checkout page[]
+
+add pagination to:
+product list page[]
+category list page[]
+landing page[]
+reviews[]
+
+shopping cart page needs fixed image display[]

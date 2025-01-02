@@ -16,7 +16,7 @@ class ProductController {
     });
 
     static  getEveryProduct = CatchAsync(async (req, res) => {
-        const products = await ProductService.getEveryProduct();
+        const products = await ProductService.getEveryProduct(req.query.page);
         return res.status(200).json(products);
     });
 

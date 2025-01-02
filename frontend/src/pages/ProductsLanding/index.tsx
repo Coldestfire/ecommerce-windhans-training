@@ -15,9 +15,23 @@ import AddIcon from '@mui/icons-material/Add';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAddToWishlistMutation, useGetWishlistQuery, useRemoveFromWishlistMutation } from "../../provider/queries/Wishlist.query";
+import { useState } from 'react';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
+
+interface GetAllProductsResponse {
+  data: Product[];
+  total: number;
+  currentPage: number;
+  totalPages: number;
+  hasMore: boolean;
+}
 
 const ProductsLanding = () => {
-  const { data, error, isLoading } = useGetEveryProductQuery({});
+  const [page, setPage] = useState(1);
+  const { data, error, isLoading } = useGetEveryProductQuery({ page });
+  const { data: carasoulData, error: carasoulError, isLoading: carasoulLoading } = useGetEveryProductQuery({ page: 1 });
+  console.log('Current page:', page, 'Response data:', data);
   const [addToCart] = useAddToCartMutation();
   const [updateCartItem] = useUpdateCartItemMutation();
   const { data: cartData } = useGetCartQuery();
@@ -105,11 +119,50 @@ const ProductsLanding = () => {
     }
   };
 
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (isLoading) return <CardSkeleton />;
   if (error) return <div className="text-center p-4 text-red-500">{error.message}</div>;
 
   // Get the 3 newest products
-  const newestProducts = data?.data?.slice(0, 3) || [];
+  const newestProducts = carasoulData?.data?.slice(0, 3) || [];
+
+  const totalPages = data?.totalPages || 1;
+
+  const paginationSection = (
+    <Stack 
+      spacing={2} 
+      sx={{ 
+        mt: 4,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <Pagination 
+        count={totalPages}
+        page={page}
+        onChange={handlePageChange}
+        color="primary"
+        size="large"
+        sx={{
+          '& .MuiPaginationItem-root': {
+            fontSize: '1rem',
+          },
+          '& .Mui-selected': {
+            backgroundColor: 'primary.main',
+            color: 'white',
+            '&:hover': {
+              backgroundColor: 'primary.dark',
+            },
+          },
+        }}
+      />
+    </Stack>
+  );
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -127,7 +180,6 @@ const ProductsLanding = () => {
       >
         Latest Products
       </Typography>
-
       <Grid container spacing={3}>
         {data?.data?.map((product) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
@@ -303,6 +355,9 @@ const ProductsLanding = () => {
           </Grid>
         ))}
       </Grid>
+
+
+      {paginationSection}
       <ToastContainer 
         position="top-left"
         autoClose={2000}
