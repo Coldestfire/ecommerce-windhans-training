@@ -9,6 +9,7 @@ import ProductsCategory from "../pages/ProductsCategory";
 import CartPage from "../pages/Cart";
 import WishlistPage from "../pages/Wishlist";
 import First from "../pages/First";
+import AdminRoute from "../components/AdminRoute";
 
 export const Routes = createBrowserRouter([
   {
@@ -21,7 +22,11 @@ export const Routes = createBrowserRouter([
       },
       {
         path: "/admin",
-        element: <ProductsList />, // Main product listing page
+        element: (
+          <AdminRoute>
+            <ProductsList />
+          </AdminRoute>
+        ),
       },
       {
         path: "/product/:id", // Dynamic route for product details
