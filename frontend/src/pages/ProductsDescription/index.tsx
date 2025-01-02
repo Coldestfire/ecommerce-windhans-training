@@ -21,6 +21,8 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddIcon from '@mui/icons-material/Add';
+import { useProtectedAction } from '../../hooks/useProtectedAction';
+
 
 function ProductDetails() {
   const { id } = useParams();
@@ -35,6 +37,8 @@ function ProductDetails() {
   const [addToWishlist] = useAddToWishlistMutation();
   const [removeFromWishlist] = useRemoveFromWishlistMutation();
   const { data: wishlistData } = useGetWishlistQuery();
+
+  const runProtectedAction = useProtectedAction();
 
   const isProductInCart = (productId: string) => {
     return cartData?.items?.some(item => item.productId._id === productId);
@@ -66,31 +70,36 @@ function ProductDetails() {
   const sliderSettings = {
     vertical: true,
     dots: false,
-    infinite: true,
+    infinite: false,
     speed: 500,
-    slidesToShow: 3,
+    slidesToShow: Math.min(3, product.product.images.length),
     slidesToScroll: 1,
-    centerMode: true,
+    centerMode: false,
     centerPadding: '0px',
     focusOnSelect: true,
-    mouseWheel: true,
+    mouseWheel: product.product.images.length > 3,
     beforeChange: (current: number, next: number) => {
       const newSelectedImage = product.product.images[next];
-      setSelectedImage(newSelectedImage);
+      if (newSelectedImage !== selectedImage) {
+        setSelectedImage(newSelectedImage);
+      }
     },
     responsive: [
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 3,
+          slidesToShow: Math.min(3, product.product.images.length),
+          infinite: false,
+          centerMode: false
         }
       },
       {
         breakpoint: 768,
         settings: {
           vertical: false,
-          slidesToShow: 3,
-          centerMode: true,
+          slidesToShow: Math.min(3, product.product.images.length),
+          infinite: false,
+          centerMode: false
         }
       }
     ]
@@ -200,21 +209,23 @@ function ProductDetails() {
                   </Box>
                 }
                 fullWidth
-                onClick={async () => {
-                  try {
-                    if (isProductInCart(id)) {
-                      const cartItem = cartData?.items?.find(item => item.productId._id === id);
-                      if (cartItem) {
-                        await updateCartItem({ productId: id, quantity: cartItem.quantity + 1 }).unwrap();
-                        toast.success(`Added another ${product.product.name} to cart`);
+                onClick={() => {
+                  runProtectedAction(async () => {
+                    try {
+                      if (isProductInCart(id)) {
+                        const cartItem = cartData?.items?.find(item => item.productId._id === id);
+                        if (cartItem) {
+                          await updateCartItem({ productId: id, quantity: cartItem.quantity + 1 }).unwrap();
+                          toast.success(`Added another ${product.product.name} to cart`);
+                        }
+                      } else {
+                        await addToCart({ productId: id, quantity: 1 }).unwrap();
+                        toast.success(`${product.product.name} added to cart`);
                       }
-                    } else {
-                      await addToCart({ productId: id, quantity: 1 }).unwrap();
-                      toast.success(`${product.product.name} added to cart`);
+                    } catch (error) {
+                      toast.error('Failed to update cart');
                     }
-                  } catch (error) {
-                    toast.error('Failed to update cart');
-                  }
+                  });
                 }}
                 sx={{ 
                   py: 0.75,
@@ -241,19 +252,22 @@ function ProductDetails() {
                   }} />
                 }
                 fullWidth
-                onClick={async () => {
-                  try {
-                    if (isProductInWishlist(id)) {
-                      await removeFromWishlist(id).unwrap();
-                      toast.success(`${product.product.name} removed from wishlist`);
-                    } else {
-                      await addToWishlist(id).unwrap();
-                      toast.success(`${product.product.name} added to wishlist`);
+                onClick={() => {
+                  runProtectedAction(async () => {
+                    try {
+                      if (isProductInWishlist(id)) {
+                        await removeFromWishlist(id).unwrap();
+                        toast.success(`${product.product.name} removed from wishlist`);
+                      } else {
+                        await addToWishlist(id).unwrap();
+                        toast.success(`${product.product.name} added to wishlist`);
+                      }
+                    } catch (error) {
+                      toast.error('Failed to update wishlist');
                     }
-                  } catch (error) {
-                    toast.error('Failed to update wishlist');
-                  }
+                  });
                 }}
+
                 sx={{ 
                   py: 0.75,
                   height: '36px',

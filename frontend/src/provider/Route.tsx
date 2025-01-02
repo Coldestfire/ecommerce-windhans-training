@@ -8,12 +8,17 @@ import ProductsLanding from "../pages/ProductsLanding";
 import ProductsCategory from "../pages/ProductsCategory";
 import CartPage from "../pages/Cart";
 import WishlistPage from "../pages/Wishlist";
+import First from "../pages/First";
 
 export const Routes = createBrowserRouter([
   {
     path: "/",
     element: <App />, // Use JSX element here instead of Component
     children: [
+      {
+        path: "/",
+        element: <First />,
+      },
       {
         path: "/admin",
         element: <ProductsList />, // Main product listing page

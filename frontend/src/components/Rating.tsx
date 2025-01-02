@@ -9,7 +9,9 @@ interface ProductRatingProps {
 }
 
 const ProductRating: React.FC<ProductRatingProps> = ({ id, showCount = false }) => {
-  const { data: reviews, error: reviewsError, isLoading: reviewsLoading } = useGetReviewQuery(id);
+  const { data: reviews, error: reviewsError, isLoading: reviewsLoading } = useGetReviewQuery(id, {
+    skip: false // Reviews should be public
+  });
 
   // Handle loading state with skeleton
   if (reviewsLoading) {

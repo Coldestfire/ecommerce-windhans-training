@@ -41,7 +41,7 @@ const Login = () => {
         return
       }
 
-      localStorage.setItem('token', data.token)
+      localStorage.setItem('token', data.token.trim())
       toast.success('Logged in Successfully', { duration: 1000 })
 
       resetForm()
@@ -53,6 +53,7 @@ const Login = () => {
       toast.error(error.message)
     }
   }
+
 
   return (
     <Container maxWidth="sm" sx={{ 

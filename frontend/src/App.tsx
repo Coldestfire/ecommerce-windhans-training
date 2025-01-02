@@ -43,22 +43,21 @@ function App() {
 
  }
  useEffect(() => {
-       const token = localStorage.getItem("token") || ''
-       if(!token){
-         navigate("/login")
-         return
-       }else{
-         if (selector?.email){
-           SetLoading(false)
-           return 
-         }else{ 
-           (async()=>{
-             await fetchUser(token);
-           })()
-         }
-       }
-
- }, [])
+  const token = localStorage.getItem("token") || ''
+  if(!token){
+    SetLoading(false)
+    return
+  }
+  
+  if (selector?.email){
+    SetLoading(false)
+    return 
+  }
+  
+  (async()=>{
+    await fetchUser(token);
+  })()
+}, [])
 
 
  if (loading){

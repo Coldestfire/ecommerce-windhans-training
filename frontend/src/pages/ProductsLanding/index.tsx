@@ -18,6 +18,8 @@ import { useAddToWishlistMutation, useGetWishlistQuery, useRemoveFromWishlistMut
 import { useState } from 'react';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import { useProtectedAction } from '../../hooks/useProtectedAction';
+import { useAuth } from '../../hooks/useAuth';
 
 interface GetAllProductsResponse {
   data: Product[];
@@ -30,93 +32,70 @@ interface GetAllProductsResponse {
 const ProductsLanding = () => {
   const [page, setPage] = useState(1);
   const { data, error, isLoading } = useGetEveryProductQuery({ page });
-  const { data: carasoulData, error: carasoulError, isLoading: carasoulLoading } = useGetEveryProductQuery({ page: 1 });
-  console.log('Current page:', page, 'Response data:', data);
+  const { data: carasoulData } = useGetEveryProductQuery({ page: 1 });
+  const { isAuthenticated } = useAuth();
   const [addToCart] = useAddToCartMutation();
   const [updateCartItem] = useUpdateCartItemMutation();
-  const { data: cartData } = useGetCartQuery();
+  const { data: cartData } = useGetCartQuery(undefined, { 
+    skip: !isAuthenticated 
+  });
   const navigate = useNavigate();
   const [addToWishlist] = useAddToWishlistMutation();
-  const { data: wishlistData } = useGetWishlistQuery();
+  const { data: wishlistData } = useGetWishlistQuery(undefined, { 
+    skip: !isAuthenticated 
+  });
   const [removeFromWishlist] = useRemoveFromWishlistMutation();
+  const runProtectedAction = useProtectedAction();
 
   // Function to check if product is in cart
   const isProductInCart = (productId: string) => {
+    if (!isAuthenticated) return false;
     return cartData?.items?.some(item => item.productId._id === productId);
   };
 
   const isProductInWishlist = (productId: string) => {
+    if (!isAuthenticated) return false;
     return wishlistData?.items?.some(item => item.productId._id === productId);
   };
 
   const handleAddToCart = async (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
-    try {
-      if (isProductInCart(productId)) {
-        const cartItem = cartData?.items?.find(item => item.productId._id === productId);
-        if (cartItem) {
-          await updateCartItem({ productId, quantity: cartItem.quantity + 1 }).unwrap();
-          toast.success(`Added another ${cartItem.productId.name} to cart`, {
-            position: "top-left",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
+    runProtectedAction(async () => {
+      try {
+        if (isProductInCart(productId)) {
+          const cartItem = cartData?.items?.find(item => item.productId._id === productId);
+          if (cartItem) {
+            await updateCartItem({ productId, quantity: cartItem.quantity + 1 }).unwrap();
+            toast.success(`Added another ${cartItem.productId.name} to cart`);
+          }
+        } else {
+          await addToCart({ productId, quantity: 1 }).unwrap();
+          const productName = data?.data?.find(p => p._id === productId)?.name;
+          toast.success(`${productName} added to cart`);
         }
-      } else {
-        await addToCart({ productId, quantity: 1 }).unwrap();
-        const productName = data?.data?.find(p => p._id === productId)?.name;
-        toast.success(`${productName} added to cart`, {
-          position: "top-left",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+      } catch (error) {
+        toast.error('Failed to update cart');
       }
-    } catch (error) {
-      toast.error('Failed to update cart', {
-        position: "bottom-left",
-        autoClose: 2000,
-      });
-    }
+    });
   };
 
   const handleAddToWishlist = async (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
-    try {
-      if (isProductInWishlist(productId)) {
-        await removeFromWishlist(productId).unwrap();
-        const productName = data?.data?.find(p => p._id === productId)?.name;
-        toast.success(`${productName} removed from wishlist`, {
-          position: "top-left",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-      } else {
-        await addToWishlist(productId).unwrap();
-        const productName = data?.data?.find(p => p._id === productId)?.name;
-        toast.success(`${productName} added to wishlist`, {
-          position: "top-left",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+    runProtectedAction(async () => {
+      try {
+        if (isProductInWishlist(productId)) {
+          await removeFromWishlist(productId).unwrap();
+          const productName = data?.data?.find(p => p._id === productId)?.name;
+          toast.success(`${productName} removed from wishlist`);
+        } else {
+          await addToWishlist(productId).unwrap();
+          const productName = data?.data?.find(p => p._id === productId)?.name;
+          toast.success(`${productName} added to wishlist`);
+        }
+      } catch (error) {
+        toast.error('Failed to update wishlist');
       }
-    } catch (error) {
-      toast.error('Failed to update wishlist', {
-        position: "top-left",
-        autoClose: 2000,
-      });
-    }
+    });
   };
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {

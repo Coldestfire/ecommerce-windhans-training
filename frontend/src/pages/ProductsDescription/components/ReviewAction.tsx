@@ -19,6 +19,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useSelector } from 'react-redux';
 import { UserSlicePath } from '../../../provider/slice/user.slice';
+import { useProtectedAction } from '../../../hooks/useProtectedAction';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface ReviewActionProps {
   productId: string;
@@ -33,8 +35,11 @@ const ReviewAction = ({ productId, onReviewAction }: ReviewActionProps) => {
   const [addReview, { isLoading: isAddLoading }] = useCreateReviewMutation();
   const [updateReview, { isLoading: isUpdateLoading }] = useUpdateReviewMutation();
   const [deleteReview, { isLoading: isDeleteLoading }] = useDeleteReviewMutation();
-  const { data: reviews } = useGetReviewQuery(productId);
+  const { data: reviews } = useGetReviewQuery(productId, {
+    skip: !useAuth().isAuthenticated
+  });
   const currentUser = useSelector(UserSlicePath);
+  const runProtectedAction = useProtectedAction();
 
   const userReview = reviews?.data?.find(review => review.user._id === currentUser?._id);
   const isEditing = !!userReview;
@@ -48,49 +53,53 @@ const ReviewAction = ({ productId, onReviewAction }: ReviewActionProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!rating) {
-      toast.error('Please select a rating');
-      return;
-    }
-    if (!review.trim()) {
-      toast.error('Please write a review');
-      return;
-    }
-
-    try {
-      if (isEditing) {
-        await updateReview({
-          id: userReview._id,
-          data: { rating, review }
-        }).unwrap();
-        toast.success('Review updated successfully');
-      } else {
-        await addReview({
-          productId,
-          rating,
-          review
-        }).unwrap();
-        toast.success('Review added successfully');
+    runProtectedAction(async () => {
+      if (!rating) {
+        toast.error('Please select a rating');
+        return;
       }
-      
-      setIsExpanded(false);
-      onReviewAction();
-    } catch (error) {
-      toast.error(`Failed to ${isEditing ? 'update' : 'add'} review`);
-    }
+      if (!review.trim()) {
+        toast.error('Please write a review');
+        return;
+      }
+
+      try {
+        if (isEditing) {
+          await updateReview({
+            id: userReview._id,
+            data: { rating, review }
+          }).unwrap();
+          toast.success('Review updated successfully');
+        } else {
+          await addReview({
+            productId,
+            rating,
+            review
+          }).unwrap();
+          toast.success('Review added successfully');
+        }
+        
+        setIsExpanded(false);
+        onReviewAction();
+      } catch (error) {
+        toast.error(`Failed to ${isEditing ? 'update' : 'add'} review`);
+      }
+    });
   };
 
   const handleDelete = async () => {
-    try {
-      await deleteReview(userReview._id).unwrap();
-      toast.success('Review deleted successfully');
-      setIsDeleteDialogOpen(false);
-      setRating(0);
-      setReview('');
-      onReviewAction();
-    } catch (error) {
-      toast.error('Failed to delete review');
-    }
+    runProtectedAction(async () => {
+      try {
+        await deleteReview(userReview._id).unwrap();
+        toast.success('Review deleted successfully');
+        setIsDeleteDialogOpen(false);
+        setRating(0);
+        setReview('');
+        onReviewAction();
+      } catch (error) {
+        toast.error('Failed to delete review');
+      }
+    });
   };
 
   return (

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGetProfileQuery } from "../../provider/queries/Auth.query";
 import { useGetCartQuery } from "../../provider/queries/Cart.query";
 import { useGetWishlistQuery } from "../../provider/queries/Wishlist.query";
+import { useAuth } from '../../hooks/useAuth';
 import { 
   CircularProgress, 
   Paper, 
@@ -15,27 +16,27 @@ import {
   ListItemText,
   Divider,
   IconButton,
-  Badge
+  Badge,
+  Button
 } from "@mui/material";
 import LogoutButton from "./LogoutButton";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import SettingsIcon from '@mui/icons-material/Settings';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import LoginIcon from '@mui/icons-material/Login';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useNavigate } from 'react-router-dom';
 
 const CurrentUser = () => {
-    const { data, isLoading } = useGetProfileQuery({});
-    const { data: cartData } = useGetCartQuery();
-    const { data: wishlistData } = useGetWishlistQuery();
+    const { isAuthenticated } = useAuth();
+    const { data, isLoading } = useGetProfileQuery({}, { skip: !isAuthenticated });
+    const { data: cartData } = useGetCartQuery(undefined, { skip: !isAuthenticated });
+    const { data: wishlistData } = useGetWishlistQuery(undefined, { skip: !isAuthenticated });
     const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
 
     // Calculate total items in cart (including quantities)
     const cartItemsCount = cartData?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
     const wishlistItemsCount = wishlistData?.items?.length || 0;
-    console.log("wishlistItemsCount", wishlistItemsCount);
 
     const handlePopoverOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -47,6 +48,39 @@ const CurrentUser = () => {
 
     const open = Boolean(anchorEl);
     const id = open ? 'user-popover' : undefined;
+
+    if (!isAuthenticated) {
+        return (
+            <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    startIcon={<LoginIcon />}
+                    onClick={() => navigate('/login')}
+                    sx={{
+                        textTransform: 'none',
+                        borderRadius: '8px',
+                        fontWeight: 500
+                    }}
+                >
+                    Login
+                </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<PersonAddIcon />}
+                    onClick={() => navigate('/register')}
+                    sx={{
+                        textTransform: 'none',
+                        borderRadius: '8px',
+                        fontWeight: 500
+                    }}
+                >
+                    Sign Up
+                </Button>
+            </Box>
+        );
+    }
 
     if (isLoading) {
         return (

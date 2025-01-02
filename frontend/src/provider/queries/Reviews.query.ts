@@ -12,14 +12,11 @@ export const ReviewApi = createApi({
 
     // Get all Reviews with pagination and search
     getReview: builder.query<any, any>({
-      query: (productId ) => ({
+      query: (productId) => ({
         url: `/reviews`,
         method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem("token"),
-        },
         params: {
-          productId,  // Category filter
+          productId,
         },
       }),
       providesTags: ['Reviews'],

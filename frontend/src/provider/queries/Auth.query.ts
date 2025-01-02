@@ -4,7 +4,16 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const AuthApi = createApi({
     reducerPath: 'AuthApi',
-    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000/api" }),
+    baseQuery: fetchBaseQuery({ 
+        baseUrl: "http://localhost:8000/api",
+        prepareHeaders: (headers) => {
+            const token = localStorage.getItem("token")?.trim();
+            if (token) {
+                headers.set('authorization', `Bearer ${token}`);
+            }
+            return headers;
+        }
+    }),
     endpoints: (builder) => ({
         registerUser: builder.mutation<any,any>({
             query: (obj) => ({
@@ -23,10 +32,7 @@ export const AuthApi = createApi({
         getProfile: builder.query<any, any>({
             query: () => ({
                 url: '/auth/profile',
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem("token"),
-                  }
+                method: 'GET'
             })
         }),
     }),

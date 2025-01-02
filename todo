@@ -1,7 +1,7 @@
 TODO:
-make page accessible for users who are not logged in []
+make page accessible for users who are not logged in [x]
 
-when user is not logged in, show login button when doing a user action []
+when user is not logged in, show login button when doing a user action [x]
 
 make checkout page[]
 
@@ -12,3 +12,7 @@ landing page[x]
 reviews[x]
 
 shopping cart page needs fixed image display[]
+
+features:
+wishlist and cart does not show deleted products
+user directed to login page when trying to do a user action

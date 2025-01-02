@@ -67,7 +67,7 @@ class WishlistService {
         }
 
         return wishlist;
-    }
+    }   
     static async removeFromWishlist(userId, productId) {
         const wishlist = await WishlistModel.findOne({ userId });
         if (!wishlist) {
