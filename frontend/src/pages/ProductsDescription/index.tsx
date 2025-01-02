@@ -70,7 +70,7 @@ function ProductDetails() {
   const sliderSettings = {
     vertical: true,
     dots: false,
-    infinite: false,
+    infinite: true,
     speed: 500,
     slidesToShow: Math.min(3, product.product.images.length),
     slidesToScroll: 1,
