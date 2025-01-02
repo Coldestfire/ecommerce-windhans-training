@@ -42,18 +42,18 @@ const ProductCategory = () => {
   const [removeFromWishlist] = useRemoveFromWishlistMutation();
 
   const isProductInCart = (productId: string) => {
-    return cartData?.items?.some(item => item.productId._id === productId);
+    return cartData?.items?.some(item => item?.productId?._id === productId) || false;
   };
-
+  
   const isProductInWishlist = (productId: string) => {
-    return wishlistData?.items?.some(item => item.productId._id === productId);
+    return wishlistData?.items?.some(item => item?.productId?._id === productId) || false;
   };
 
   const handleAddToCart = async (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
     try {
       if (isProductInCart(productId)) {
-        const cartItem = cartData?.items?.find(item => item.productId._id === productId);
+        const cartItem = cartData?.items?.find(item => item?.productId?._id === productId);
         if (cartItem) {
           await updateCartItem({ productId, quantity: cartItem.quantity + 1 }).unwrap();
           toast.success(`Added another ${cartItem.productId.name} to cart`, {

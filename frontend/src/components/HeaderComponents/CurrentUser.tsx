@@ -35,6 +35,7 @@ const CurrentUser = () => {
     // Calculate total items in cart (including quantities)
     const cartItemsCount = cartData?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
     const wishlistItemsCount = wishlistData?.items?.length || 0;
+    console.log("wishlistItemsCount", wishlistItemsCount);
 
     const handlePopoverOpen = (event) => {
         setAnchorEl(event.currentTarget);

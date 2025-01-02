@@ -69,8 +69,24 @@ class CartService {
     }
 
     static async getCart(userId) {
-        const cart = await CartModel.findOne({ userId, status: 'pending' })
+        let cart = await CartModel.findOne({ userId, status: 'pending' })
             .populate('items.productId');
+
+        if (cart) {
+            // Filter out items with null productId
+            const validItems = cart.items.filter(item => item.productId !== null);
+            
+            // If items were filtered out, update the cart and recalculate total price
+            if (validItems.length !== cart.items.length) {
+                cart.items = validItems;
+                cart.totalPrice = validItems.reduce(
+                    (total, item) => total + (item.price * item.quantity),
+                    0
+                );
+                await cart.save();
+            }
+        }
+
         return cart;
     }
 

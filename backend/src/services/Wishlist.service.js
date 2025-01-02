@@ -49,14 +49,25 @@ class WishlistService {
     }
 
     static async getWishlist(userId) {
-        const wishlist = await WishlistModel.findOne({ userId })
+        let wishlist = await WishlistModel.findOne({ userId })
             .populate({
                 path: 'items.productId',
                 model: 'Product'
             });
+
+        if (wishlist) {
+            // Filter out items with null productId
+            const validItems = wishlist.items.filter(item => item.productId !== null);
+            
+            // If items were filtered out, update the wishlist
+            if (validItems.length !== wishlist.items.length) {
+                wishlist.items = validItems;
+                await wishlist.save();
+            }
+        }
+
         return wishlist;
     }
-
     static async removeFromWishlist(userId, productId) {
         const wishlist = await WishlistModel.findOne({ userId });
         if (!wishlist) {
