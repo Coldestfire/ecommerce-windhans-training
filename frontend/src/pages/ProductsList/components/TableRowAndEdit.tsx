@@ -12,7 +12,11 @@ import {
   Box,
   Typography,
   Grid,
-  Collapse
+  Collapse,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from "@mui/material";
 import { FileUpload } from 'primereact/fileupload';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -56,9 +60,20 @@ const TableCard = ({
     const [deleteCategory] = useDeleteCategoryMutation();
     const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
 
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
     const handleDelete = (id: string) => {
-        deleteProduct(id);
+        setProductToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (productToDelete) {
+            deleteProduct(productToDelete);
+            setDeleteDialogOpen(false);
+            setProductToDelete(null);
+        }
     };
 
     const handleEditClick = () => {
@@ -406,6 +421,36 @@ const TableCard = ({
                 </td>
             </>
         )}
+        <Dialog
+            open={deleteDialogOpen}
+            onClose={() => setDeleteDialogOpen(false)}
+            maxWidth="xs"
+            fullWidth
+        >
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogContent>
+                <Typography>
+                    Are you sure you want to delete this product? This action cannot be undone.
+                </Typography>
+            </DialogContent>
+            <DialogActions sx={{ p: 2.5 }}>
+                <Button
+                    onClick={() => setDeleteDialogOpen(false)}
+                    variant="outlined"
+                    sx={{ textTransform: 'none' }}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    onClick={handleConfirmDelete}
+                    color="error"
+                    variant="contained"
+                    sx={{ textTransform: 'none' }}
+                >
+                    Delete
+                </Button>
+            </DialogActions>
+        </Dialog>
     </tr>
     );
 };
