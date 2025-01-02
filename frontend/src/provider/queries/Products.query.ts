@@ -38,6 +38,12 @@ interface GetAllProductsResponse {
   hasMore: boolean;
 }
 
+interface GetAllProductsRequest {
+  query?: string;
+  page: number;
+  category?: string;
+}
+
 
 export const ProductApi = createApi({
   reducerPath: 'ProductApi',
@@ -46,17 +52,12 @@ export const ProductApi = createApi({
   tagTypes: ['Products', 'ProductStats'],
   endpoints: (builder) => ({
     // Get all products with pagination and search
-    getAllProducts: builder.query<GetAllProductsResponse, { query: string; page: number ; category: string }>({
-      query: ({ query, page, category }) => ({
-        url: `/products`,
+    getAllProducts: builder.query<GetAllProductsResponse, GetAllProductsRequest>({
+      query: ({ query = "", page = 1, category = "" }) => ({
+        url: `/products?query=${query}&page=${page}&category=${category}`,
         method: 'GET',
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem("token"),
-        },
-        params: {
-          page,      // Page number
-          query,     // Search query
-          category,  // Category filter
         },
       }),
       providesTags: ['Products'],

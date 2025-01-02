@@ -16,7 +16,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  Divider
+  Divider,
+  Pagination
 } from "@mui/material";
 import { FileUpload } from 'primereact/fileupload';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -33,6 +34,8 @@ const ProductsPage = () => {
   const [SearchParams] = useSearchParams();
   const [deleteCategory] = useDeleteCategoryMutation();
   const [errors, setErrors] = useState<any>({});
+  const [page, setPage] = useState(1);
+  const [rowsPerPage] = useState(10);
   
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -48,7 +51,7 @@ const ProductsPage = () => {
   const { data : fetchedCategories, isLoading: isLoadingCategories } = useGetCategoriesQuery({category:""});
   const { data, isLoading, isError } = useGetAllProductsQuery({
     query: SearchParams.get("query") || "",
-    page: Number(SearchParams.get("page")) || 1,
+    page: page,
     category: SearchParams.get("category") || ""
   });
   const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
@@ -142,6 +145,13 @@ const ProductsPage = () => {
     }
   };
 
+  const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const totalPages = Math.ceil((data?.total || 0) / rowsPerPage);
+
   if (isError) return <Typography color="error">Something went wrong</Typography>;
 
   
@@ -206,6 +216,33 @@ const ProductsPage = () => {
       ))}
     </tbody>
           </table>
+        </Box>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          p: 2,
+          borderTop: '1px solid',
+          borderColor: 'divider'
+        }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            size="large"
+            sx={{
+              '& .MuiPaginationItem-root': {
+                fontSize: '1rem',
+              },
+              '& .Mui-selected': {
+                backgroundColor: 'primary.main',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+              },
+            }}
+          />
         </Box>
       </Paper>
 

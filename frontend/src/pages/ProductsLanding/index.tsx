@@ -185,7 +185,7 @@ const ProductsLanding = () => {
           <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
             <Card
               sx={{
-                height: '103%',
+                height: '106%',
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'all 0.3s ease-in-out',
@@ -334,10 +334,17 @@ const ProductsLanding = () => {
                     sx={{ 
                       bgcolor: isProductInWishlist(product._id) ? 'error.light' : 'transparent',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      padding: '5px',
+                      paddingTop: '5px',
+                      paddingLeft: '6px',
+                      borderRadius: '50%',
+                      width: '40px',
+                      height: '40px',
                       '&:hover': { 
                         backgroundColor: isProductInWishlist(product._id) 
                           ? 'error.light' 
-                          : 'rgba(244, 67, 54, 0.04)' 
+                          : 'rgba(244, 67, 54, 0.04)',
+                        transform: 'scale(1.1)',
                       } 
                     }}
                   >
@@ -345,7 +352,11 @@ const ProductsLanding = () => {
                       sx={{ 
                         color: isProductInWishlist(product._id) ? 'white' : 'error.main',
                         transition: 'color 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        fontSize: '1.5rem'
+                        fontSize: '1.8rem',
+                        marginTop: '2px',
+                        animation: isProductInWishlist(product._id) 
+                          ? 'pulse 0.3s cubic-bezier(0.4, 0, 0.2, 1)' 
+                          : 'none',
                       }} 
                     />
                   </IconButton>

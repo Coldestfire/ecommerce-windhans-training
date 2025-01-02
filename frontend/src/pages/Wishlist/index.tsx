@@ -32,7 +32,7 @@ const WishlistPage = () => {
           {wishlist?.items?.map((item) => (
             <Grid item xs={12} sm={6} md={4} key={item.productId._id}>
               <Card sx={{
-                height: '103%',
+                height: '106%',
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'all 0.3s ease-in-out',

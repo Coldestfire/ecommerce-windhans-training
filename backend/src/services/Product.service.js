@@ -78,6 +78,8 @@ class ProductService {
             const response = {
                 data: products,
                 total: totalCount,
+                currentPage: validatedPage,
+                totalPages: Math.ceil(totalCount / limit),
                 hasMore: skip + products.length < totalCount,
             };
     

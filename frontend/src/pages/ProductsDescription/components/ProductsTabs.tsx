@@ -1,4 +1,4 @@
-import { Box, Tabs, Tab, Collapse, Typography, Paper, Divider, Rating, Avatar } from '@mui/material';
+import { Box, Tabs, Tab, Collapse, Typography, Paper, Divider, Rating, Avatar, Pagination } from '@mui/material';
 import { useState } from 'react';
 import { useGetReviewQuery } from '../../../provider/queries/Reviews.query';
 import PersonIcon from '@mui/icons-material/Person';
@@ -11,11 +11,23 @@ interface ProductTabsProps {
 
 const ProductTabs: React.FC<ProductTabsProps> = ({ description, reviews, id }) => {
   const [tabIndex, setTabIndex] = useState(0);
+  const [page, setPage] = useState(1);
   const { data: Productreviews } = useGetReviewQuery(id);
-
+  const reviewsPerPage = 5; //REVIEWS PER PAGE
+ 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
+
+  // Calculate pagination
+  const startIndex = (page - 1) * reviewsPerPage;
+  const endIndex = startIndex + reviewsPerPage;
+  const paginatedReviews = Productreviews?.data?.slice(startIndex, endIndex);
+  const totalPages = Math.ceil((Productreviews?.data?.length || 0) / reviewsPerPage);
 
   return (
     <Box sx={{ mt: 4, borderRadius: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
@@ -73,7 +85,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ description, reviews, id }) =
           <Collapse in={true}>
             {Productreviews?.data?.length > 0 ? (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {Productreviews.data.map((review, index) => (
+                {paginatedReviews.map((review, index) => (
                   <Box key={index} sx={{ 
                     p: 3, 
                     borderRadius: 2,
@@ -111,6 +123,34 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ description, reviews, id }) =
                     </Typography>
                   </Box>
                 ))}
+                
+                {Productreviews.data.length > reviewsPerPage && (
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    mt: 2 
+                  }}>
+                    <Pagination
+                      count={totalPages}
+                      page={page}
+                      onChange={handlePageChange}
+                      color="primary"
+                      size="large"
+                      sx={{
+                        '& .MuiPaginationItem-root': {
+                          fontSize: '1rem',
+                        },
+                        '& .Mui-selected': {
+                          backgroundColor: 'primary.main',
+                          color: 'white',
+                          '&:hover': {
+                            backgroundColor: 'primary.dark',
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+                )}
               </Box>
             ) : (
               <Box sx={{ 
