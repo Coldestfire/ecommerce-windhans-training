@@ -43,12 +43,13 @@ const TableCard = ({
         description: data.description,
         price: data.price,
         stock: data.stock,
-        image: data.image ,
+        images: data.images,
         category: data.category,
         categoryName: data.category.name
     });
 
-
+    const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
+    const [newImages, setNewImages] = useState<string[]>([]);
 
     const [errors, setErrors] = useState<any>({});
     const [deleteProduct] = useDeleteProductMutation();
@@ -70,24 +71,41 @@ const TableCard = ({
     };
 
     const handleImageChange = (e) => {
-        const file = e.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setEditForm((prev) => ({ ...prev, image: reader.result }));
-            };
-            reader.readAsDataURL(file);
+        const files = e.files;
+        if (files) {
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setNewImages(prev => [...prev, reader.result as string]);
+                };
+                reader.readAsDataURL(file);
+            });
         }
+    };
+
+    const handleDeleteImage = (imageUrl: string) => {
+        setImagesToDelete(prev => [...prev, imageUrl]);
+        setEditForm(prev => ({
+            ...prev,
+            images: prev.images.filter(img => img !== imageUrl)
+        }));
     };
 
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        console.log("Edit form data:", editForm);
-        console.log("Edit form data category :", editForm.category);
-        console.log("E: ", e);
+        const updatedImages = [
+            ...editForm.images.filter(img => !imagesToDelete.includes(img)),
+            ...newImages
+        ];
 
-        await updateProduct({ id: data._id, data: editForm });
+        await updateProduct({ 
+            id: data._id, 
+            data: {
+                ...editForm,
+                images: updatedImages
+            }
+        });
         onEditEnd();
     };
 
@@ -225,13 +243,83 @@ const TableCard = ({
                                             borderRadius: 1,
                                             bgcolor: 'white'
                                         }}>
+                                            <Typography variant="subtitle2" sx={{ mb: 2 }}>Current Images</Typography>
+                                            <Grid container spacing={2} sx={{ mb: 2 }}>
+                                                {editForm.images.map((img, index) => (
+                                                    <Grid item key={index} xs={6} sm={4} md={3}>
+                                                        <Box sx={{ position: 'relative' }}>
+                                                            <img 
+                                                                src={img} 
+                                                                alt={`Product ${index}`} 
+                                                                style={{ 
+                                                                    width: '100%', 
+                                                                    height: '100px', 
+                                                                    objectFit: 'contain' 
+                                                                }} 
+                                                            />
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => handleDeleteImage(img)}
+                                                                sx={{
+                                                                    position: 'absolute',
+                                                                    top: 4,
+                                                                    right: 4,
+                                                                    bgcolor: 'rgba(255,255,255,0.8)',
+                                                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
+                                                                }}
+                                                            >
+                                                                <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Box>
+                                                    </Grid>
+                                                ))}
+                                            </Grid>
+
+                                            <Typography variant="subtitle2" sx={{ mb: 2 }}>Add New Images</Typography>
                                             <FileUpload
-                                                name="image"
+                                                name="images"
                                                 accept="image/*"
                                                 onSelect={handleImageChange}
                                                 mode="basic"
-                                                chooseLabel="Change Image"
+                                                multiple
+                                                chooseLabel="Add Images"
                                             />
+
+                                            {newImages.length > 0 && (
+                                                <Box sx={{ mt: 2 }}>
+                                                    <Typography variant="subtitle2" sx={{ mb: 1 }}>New Images Preview</Typography>
+                                                    <Grid container spacing={2}>
+                                                        {newImages.map((img, index) => (
+                                                            <Grid item key={index} xs={6} sm={4} md={3}>
+                                                                <Box sx={{ position: 'relative' }}>
+                                                                    <img 
+                                                                        src={img} 
+                                                                        alt={`New ${index}`} 
+                                                                        style={{ 
+                                                                            width: '100%', 
+                                                                            height: '100px', 
+                                                                            objectFit: 'contain' 
+                                                                        }} 
+                                                                    />
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        onClick={() => setNewImages(prev => prev.filter((_, i) => i !== index))}
+                                                                        sx={{
+                                                                            position: 'absolute',
+                                                                            top: 4,
+                                                                            right: 4,
+                                                                            bgcolor: 'rgba(255,255,255,0.8)',
+                                                                            '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
+                                                                        }}
+                                                                    >
+                                                                        <DeleteIcon fontSize="small" />
+                                                                    </IconButton>
+                                                                </Box>
+                                                            </Grid>
+                                                        ))}
+                                                    </Grid>
+                                                </Box>
+                                            )}
                                         </Box>
                                     </Grid>
                                 </Grid>
