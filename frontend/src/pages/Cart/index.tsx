@@ -89,6 +89,11 @@ const CartPage = () => {
             toast.error('Payment verification failed');
           }
         },
+        modal: {
+          ondismiss: function() {
+            toast.error('Payment cancelled');
+          }
+        },
         prefill: {
           name: 'Customer Name',
           email: 'customer@example.com',
