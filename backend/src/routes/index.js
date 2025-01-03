@@ -29,6 +29,10 @@ const routes= [
     {
         path:'/payment',
         route:require("./Payment.route")
+    },
+    {
+        path:'/orders',
+        route:require("./Order.route")
     }
 ]
 

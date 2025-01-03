@@ -183,6 +183,29 @@ class CartService {
 
         return cart;
     }
+
+    static async clearCart(userId) {
+        try {
+            const cart = await CartModel.findOneAndUpdate(
+                { userId },
+                { 
+                    $set: { 
+                        items: [],
+                        totalPrice: 0
+                    }
+                },
+                { new: true }
+            );
+
+            if (!cart) {
+                throw new ApiError(404, 'Cart not found');
+            }
+
+            return cart;
+        } catch (error) {
+            throw new ApiError(500, 'Failed to clear cart');
+        }
+    }
 }
 
 module.exports = CartService;

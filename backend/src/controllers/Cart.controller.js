@@ -1,4 +1,3 @@
-
 const CatchAsync = require("../utils/CatchAsync");
 const CartService = require("../services/Cart.service");
 
@@ -33,6 +32,11 @@ class CartController {
     static checkoutCart = CatchAsync(async (req, res) => {
         const cart = await CartService.checkoutCart(req.user);
         return res.status(httpStatus200).json(cart);
+    });
+
+    static clearCart = CatchAsync(async (req, res) => {
+        const cart = await CartService.clearCart(req.user);
+        res.status(200).json(cart);
     });
 }
 

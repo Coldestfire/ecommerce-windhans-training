@@ -13,5 +13,6 @@ router.post('/add', CartController.addToCart);
 router.patch('/update', CartController.updateCartItem);
 router.delete('/remove/:productId', CartController.removeFromCart);
 router.post('/checkout', CartController.checkoutCart);
+router.delete('/clear', Authentication, CartController.clearCart);
 
 module.exports = router;

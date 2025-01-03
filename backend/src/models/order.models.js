@@ -12,24 +12,21 @@ const orderSchema = new mongoose.Schema(
 				product: {
 					type: mongoose.Schema.Types.ObjectId,
 					ref: "Product",
-					required: false,
+					required: true,
 				},
 				quantity: {
 					type: Number,
 					required: true,
-					min: 1,
 				},
 				price: {
 					type: Number,
 					required: true,
-					min: 0,
 				},
 			},
 		],
 		totalAmount: {
 			type: Number,
 			required: true,
-			min: 0,
 		},
 		status: {
 			type: String,
@@ -38,12 +35,10 @@ const orderSchema = new mongoose.Schema(
 		},
 		razorpayOrderId: {
 			type: String,
-			unique: true,
+			required: true,
 		},
 		razorpayPaymentId: {
 			type: String,
-			unique: true,
-			sparse: true
 		},
 		razorpaySignature: {
 			type: String,
@@ -51,8 +46,8 @@ const orderSchema = new mongoose.Schema(
 		},
 		paymentStatus: {
 			type: String,
-			enum: ['pending', 'completed', 'failed'],
-			default: 'pending'
+				enum: ['pending', 'completed', 'failed'],
+				default: 'pending'
 		}
 	},
 	{ timestamps: true }
