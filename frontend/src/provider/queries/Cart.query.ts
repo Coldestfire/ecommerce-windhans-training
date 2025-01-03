@@ -36,7 +36,7 @@ interface UpdateCartItemDTO {
 
 export const CartApi = createApi({
   reducerPath: 'CartApi',
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000/api" }),
+  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BACKEND_URL + "/api" }),
   
   tagTypes: ['Cart'],
   endpoints: (builder) => ({

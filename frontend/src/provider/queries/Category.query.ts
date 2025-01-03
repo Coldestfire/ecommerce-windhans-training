@@ -25,7 +25,7 @@ interface GetAllCategoryResponse {
 
 export const CategoryApi = createApi({
   reducerPath: 'CategoryApi',
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000/api" }),
+  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BACKEND_URL + "/api" }),
   
   tagTypes: ['Categories'],
   endpoints: (builder) => ({

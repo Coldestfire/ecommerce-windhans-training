@@ -28,6 +28,7 @@ import { useGetCategoriesQuery, useDeleteCategoryMutation } from "../../provider
 import { useSearchParams } from "react-router-dom";
 import TableCard from "./components/TableRowAndEdit";
 import AddCategory from "./components/AddCategory";
+import SearchIcon from '@mui/icons-material/Search';
 
 const ProductsPage = () => {
   const [visible, setVisible] = useState(false);
@@ -36,6 +37,7 @@ const ProductsPage = () => {
   const [errors, setErrors] = useState<any>({});
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -152,6 +154,17 @@ const ProductsPage = () => {
 
   const totalPages = Math.ceil((data?.total || 0) / rowsPerPage);
 
+
+  const filteredProducts = data?.data?.filter(product => {
+    const searchTerm = searchQuery.toLowerCase();
+    const productName = product.name.toLowerCase();
+    const categoryName = product.category?.name.toLowerCase() || '';
+
+    console.log("product from filtered", product.category?.name);
+    
+    return productName.includes(searchTerm) || categoryName.includes(searchTerm);
+  });
+
   if (isError) return <Typography color="error">Something went wrong</Typography>;
 
   
@@ -185,6 +198,39 @@ const ProductsPage = () => {
         </Box>
       </Box>
 
+      <Box sx={{ mb: 4, display: 'flex', gap: 2, alignItems: 'center' }}>
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon color="action" />
+              </InputAdornment>
+            ),
+            sx: {
+              borderRadius: '12px',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(0, 0, 0, 0.1)',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(0, 0, 0, 0.2)',
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'primary.main',
+              }
+            }
+          }}
+          sx={{
+            maxWidth: '600px',
+            margin: '0 auto',
+          }}
+        />
+      </Box>
+
       {/* Products Table */}
       <Paper sx={{ 
         borderRadius: 2, 
@@ -204,16 +250,26 @@ const ProductsPage = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-      {data?.data?.map((product: any, i: number) => (
-        <TableCard 
-          key={i} 
-          id={i + 1} 
-          data={product}
-          isEditing={editingId === product._id}
-          onEditStart={() => handleEditStart(product._id)}
-          onEditEnd={handleEditEnd}
-        />
-      ))}
+      {filteredProducts?.length === 0 ? (
+        <tr>
+          <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
+            <Typography color="textSecondary">
+              No products found matching "{searchQuery}" in names or categories
+            </Typography>
+          </td>
+        </tr>
+      ) : (
+        filteredProducts?.map((product: any, i: number) => (
+          <TableCard 
+            key={i} 
+            id={i + 1} 
+            data={product}
+            isEditing={editingId === product._id}
+            onEditStart={() => handleEditStart(product._id)}
+            onEditEnd={handleEditEnd}
+          />
+        ))
+      )}
     </tbody>
           </table>
         </Box>

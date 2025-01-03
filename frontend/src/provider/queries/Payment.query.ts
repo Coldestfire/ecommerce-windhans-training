@@ -16,7 +16,7 @@ interface VerifyPaymentRequest {
 export const paymentApi = createApi({
   reducerPath: 'paymentApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: 'http://localhost:8000/api/payment',
+    baseUrl: import.meta.env.VITE_BACKEND_URL + "/api/payment",
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {

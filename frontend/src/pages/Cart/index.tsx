@@ -37,7 +37,10 @@ const CartPage = () => {
 
   const handleUpdateQuantity = async (productId: string, currentQuantity: number, increment: boolean) => {
     const newQuantity = increment ? currentQuantity + 1 : currentQuantity - 1;
-    if (newQuantity < 1) return;
+    if (newQuantity < 1){
+      handleRemoveItem(productId);
+      return;
+    };
 
     try {
       await updateCartItem({ productId, quantity: newQuantity }).unwrap();

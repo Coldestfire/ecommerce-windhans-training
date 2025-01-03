@@ -23,7 +23,7 @@ interface Wishlist {
 
 export const WishlistApi = createApi({
   reducerPath: 'WishlistApi',
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000/api" }),
+  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BACKEND_URL + "/api" }),
   
   tagTypes: ['Wishlist'],
   endpoints: (builder) => ({

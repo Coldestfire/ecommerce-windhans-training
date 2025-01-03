@@ -25,7 +25,7 @@ interface Order {
 export const orderApi = createApi({
   reducerPath: 'orderApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:8000/api/orders',
+    baseUrl: import.meta.env.VITE_BACKEND_URL + "/api/orders",
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {

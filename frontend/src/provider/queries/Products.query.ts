@@ -47,7 +47,7 @@ interface GetAllProductsRequest {
 
 export const ProductApi = createApi({
   reducerPath: 'ProductApi',
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000/api" }),
+  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BACKEND_URL + "/api" }),
   
   tagTypes: ['Products', 'ProductStats'],
   endpoints: (builder) => ({
