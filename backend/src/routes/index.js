@@ -25,6 +25,10 @@ const routes= [
     {
         path:'/wishlist',
         route:require("./Wishlist.route")
+    },
+    {
+        path:'/payment',
+        route:require("./Payment.route")
     }
 ]
 

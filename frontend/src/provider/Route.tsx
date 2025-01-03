@@ -10,6 +10,8 @@ import CartPage from "../pages/Cart";
 import WishlistPage from "../pages/Wishlist";
 import First from "../pages/First";
 import AdminRoute from "../components/AdminRoute";
+import Checkout from "../pages/Checkout";
+// import ProtectedRoute from "../components/ProtectedRoute";
 
 export const Routes = createBrowserRouter([
   {
@@ -47,6 +49,11 @@ export const Routes = createBrowserRouter([
       {
         path: "/wishlist",
         element: <WishlistPage />
+      },
+      {
+      
+        path: "/checkout",
+        element:  <Checkout />
       }
     ],
   },

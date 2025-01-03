@@ -5,11 +5,13 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { toast } from "react-toastify";
 import { formatIndianPrice } from "../../themes/formatPrices";
+import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
   const { data: cart, isLoading } = useGetCartQuery();
   const [removeFromCart] = useRemoveFromCartMutation();
   const [updateCartItem] = useUpdateCartItemMutation();
+  const navigate = useNavigate();
 
   const handleUpdateQuantity = async (productId: string, currentQuantity: number, increment: boolean) => {
     const newQuantity = increment ? currentQuantity + 1 : currentQuantity - 1;
@@ -162,7 +164,12 @@ const CartPage = () => {
                   </Typography>
                 </Box>
 
-                <Button variant="contained" fullWidth>
+                <Button 
+                  variant="contained" 
+                  fullWidth
+                  onClick={() => navigate('/checkout')}
+                  disabled={!cart?.items?.length}
+                >
                   Proceed to Checkout
                 </Button>
               </CardContent>

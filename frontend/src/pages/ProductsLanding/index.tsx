@@ -267,24 +267,30 @@ const ProductsLanding = () => {
                       color="primary" 
                       size="small"
                       sx={{ 
-                        bgcolor: isProductInCart(product._id) ? 'primary.light' : 'transparent',
+                        bgcolor: isProductInCart(product._id) ? 'primary.main' : 'transparent',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         borderRadius: '12px',
                         padding: '8px 12px',
-                        width: isProductInCart(product._id) ? '80px' : '40px',
+                        width: isProductInCart(product._id) ? '100px' : '40px',
+                        height: '36px',
+                        overflow: 'hidden',
                         '&:hover': { 
                           backgroundColor: isProductInCart(product._id) 
-                            ? 'primary.light' 
-                            : 'rgba(25, 118, 210, 0.04)' 
+                            ? 'primary.dark' 
+                            : 'rgba(25, 118, 210, 0.08)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                        },
+                        '&:active': {
+                          transform: 'translateY(0)',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                         }
                       }}
                     >
                       <Box sx={{ 
                         display: 'flex', 
-                        alignItems: 'center', 
-                        gap: 0.5,
-                        padding: '2px 4px',
-                        borderRadius: '8px',
+                        alignItems: 'center',
+                        gap: 1.5,
                         width: '100%',
                         justifyContent: isProductInCart(product._id) ? 'space-between' : 'center',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -295,14 +301,70 @@ const ProductsLanding = () => {
                           fontSize: '1.2rem'
                         }} />
                         {isProductInCart(product._id) && (
-                          <AddIcon sx={{ 
-                            color: 'white',
-                            fontSize: '1.2rem',
-                            opacity: 1,
-                            transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            transform: 'scale(1)',
-                            animation: 'fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                          }} />
+                          <Box 
+                            sx={{ 
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 0.5,
+                              '@keyframes expandIn': {
+                                '0%': {
+                                  width: '0',
+                                  opacity: 0
+                                },
+                                '100%': {
+                                  width: '45px',
+                                  opacity: 1
+                                }
+                              },
+                              animation: 'expandIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                              width: '45px'
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                position: 'relative',
+                                height: '20px',
+                                width: '20px',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <Typography
+                                key={cartData?.items?.find(item => item.productId._id === product._id)?.quantity}
+                                variant="caption"
+                                sx={{
+                                  color: 'white',
+                                  fontWeight: 'bold',
+                                  fontSize: '0.875rem',
+                                  position: 'absolute',
+                                  '@keyframes slideUpNumber': {
+                                    '0%': {
+                                      transform: 'translateY(100%)',
+                                      opacity: 0
+                                    },
+                                    '100%': {
+                                      transform: 'translateY(0)',
+                                      opacity: 1
+                                    }
+                                  },
+                                  animation: 'slideUpNumber 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                }}
+                              >
+                                {cartData?.items?.find(item => item.productId._id === product._id)?.quantity || 0}
+                              </Typography>
+                            </Box>
+                            <AddIcon sx={{ 
+                              color: 'white',
+                              fontSize: '1.2rem',
+                              '@keyframes fadeIn': {
+                                from: { opacity: 0 },
+                                to: { opacity: 1 }
+                              },
+                              animation: 'fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            }} />
+                          </Box>
                         )}
                       </Box>
                     </IconButton>

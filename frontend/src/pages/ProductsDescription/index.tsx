@@ -3,7 +3,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import { useParams, Link } from 'react-router-dom';
 import { useGetProductQuery } from '../../provider/queries/Products.query';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import { Typography, Button, Chip, Divider, Box } from '@mui/material';
+import { Typography, Button, Chip, Divider, Box, IconButton, Dialog } from '@mui/material';
 import Slider from 'react-slick';
 import { useState } from 'react';
 import ProductTabs from './components/ProductsTabs';
@@ -22,12 +22,14 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddIcon from '@mui/icons-material/Add';
 import { useProtectedAction } from '../../hooks/useProtectedAction';
+import CloseIcon from '@mui/icons-material/Close';
 
 
 function ProductDetails() {
   const { id } = useParams();
 
   const [selectedImage, setSelectedImage] = useState<string>(''); // State to store selected image
+  const [zoomModalOpen, setZoomModalOpen] = useState(false);
   const { data: product, error, isLoading, refetch } = useGetProductQuery(id);   
   const { data: fetchedCategories } = useGetCategoriesQuery({ category: "" });
 
@@ -70,14 +72,16 @@ function ProductDetails() {
   const sliderSettings = {
     vertical: true,
     dots: false,
-    infinite: true,
-    speed: 500,
+    infinite: false,
+    speed: 300,
     slidesToShow: Math.min(3, product.product.images.length),
     slidesToScroll: 1,
-    centerMode: false,
+    centerMode: true,
     centerPadding: '0px',
     focusOnSelect: true,
     mouseWheel: product.product.images.length > 3,
+    initialSlide: product.product.images.findIndex(img => img === selectedImage),
+    cssEase: 'cubic-bezier(0.4, 0, 0.2, 1)',
     beforeChange: (current: number, next: number) => {
       const newSelectedImage = product.product.images[next];
       if (newSelectedImage !== selectedImage) {
@@ -89,8 +93,8 @@ function ProductDetails() {
         breakpoint: 1024,
         settings: {
           slidesToShow: Math.min(3, product.product.images.length),
-          infinite: false,
-          centerMode: false
+          infinite: true,
+          centerMode: true
         }
       },
       {
@@ -98,8 +102,8 @@ function ProductDetails() {
         settings: {
           vertical: false,
           slidesToShow: Math.min(3, product.product.images.length),
-          infinite: false,
-          centerMode: false
+          infinite: true,
+          centerMode: true
         }
       }
     ]
@@ -108,6 +112,131 @@ function ProductDetails() {
   const handleReviewAdded = () => {
     // Refetch reviews or update UI as needed
     refetch();
+  };
+
+  const ZoomModal = ({ 
+    open, 
+    onClose, 
+    image 
+  }: { 
+    open: boolean; 
+    onClose: () => void; 
+    image: string; 
+  }) => {
+    const [scale, setScale] = useState(1);
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+    const handleWheel = (e: React.WheelEvent) => {
+      e.preventDefault();
+      const newScale = scale + (e.deltaY > 0 ? -0.1 : 0.1);
+      setScale(Math.min(Math.max(1, newScale), 3));
+    };
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+      if (isDragging && scale > 1) {
+        setPosition({
+          x: e.clientX - dragStart.x,
+          y: e.clientY - dragStart.y
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    return (
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth={false}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            boxShadow: 'none',
+            position: 'relative',
+            width: '100vw',
+            height: '100vh',
+          }
+        }}
+      >
+        <IconButton
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 16,
+            top: 16,
+            color: 'white',
+            bgcolor: 'rgba(255, 255, 255, 0.1)',
+            '&:hover': {
+              bgcolor: 'rgba(255, 255, 255, 0.2)',
+            }
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        
+        <Box
+          sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            overflow: 'hidden',
+          }}
+          onWheel={handleWheel}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          <img
+            src={image}
+            alt="Zoomed Product"
+            style={{
+              maxWidth: '90%',
+              maxHeight: '90%',
+              objectFit: 'contain',
+              transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+              transition: isDragging ? 'none' : 'transform 0.1s',
+            }}
+            draggable={false}
+          />
+        </Box>
+      </Dialog>
+    );
+  };
+
+  const thumbnailStyles = {
+    p: 2,
+    '& img': {
+      width: '100%',
+      aspectRatio: '1',
+      objectFit: 'contain',
+      cursor: 'pointer',
+      borderRadius: '8px',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      transform: 'scale(0.85)',
+      opacity: 0.7,
+      '&.selected': {
+        transform: 'scale(1)',
+        opacity: 1,
+        boxShadow: '0 0 0 2px #3b82f6'
+      },
+      '&:hover': {
+        transform: 'scale(0.95)',
+        opacity: 0.9
+      }
+    }
   };
 
   return (
@@ -130,23 +259,27 @@ function ProductDetails() {
         <div className="lg:col-span-2 order-2 lg:order-1">
           <Slider {...sliderSettings} className="product-thumbnails">
             {product.product.images.map((img, index) => (
-              <div key={index} className="p-2">
+              <Box
+                key={index}
+                sx={thumbnailStyles}
+              >
                 <img
                   src={img}
                   alt={`product-thumbnail-${index}`}
-                  className={`w-full aspect-square object-contain cursor-pointer rounded-lg transition-all
-                    ${selectedImage === img ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-300'}`}
-                  style={{ maxHeight: '100px', width: '100%', objectFit: 'contain' }}
+                  className={selectedImage === img ? 'selected' : ''}
                   onClick={() => setSelectedImage(img)}
                 />
-              </div>
+              </Box>
             ))}
           </Slider>
         </div>
 
         {/* Main Image */}
         <div className="lg:col-span-6 order-1 lg:order-2">
-          <div className="bg-white rounded-xl p-4 flex items-center justify-center">
+          <div 
+            className="bg-white rounded-xl p-4 flex items-center justify-center cursor-zoom-in"
+            onClick={() => setZoomModalOpen(true)}
+          >
             <img
               src={selectedImage}
               alt="Selected Product"
@@ -154,6 +287,11 @@ function ProductDetails() {
               style={{ maxHeight: '400px', width: '100%', objectFit: 'contain' }}
             />
           </div>
+          <ZoomModal
+            open={zoomModalOpen}
+            onClose={() => setZoomModalOpen(false)}
+            image={selectedImage}
+          />
         </div>
 
         {/* Product Details */}
@@ -197,14 +335,45 @@ function ProductDetails() {
                     display: 'flex', 
                     alignItems: 'center', 
                     gap: 0.5,
+                    minWidth: '48px',
                   }}>
                     <ShoppingCartIcon sx={{ fontSize: '1.2rem' }} />
-                    {isProductInCart(id) && (
-                      <AddIcon sx={{ 
-                        fontSize: '1.2rem',
-                        opacity: 1,
-                        transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      }} />
+                    {isProductInCart(id) && cartData?.items && (
+                      <Box
+                        sx={{
+                          position: 'relative',
+                          height: '20px',
+                          width: '20px',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        <Typography
+                          key={cartData.items.find(item => item.productId._id === id)?.quantity}
+                          variant="caption"
+                          sx={{
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '0.875rem',
+                            position: 'absolute',
+                            '@keyframes slideUpNumber': {
+                              '0%': {
+                                transform: 'translateY(100%)',
+                                opacity: 0
+                              },
+                              '100%': {
+                                transform: 'translateY(0)',
+                                opacity: 1
+                              }
+                            },
+                            animation: 'slideUpNumber 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          }}
+                        >
+                          {cartData.items.find(item => item.productId._id === id)?.quantity || 0}
+                        </Typography>
+                      </Box>
                     )}
                   </Box>
                 }
@@ -231,9 +400,13 @@ function ProductDetails() {
                   py: 0.75,
                   height: '36px',
                   textTransform: 'none',
-                  fontSize: '1rem',
+                  fontSize: '0.875rem',
                   bgcolor: isProductInCart(id) ? 'primary.light' : 'primary.main',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  minWidth: '180px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                   '&:hover': {
                     bgcolor: isProductInCart(id) ? 'primary.main' : 'primary.dark',
                   }

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema(
 	{
@@ -12,7 +12,7 @@ const orderSchema = new mongoose.Schema(
 				product: {
 					type: mongoose.Schema.Types.ObjectId,
 					ref: "Product",
-					required: true,
+					required: false,
 				},
 				quantity: {
 					type: Number,
@@ -31,14 +31,31 @@ const orderSchema = new mongoose.Schema(
 			required: true,
 			min: 0,
 		},
-		stripeSessionId: {
+		status: {
+			type: String,
+			enum: ['pending', 'processing', 'completed', 'failed'],
+			default: 'pending'
+		},
+		razorpayOrderId: {
 			type: String,
 			unique: true,
 		},
+		razorpayPaymentId: {
+			type: String,
+			unique: true,
+			sparse: true
+		},
+		razorpaySignature: {
+			type: String,
+			sparse: true
+		},
+		paymentStatus: {
+			type: String,
+			enum: ['pending', 'completed', 'failed'],
+			default: 'pending'
+		}
 	},
 	{ timestamps: true }
 );
 
-const Order = mongoose.model("Order", orderSchema);
-
-export default Order;
+module.exports = mongoose.model("Order", orderSchema);

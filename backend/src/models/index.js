@@ -11,3 +11,5 @@ exports.ReviewModel = require("./review.models")
 exports.CartModel = require("./cart.models")
 
 exports.WishlistModel = require("./wishlist.models")
+
+exports.OrderModel = require("./order.models")

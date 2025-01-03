@@ -88,11 +88,25 @@
   
 .product-thumbnails .slick-slide {
   padding: 4px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .product-thumbnails .slick-current img {
   border-color: #3b82f6;
   border-width: 2px;
+}
+
+.product-thumbnails .slick-current {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-thumbnails .slick-track {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Smooth transition for vertical movement */
+.product-thumbnails.slick-vertical .slick-track {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 @media (max-width: 768px) {
