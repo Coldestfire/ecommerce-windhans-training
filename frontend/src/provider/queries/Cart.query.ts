@@ -113,6 +113,18 @@ export const CartApi = createApi({
       }),
       invalidatesTags: ['Cart'],
     }),
+
+    // Clear cart
+    clearCart: builder.mutation<void, void>({
+      query: () => ({
+        url: '/cart/clear',
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("token"),
+        },
+      }),
+      invalidatesTags: ['Cart'],
+    }),
   }),
 });
 
@@ -123,4 +135,5 @@ export const {
   useUpdateCartItemMutation,
   useRemoveFromCartMutation,
   useCheckoutCartMutation,
+  useClearCartMutation,
 } = CartApi;

@@ -1,5 +1,7 @@
-import { Box, Container, Typography, Button, Grid, Card, CardContent, CardMedia, IconButton } from "@mui/material";
-import { useGetCartQuery, useRemoveFromCartMutation, useUpdateCartItemMutation } from "../../provider/queries/Cart.query";
+import { useEffect, useState } from 'react';
+import { Box, Container, Typography, Button, Grid, Card, CardContent, CardMedia, IconButton, Divider } from "@mui/material";
+import { useGetCartQuery, useRemoveFromCartMutation, useUpdateCartItemMutation, useClearCartMutation } from "../../provider/queries/Cart.query";
+import { useCreatePaymentMutation, useVerifyPaymentMutation } from '../../provider/queries/Payment.query';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -7,11 +9,31 @@ import { toast } from "react-toastify";
 import { formatIndianPrice } from "../../themes/formatPrices";
 import { useNavigate } from "react-router-dom";
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 const CartPage = () => {
   const { data: cart, isLoading } = useGetCartQuery();
   const [removeFromCart] = useRemoveFromCartMutation();
   const [updateCartItem] = useUpdateCartItemMutation();
+  const [clearCart] = useClearCartMutation();
+  const [createPayment] = useCreatePaymentMutation();
+  const [verifyPayment] = useVerifyPaymentMutation();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const handleUpdateQuantity = async (productId: string, currentQuantity: number, increment: boolean) => {
     const newQuantity = increment ? currentQuantity + 1 : currentQuantity - 1;
@@ -30,6 +52,59 @@ const CartPage = () => {
       toast.success('Item removed from cart');
     } catch (error) {
       toast.error('Failed to remove item');
+    }
+  };
+
+  const handlePayment = async () => {
+    if (!cart?.totalPrice) {
+      toast.error('Invalid cart total');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const order = await createPayment(cart.totalPrice).unwrap();
+      
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: cart.totalPrice * 100,
+        currency: 'INR',
+        name: 'Your Store Name',
+        description: 'Purchase Description',
+        order_id: order.id,
+        handler: async (response: any) => {
+          try {
+            const result = await verifyPayment({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            }).unwrap();
+
+            if (result.success) {
+              await clearCart().unwrap();
+              toast.success('Payment successful!');
+              navigate('/payment-success', { state: { orderId: order.orderId } });
+            }
+          } catch (error) {
+            toast.error('Payment verification failed');
+          }
+        },
+        prefill: {
+          name: 'Customer Name',
+          email: 'customer@example.com',
+          contact: '9999999999',
+        },
+        theme: {
+          color: '#1976d2',
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      toast.error('Failed to initiate payment');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -135,7 +210,7 @@ const CartPage = () => {
                             whiteSpace: 'nowrap'
                           }}
                         >
-                          {formatIndianPrice(item.price * item.quantity)}
+                          {formatIndianPrice(item.price * item.quantity || 0)}
                         </Typography>
                       </Box>
                     </Box>
@@ -160,17 +235,22 @@ const CartPage = () => {
                 }}>
                   <Typography fontWeight="bold">Total Amount:</Typography>
                   <Typography variant="h6" color="primary.main">
-                    {formatIndianPrice(cart?.totalPrice)}
+                    {cart?.totalPrice ? formatIndianPrice(cart.totalPrice) : formatIndianPrice(0)}
                   </Typography>
                 </Box>
 
                 <Button 
                   variant="contained" 
                   fullWidth
-                  onClick={() => navigate('/checkout')}
-                  disabled={!cart?.items?.length}
+                  onClick={handlePayment}
+                  disabled={loading || !cart?.items?.length}
+                  sx={{
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontSize: '1rem'
+                  }}
                 >
-                  Proceed to Checkout
+                  {loading ? 'Processing...' : 'Pay Now'}
                 </Button>
               </CardContent>
             </Card>

@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 interface CreateOrderResponse {
   id: string;
-  razorpayOrderId: string;
+  orderId: string;
   amount: number;
   currency: string;
 }
@@ -25,10 +25,11 @@ export const paymentApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ['Order'],
   endpoints: (builder) => ({
-    createOrder: builder.mutation<CreateOrderResponse, number>({
+    createPayment: builder.mutation<CreateOrderResponse, number>({
       query: (amount) => ({
-        url: '/create-order',
+        url: '/create-payment',
         method: 'POST',
         body: { amount },
       }),
@@ -39,11 +40,12 @@ export const paymentApi = createApi({
         method: 'POST',
         body,
       }),
+      invalidatesTags: ['Order'],
     }),
   }),
 });
 
 export const { 
-  useCreateOrderMutation,
+  useCreatePaymentMutation,
   useVerifyPaymentMutation,
 } = paymentApi;

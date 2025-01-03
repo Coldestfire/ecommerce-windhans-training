@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Box, Container, Typography, Button, Card, CardContent, Grid, Divider } from '@mui/material';
-import { useGetCartQuery } from '../../provider/queries/Cart.query';
+import { useGetCartQuery, useClearCartMutation } from '../../provider/queries/Cart.query';
 import { formatIndianPrice } from '../../themes/formatPrices';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { useCreateOrderMutation, useVerifyPaymentMutation } from '../../provider/queries/Payment.query';
+import { useCreatePaymentMutation, useVerifyPaymentMutation } from '../../provider/queries/Payment.query';
 
 declare global {
   interface Window {
@@ -16,8 +16,9 @@ const CheckoutPage = () => {
   const { data: cart } = useGetCartQuery();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [createOrder] = useCreateOrderMutation();
+  const [createPayment] = useCreatePaymentMutation();
   const [verifyPayment] = useVerifyPaymentMutation();
+  const [clearCart] = useClearCartMutation();
 
   useEffect(() => {
     // Load Razorpay script
@@ -34,46 +35,49 @@ const CheckoutPage = () => {
   const handlePayment = async () => {
     setLoading(true);
     try {
-      const order = await createOrder(cart?.totalPrice || 0).unwrap();
-
+      const order = await createPayment(cart?.totalPrice || 0).unwrap();
+      console.log('Created order:', order);
+  
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: cart?.totalPrice * 100,
+        amount: (cart?.totalPrice || 0) * 100,
         currency: 'INR',
         name: 'Your Store Name',
         description: 'Purchase Description',
-        order_id: order.razorpayOrderId,
+        order_id: order.id,
         handler: async (response: any) => {
           try {
+            console.log('Razorpay response:', response);
             const result = await verifyPayment({
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
             }).unwrap();
-
+  
             if (result.success) {
+              await clearCart().unwrap();
               toast.success('Payment successful!');
-              navigate('/orders');
-            } else {
-              throw new Error('Payment verification failed');
+              navigate('/payment-success', { state: { orderId: order.orderId } });
             }
           } catch (error) {
+            console.error('Verification error:', error);
             toast.error('Payment verification failed');
           }
         },
         prefill: {
           name: 'Customer Name',
           email: 'customer@example.com',
-          contact: 'Customer Phone',
+          contact: '9999999999',
         },
         theme: {
           color: '#1976d2',
         },
       };
-
+  
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
+      console.error('Payment error:', error);
       toast.error('Failed to initiate payment');
     } finally {
       setLoading(false);
