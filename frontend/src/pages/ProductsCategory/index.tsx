@@ -20,12 +20,14 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 import { useState } from 'react';
 import { useAddToCartMutation, useUpdateCartItemMutation, useGetCartQuery } from '../../provider/queries/Cart.query';
 import { useAddToWishlistMutation, useGetWishlistQuery, useRemoveFromWishlistMutation } from '../../provider/queries/Wishlist.query';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { formatIndianPrice } from '../../themes/formatPrices';
+import { useRemoveFromCartMutation } from '../../provider/queries/Cart.query';
 
 const ProductCategory = () => {
   const { category } = useParams();
@@ -40,7 +42,7 @@ const ProductCategory = () => {
   const [addToWishlist] = useAddToWishlistMutation();
   const { data: wishlistData } = useGetWishlistQuery();
   const [removeFromWishlist] = useRemoveFromWishlistMutation();
-
+  const [removeFromCart] = useRemoveFromCartMutation();
   const isProductInCart = (productId: string) => {
     return cartData?.items?.some(item => item?.productId?._id === productId) || false;
   };
@@ -53,35 +55,18 @@ const ProductCategory = () => {
     e.stopPropagation();
     try {
       if (isProductInCart(productId)) {
-        const cartItem = cartData?.items?.find(item => item?.productId?._id === productId);
+        const cartItem = cartData?.items?.find(item => item.productId?._id === productId);
         if (cartItem) {
           await updateCartItem({ productId, quantity: cartItem.quantity + 1 }).unwrap();
-          toast.success(`Added another ${cartItem.productId.name} to cart`, {
-            position: "top-left",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
+          toast.success(`Added another ${cartItem.productId.name} to cart`);
         }
       } else {
         await addToCart({ productId, quantity: 1 }).unwrap();
         const productName = data?.data?.find(p => p._id === productId)?.name;
-        toast.success(`${productName} added to cart`, {
-          position: "top-left",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+        toast.success(`${productName} added to cart`);
       }
     } catch (error) {
-      toast.error('Failed to update cart', {
-        position: "bottom-left",
-        autoClose: 2000,
-      });
+      toast.error('Failed to update cart');
     }
   };
 
@@ -108,6 +93,28 @@ const ProductCategory = () => {
   };
 
   const totalPages = data?.totalPages || 1;
+
+  const handleUpdateQuantity = async (e: React.MouseEvent, productId: string, newQuantity: number) => {
+    e.stopPropagation();
+    try {
+      await updateCartItem({ productId, quantity: newQuantity }).unwrap();
+      const productName = data?.data?.find(p => p._id === productId)?.name;
+      toast.success(`Updated ${productName} quantity`);
+    } catch (error) {
+      toast.error('Failed to update quantity');
+    }
+  };
+
+  const handleRemoveFromCart = async (e: React.MouseEvent, productId: string) => {
+    e.stopPropagation();
+    try {
+      await removeFromCart(productId).unwrap();
+      const productName = data?.data?.find(p => p._id === productId)?.name;
+      toast.success(`${productName} removed from cart`);
+    } catch (error) {
+      toast.error('Failed to remove from cart');
+    }
+  };
 
   if (isLoading) return <CardSkeleton />;
   if (error) return <div className="text-center p-4 text-red-500">{error.message}</div>;
@@ -240,24 +247,30 @@ const ProductCategory = () => {
                         color="primary" 
                         size="small"
                         sx={{ 
-                          bgcolor: isProductInCart(product._id) ? 'primary.light' : 'transparent',
+                          bgcolor: isProductInCart(product._id) ? 'primary.main' : 'transparent',
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                           borderRadius: '12px',
                           padding: '8px 12px',
-                          width: isProductInCart(product._id) ? '80px' : '40px',
+                          width: isProductInCart(product._id) ? '120px' : '40px',
+                          height: '36px',
+                          overflow: 'hidden',
                           '&:hover': { 
                             backgroundColor: isProductInCart(product._id) 
-                              ? 'primary.light' 
-                              : 'rgba(25, 118, 210, 0.04)' 
+                              ? 'primary.dark' 
+                              : 'rgba(25, 118, 210, 0.08)',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                          },
+                          '&:active': {
+                            transform: 'translateY(0)',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                           }
                         }}
                       >
                         <Box sx={{ 
                           display: 'flex', 
-                          alignItems: 'center', 
-                          gap: 0.5,
-                          padding: '2px 4px',
-                          borderRadius: '8px',
+                          alignItems: 'center',
+                          gap: 1.5,
                           width: '100%',
                           justifyContent: isProductInCart(product._id) ? 'space-between' : 'center',
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -268,14 +281,103 @@ const ProductCategory = () => {
                             fontSize: '1.2rem'
                           }} />
                           {isProductInCart(product._id) && (
-                            <AddIcon sx={{ 
-                              color: 'white',
-                              fontSize: '1.2rem',
-                              opacity: 1,
-                              transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                              transform: 'scale(1)',
-                              animation: 'fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                            }} />
+                            <Box 
+                              sx={{ 
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5,
+                                '@keyframes expandIn': {
+                                  '0%': {
+                                    width: '0',
+                                    opacity: 0
+                                  },
+                                  '100%': {
+                                    width: '65px',
+                                    opacity: 1
+                                  }
+                                },
+                                animation: 'expandIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                width: '65px'
+                              }}
+                            >
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const currentQuantity = cartData?.items?.find(item => item.productId?._id === product._id)?.quantity || 0;
+                                  if (currentQuantity > 1) {
+                                    handleUpdateQuantity(e, product._id, currentQuantity - 1);
+                                  } else {
+                                    handleRemoveFromCart(e, product._id);
+                                  }
+                                }}
+                                sx={{
+                                  p: 0,
+                                  minWidth: '20px',
+                                  color: 'white',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                                  }
+                                }}
+                              >
+                                <RemoveIcon sx={{ fontSize: '1rem' }} />
+                              </IconButton>
+                              
+                              <Box
+                                sx={{
+                                  position: 'relative',
+                                  height: '20px',
+                                  width: '20px',
+                                  overflow: 'hidden',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}
+                              >
+                                <Typography
+                                  key={cartData?.items?.find(item => item.productId?._id === product._id)?.quantity}
+                                  variant="caption"
+                                  sx={{
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.875rem',
+                                    position: 'absolute',
+                                    '@keyframes slideUpNumber': {
+                                      '0%': {
+                                        transform: 'translateY(100%)',
+                                        opacity: 0
+                                      },
+                                      '100%': {
+                                        transform: 'translateY(0)',
+                                        opacity: 1
+                                      }
+                                    },
+                                    animation: 'slideUpNumber 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                  }}
+                                >
+                                  {cartData?.items?.find(item => item.productId?._id === product._id)?.quantity || 0}
+                                </Typography>
+                              </Box>
+                              
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const currentQuantity = cartData?.items?.find(item => item.productId?._id === product._id)?.quantity || 0;
+                                  handleUpdateQuantity(e, product._id, currentQuantity + 1);
+                                }}
+                                sx={{
+                                  p: 0,
+                                  minWidth: '20px',
+                                  color: 'white',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                                  }
+                                }}
+                              >
+                                <AddIcon sx={{ fontSize: '1rem' }} />
+                              </IconButton>
+                            </Box>
                           )}
                         </Box>
                       </IconButton>
