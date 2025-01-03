@@ -227,307 +227,287 @@ const ProductsLanding = () => {
           }}
         />
       </Box>
-      {filteredProducts?.length === 0 ? (
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            py: 8,
-            color: 'text.secondary'
-          }}
-        >
-          <Typography variant="h6">
-            No products found
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            Try adjusting your search term
-          </Typography>
-        </Box>
-      ) : (
-        <Grid container spacing={3}>
-          {filteredProducts?.map((product) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
-              <Card
-                sx={{
-                  height: '106%',
+      <Grid container spacing={3}>
+        {filteredProducts?.map((product) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+            <Card
+              sx={{
+                height: '106%',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
+                },
+                borderRadius: 2,
+                overflow: 'hidden',
+              }}
+            >
+              {/* Image Section - Fixed Height */}
+              <CardActionArea onClick={() => navigate(`/product/${product._id}`)}>
+                <CardMedia
+                  component="img"
+                  image={product.images[0]}
+                  alt={product.name}
+                  sx={{
+                    height: 200,
+                    objectFit: 'contain',
+                    backgroundColor: '#f5f5f5',
+                    p: 2
+                  }}
+                />
+              </CardActionArea>
+
+              {/* Content Section - Fixed Layout */}
+              <CardContent 
+                sx={{ 
+                  p: 2,
                   display: 'flex',
                   flexDirection: 'column',
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    transform: 'translateY(-5px)',
-                    boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
-                  },
-                  borderRadius: 2,
-                  overflow: 'hidden',
+                  gap: 1,
+                  height: '180px', // Fixed height for content area
                 }}
               >
-                {/* Image Section - Fixed Height */}
-                <CardActionArea onClick={() => navigate(`/product/${product._id}`)}>
-                  <CardMedia
-                    component="img"
-                    image={product.images[0]}
-                    alt={product.name}
-                    sx={{
-                      height: 200,
-                      objectFit: 'contain',
-                      backgroundColor: '#f5f5f5',
-                      p: 2
+                {/* Product Name - Fixed Height */}
+                <Box sx={{ 
+                  minHeight: '48px', // Fixed height for 2 lines of text
+                  maxHeight: '48px',
+                  mb: 1
+                }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 600,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      lineHeight: '1.2',
+                      fontSize: '1rem'
                     }}
-                  />
-                </CardActionArea>
+                  >
+                    {product.name}
+                  </Typography>
+                </Box>
 
-                {/* Content Section - Fixed Layout */}
-                <CardContent 
-                  sx={{ 
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 1,
-                    height: '180px', // Fixed height for content area
-                  }}
-                >
-                  {/* Product Name - Fixed Height */}
-                  <Box sx={{ 
-                    minHeight: '48px', // Fixed height for 2 lines of text
-                    maxHeight: '48px',
-                    mb: 1
-                  }}>
-                    <Typography 
-                      variant="h6" 
-                      sx={{ 
-                        fontWeight: 600,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        lineHeight: '1.2',
-                        fontSize: '1rem'
-                      }}
-                    >
-                      {product.name}
-                    </Typography>
-                  </Box>
+                {/* Rating - Fixed Height */}
+                <Box sx={{ 
+                  height: '24px', // Fixed height for rating
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  <ProductRating id={product._id} />
+                </Box>
 
-                  {/* Rating - Fixed Height */}
-                  <Box sx={{ 
-                    height: '24px', // Fixed height for rating
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}>
-                    <ProductRating id={product._id} />
-                  </Box>
+                {/* Price - Fixed Height */}
+                <Box sx={{ 
+                  height: '32px', // Fixed height for price
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  <Typography 
+                    variant="h6" 
+                    color="primary" 
+                    sx={{ 
+                      fontWeight: 'bold',
+                      fontSize: '1.1rem'
+                    }}
+                  >
+                    {formatIndianPrice(product.price)}
+                  </Typography>
+                </Box>
 
-                  {/* Price - Fixed Height */}
-                  <Box sx={{ 
-                    height: '32px', // Fixed height for price
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}>
-                    <Typography 
-                      variant="h6" 
-                      color="primary" 
-                      sx={{ 
-                        fontWeight: 'bold',
-                        fontSize: '1.1rem'
-                      }}
-                    >
-                      {formatIndianPrice(product.price)}
-                    </Typography>
-                  </Box>
-
-                  {/* Action Buttons - Fixed Height */}
-                  <Box sx={{ 
-                    height: '40px',
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mt: 'auto',
-                    
-                    
-                  }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <IconButton 
-                        onClick={(e) => handleAddToCart(e, product._id)}
-                        color="primary" 
-                        size="small"
-                        sx={{ 
-                          bgcolor: isProductInCart(product._id) ? 'primary.main' : 'transparent',
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          borderRadius: '12px',
-                          padding: '8px 12px',
-                          width: isProductInCart(product._id) ? '120px' : '40px',
-                          height: '36px',
-                          overflow: 'hidden',
-                          '&:hover': { 
-                            backgroundColor: isProductInCart(product._id) 
-                              ? 'primary.dark' 
-                              : 'rgba(25, 118, 210, 0.08)',
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                          },
-                          '&:active': {
-                            transform: 'translateY(0)',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                          }
-                        }}
-                      >
-                        <Box sx={{ 
-                          display: 'flex', 
-                          alignItems: 'center',
-                          gap: 1.5,
-                          width: '100%',
-                          justifyContent: isProductInCart(product._id) ? 'space-between' : 'center',
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        }}>
-                          <ShoppingCartIcon sx={{ 
-                            color: isProductInCart(product._id) ? 'white' : 'primary.main',
-                            transition: 'color 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            fontSize: '1.2rem'
-                          }} />
-                          {isProductInCart(product._id) && (
-                            <Box 
-                              sx={{ 
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 0.5,
-                                '@keyframes expandIn': {
-                                  '0%': {
-                                    width: '0',
-                                    opacity: 0
-                                  },
-                                  '100%': {
-                                    width: '65px',
-                                    opacity: 1
-                                  }
-                                },
-                                animation: 'expandIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                width: '65px'
-                              }}
-                            >
-                              <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const currentQuantity = cartData?.items?.find(item => item.productId._id === product._id)?.quantity || 0;
-                                  if (currentQuantity > 1) {
-                                    handleUpdateQuantity(e, product._id, currentQuantity - 1);
-                                  } else {
-                                    handleRemoveFromCart(e, product._id);
-                                  }
-                                }}
-                                sx={{
-                                  p: 0,
-                                  minWidth: '20px',
-                                  color: 'white',
-                                  '&:hover': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                                  }
-                                }}
-                              >
-                                <RemoveIcon sx={{ fontSize: '1rem' }} />
-                              </IconButton>
-                              
-                              <Box
-                                sx={{
-                                  position: 'relative',
-                                  height: '20px',
-                                  width: '20px',
-                                  overflow: 'hidden',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center'
-                                }}
-                              >
-                                <Typography
-                                  key={cartData?.items?.find(item => item.productId._id === product._id)?.quantity}
-                                  variant="caption"
-                                  sx={{
-                                    color: 'white',
-                                    fontWeight: 'bold',
-                                    fontSize: '0.875rem',
-                                    position: 'absolute',
-                                    '@keyframes slideUpNumber': {
-                                      '0%': {
-                                        transform: 'translateY(100%)',
-                                        opacity: 0
-                                      },
-                                      '100%': {
-                                        transform: 'translateY(0)',
-                                        opacity: 1
-                                      }
-                                    },
-                                    animation: 'slideUpNumber 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                  }}
-                                >
-                                  {cartData?.items?.find(item => item.productId._id === product._id)?.quantity || 0}
-                                </Typography>
-                              </Box>
-                              
-                              <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const currentQuantity = cartData?.items?.find(item => item.productId._id === product._id)?.quantity || 0;
-                                  handleUpdateQuantity(e, product._id, currentQuantity + 1);
-                                }}
-                                sx={{
-                                  p: 0,
-                                  minWidth: '20px',
-                                  color: 'white',
-                                  '&:hover': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                                  }
-                                }}
-                              >
-                                <AddIcon sx={{ fontSize: '1rem' }} />
-                              </IconButton>
-                            </Box>
-                          )}
-                        </Box>
-                      </IconButton>
-                    </Box>
+                {/* Action Buttons - Fixed Height */}
+                <Box sx={{ 
+                  height: '40px',
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mt: 'auto',
+                  
+                  
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <IconButton 
-                      onClick={(e) => handleAddToWishlist(e, product._id)}
+                      onClick={(e) => handleAddToCart(e, product._id)}
+                      color="primary" 
                       size="small"
                       sx={{ 
-                        bgcolor: isProductInWishlist(product._id) ? 'error.light' : 'transparent',
+                        bgcolor: isProductInCart(product._id) ? 'primary.main' : 'transparent',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        padding: '5px',
-                        paddingTop: '5px',
-                        paddingLeft: '6px',
-                        borderRadius: '50%',
-                        width: '40px',
-                        height: '40px',
+                        borderRadius: '12px',
+                        padding: '8px 12px',
+                        width: isProductInCart(product._id) ? '120px' : '40px',
+                        height: '36px',
+                        overflow: 'hidden',
                         '&:hover': { 
-                          backgroundColor: isProductInWishlist(product._id) 
-                            ? 'error.light' 
-                            : 'rgba(244, 67, 54, 0.04)',
-                          transform: 'scale(1.1)',
-                        } 
+                          backgroundColor: isProductInCart(product._id) 
+                            ? 'primary.dark' 
+                            : 'rgba(25, 118, 210, 0.08)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                        },
+                        '&:active': {
+                          transform: 'translateY(0)',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }
                       }}
                     >
-                      <FavoriteIcon 
-                        sx={{ 
-                          color: isProductInWishlist(product._id) ? 'white' : 'error.main',
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        gap: 1.5,
+                        width: '100%',
+                        justifyContent: isProductInCart(product._id) ? 'space-between' : 'center',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      }}>
+                        <ShoppingCartIcon sx={{ 
+                          color: isProductInCart(product._id) ? 'white' : 'primary.main',
                           transition: 'color 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          fontSize: '1.8rem',
-                          marginTop: '2px',
-                          animation: isProductInWishlist(product._id) 
-                            ? 'pulse 0.3s cubic-bezier(0.4, 0, 0.2, 1)' 
-                            : 'none',
-                        }} 
-                      />
+                          fontSize: '1.2rem'
+                        }} />
+                        {isProductInCart(product._id) && (
+                          <Box 
+                            sx={{ 
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 0.5,
+                              '@keyframes expandIn': {
+                                '0%': {
+                                  width: '0',
+                                  opacity: 0
+                                },
+                                '100%': {
+                                  width: '65px',
+                                  opacity: 1
+                                }
+                              },
+                              animation: 'expandIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                              width: '65px'
+                            }}
+                          >
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const currentQuantity = cartData?.items?.find(item => item.productId._id === product._id)?.quantity || 0;
+                                if (currentQuantity > 1) {
+                                  handleUpdateQuantity(e, product._id, currentQuantity - 1);
+                                } else {
+                                  handleRemoveFromCart(e, product._id);
+                                }
+                              }}
+                              sx={{
+                                p: 0,
+                                minWidth: '20px',
+                                color: 'white',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                                }
+                              }}
+                            >
+                              <RemoveIcon sx={{ fontSize: '1rem' }} />
+                            </IconButton>
+                            
+                            <Box
+                              sx={{
+                                position: 'relative',
+                                height: '20px',
+                                width: '20px',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <Typography
+                                key={cartData?.items?.find(item => item.productId._id === product._id)?.quantity}
+                                variant="caption"
+                                sx={{
+                                  color: 'white',
+                                  fontWeight: 'bold',
+                                  fontSize: '0.875rem',
+                                  position: 'absolute',
+                                  '@keyframes slideUpNumber': {
+                                    '0%': {
+                                      transform: 'translateY(100%)',
+                                      opacity: 0
+                                    },
+                                    '100%': {
+                                      transform: 'translateY(0)',
+                                      opacity: 1
+                                    }
+                                  },
+                                  animation: 'slideUpNumber 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                }}
+                              >
+                                {cartData?.items?.find(item => item.productId._id === product._id)?.quantity || 0}
+                              </Typography>
+                            </Box>
+                            
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const currentQuantity = cartData?.items?.find(item => item.productId._id === product._id)?.quantity || 0;
+                                handleUpdateQuantity(e, product._id, currentQuantity + 1);
+                              }}
+                              sx={{
+                                p: 0,
+                                minWidth: '20px',
+                                color: 'white',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                                }
+                              }}
+                            >
+                              <AddIcon sx={{ fontSize: '1rem' }} />
+                            </IconButton>
+                          </Box>
+                        )}
+                      </Box>
                     </IconButton>
                   </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
+                  <IconButton 
+                    onClick={(e) => handleAddToWishlist(e, product._id)}
+                    size="small"
+                    sx={{ 
+                      bgcolor: isProductInWishlist(product._id) ? 'error.light' : 'transparent',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      padding: '5px',
+                      paddingTop: '5px',
+                      paddingLeft: '6px',
+                      borderRadius: '50%',
+                      width: '40px',
+                      height: '40px',
+                      '&:hover': { 
+                        backgroundColor: isProductInWishlist(product._id) 
+                          ? 'error.light' 
+                          : 'rgba(244, 67, 54, 0.04)',
+                        transform: 'scale(1.1)',
+                      } 
+                    }}
+                  >
+                    <FavoriteIcon 
+                      sx={{ 
+                        color: isProductInWishlist(product._id) ? 'white' : 'error.main',
+                        transition: 'color 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        fontSize: '1.8rem',
+                        marginTop: '2px',
+                        animation: isProductInWishlist(product._id) 
+                          ? 'pulse 0.3s cubic-bezier(0.4, 0, 0.2, 1)' 
+                          : 'none',
+                      }} 
+                    />
+                  </IconButton>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
 
 
       {paginationSection}

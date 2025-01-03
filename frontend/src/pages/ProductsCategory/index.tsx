@@ -26,9 +26,6 @@ import { useAddToWishlistMutation, useGetWishlistQuery, useRemoveFromWishlistMut
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { formatIndianPrice } from '../../themes/formatPrices';
-import SearchIcon from '@mui/icons-material/Search';
-import InputAdornment from '@mui/material/InputAdornment';
-import TextField from '@mui/material/TextField';
 
 const ProductCategory = () => {
   const { category } = useParams();
@@ -43,12 +40,6 @@ const ProductCategory = () => {
   const [addToWishlist] = useAddToWishlistMutation();
   const { data: wishlistData } = useGetWishlistQuery();
   const [removeFromWishlist] = useRemoveFromWishlistMutation();
-
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const filteredProducts = data?.data?.filter(product => 
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const isProductInCart = (productId: string) => {
     return cartData?.items?.some(item => item?.productId?._id === productId) || false;
@@ -159,46 +150,13 @@ const ProductCategory = () => {
         <Box sx={{ width: 100 }} /> {/* Spacer for alignment */}
       </Box>
 
-      <Box sx={{ mb: 4, display: 'flex', gap: 2, alignItems: 'center' }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Search products..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon color="action" />
-              </InputAdornment>
-            ),
-            sx: {
-              borderRadius: '12px',
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'rgba(0, 0, 0, 0.1)',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'rgba(0, 0, 0, 0.2)',
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'primary.main',
-              }
-            }
-          }}
-          sx={{
-            maxWidth: '600px',
-            margin: '0 auto',
-          }}
-        />
-      </Box>
-
-      {filteredProducts?.length === 0 ? (
+      {data?.data?.length === 0 ? (
         <Typography variant="h6" color="textSecondary" align="center">
-          {searchQuery ? 'No products found matching your search.' : 'No products available in this category.'}
+          No products available in this category.
         </Typography>
       ) : (
         <Grid container spacing={3}>
-          {filteredProducts?.map((product) => (
+          {data?.data?.map((product) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
               <Card
                 sx={{

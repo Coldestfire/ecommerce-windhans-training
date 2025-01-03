@@ -23,6 +23,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import AddIcon from '@mui/icons-material/Add';
 import { useProtectedAction } from '../../hooks/useProtectedAction';
 import CloseIcon from '@mui/icons-material/Close';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { useRemoveFromCartMutation } from '../../provider/queries/Cart.query';
 
 
 function ProductDetails() {
@@ -39,6 +41,7 @@ function ProductDetails() {
   const [addToWishlist] = useAddToWishlistMutation();
   const [removeFromWishlist] = useRemoveFromWishlistMutation();
   const { data: wishlistData } = useGetWishlistQuery();
+  const [removeFromCart] = useRemoveFromCartMutation();
 
   const runProtectedAction = useProtectedAction();
 
@@ -333,46 +336,136 @@ function ProductDetails() {
                 startIcon={
                   <Box sx={{ 
                     display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 0.5,
-                    minWidth: '48px',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    width: '100%',
+                    justifyContent: isProductInCart(id) ? 'space-between' : 'center',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}>
-                    <ShoppingCartIcon sx={{ fontSize: '1.2rem' }} />
+                    <ShoppingCartIcon sx={{ 
+                      color: 'white',
+                      fontSize: '1.2rem'
+                    }} />
                     {isProductInCart(id) && cartData?.items && (
-                      <Box
-                        sx={{
-                          position: 'relative',
-                          height: '20px',
-                          width: '20px',
-                          overflow: 'hidden',
+                      <Box 
+                        sx={{ 
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center'
+                          gap: 1,
+                          '@keyframes expandIn': {
+                            '0%': {
+                              width: '0',
+                              opacity: 0
+                            },
+                            '100%': {
+                              width: '100px',
+                              opacity: 1
+                            }
+                          },
+                          animation: 'expandIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          width: '100px'
                         }}
                       >
-                        <Typography
-                          key={cartData.items.find(item => item.productId._id === id)?.quantity}
-                          variant="caption"
+                        <IconButton
+                          size="medium"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const currentQuantity = cartData?.items?.find(item => item.productId._id === id)?.quantity || 0;
+                            if (currentQuantity > 1) {
+                              runProtectedAction(async () => {
+                                try {
+                                  await updateCartItem({ productId: id, quantity: currentQuantity - 1 }).unwrap();
+                                  toast.success(`Updated ${product.product.name} quantity`);
+                                } catch (error) {
+                                  toast.error('Failed to update quantity');
+                                }
+                              });
+                            } else {
+                              runProtectedAction(async () => {
+                                try {
+                                  await removeFromCart(id).unwrap();
+                                  toast.success(`${product.product.name} removed from cart`);
+                                } catch (error) {
+                                  toast.error('Failed to remove from cart');
+                                }
+                              });
+                            }
+                          }}
                           sx={{
+                            p: 1,
+                            minWidth: '32px',
+                            height: '32px',
                             color: 'white',
-                            fontWeight: 'bold',
-                            fontSize: '0.875rem',
-                            position: 'absolute',
-                            '@keyframes slideUpNumber': {
-                              '0%': {
-                                transform: 'translateY(100%)',
-                                opacity: 0
-                              },
-                              '100%': {
-                                transform: 'translateY(0)',
-                                opacity: 1
-                              }
-                            },
-                            animation: 'slideUpNumber 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            '&:hover': {
+                              backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                            }
                           }}
                         >
-                          {cartData.items.find(item => item.productId._id === id)?.quantity || 0}
-                        </Typography>
+                          <RemoveIcon sx={{ fontSize: '1.2rem' }} />
+                        </IconButton>
+                        
+                        <Box
+                          sx={{
+                            position: 'relative',
+                            height: '24px',
+                            width: '24px',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <Typography
+                            key={cartData.items.find(item => item.productId._id === id)?.quantity}
+                            variant="body1"
+                            sx={{
+                              color: 'white',
+                              fontWeight: 'bold',
+                              fontSize: '1rem',
+                              position: 'absolute',
+                              '@keyframes slideUpNumber': {
+                                '0%': {
+                                  transform: 'translateY(100%)',
+                                  opacity: 0
+                                },
+                                '100%': {
+                                  transform: 'translateY(0)',
+                                  opacity: 1
+                                }
+                              },
+                              animation: 'slideUpNumber 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            }}
+                          >
+                            {cartData.items.find(item => item.productId._id === id)?.quantity || 0}
+                          </Typography>
+                        </Box>
+                        
+                        <IconButton
+                          size="medium"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const currentQuantity = cartData?.items?.find(item => item.productId._id === id)?.quantity || 0;
+                            runProtectedAction(async () => {
+                              try {
+                                await updateCartItem({ productId: id, quantity: currentQuantity + 1 }).unwrap();
+                                toast.success(`Updated ${product.product.name} quantity`);
+                              } catch (error) {
+                                toast.error('Failed to update quantity');
+                              }
+                            });
+                          }}
+                          sx={{
+                            p: 1,
+                            minWidth: '32px',
+                            height: '32px',
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                            }
+                          }}
+                        >
+                          <AddIcon sx={{ fontSize: '1.2rem' }} />
+                        </IconButton>
                       </Box>
                     )}
                   </Box>
@@ -401,18 +494,18 @@ function ProductDetails() {
                   height: '36px',
                   textTransform: 'none',
                   fontSize: '0.875rem',
-                  bgcolor: isProductInCart(id) ? 'primary.light' : 'primary.main',
+                  bgcolor: isProductInCart(id) ? 'primary.main' : 'primary.main',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  minWidth: '180px',
+                  minWidth: isProductInCart(id) ? '180px' : '140px',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   '&:hover': {
-                    bgcolor: isProductInCart(id) ? 'primary.main' : 'primary.dark',
+                    bgcolor: 'primary.dark',
                   }
                 }}
               >
-                {isProductInCart(id) ? 'Add Another' : 'Add to Cart'}
+                {isProductInCart(id) ? '' : 'Add to Cart'}
               </Button>
               <Button 
                 variant="outlined" 

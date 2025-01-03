@@ -8,6 +8,8 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { toast } from "react-toastify";
 import { formatIndianPrice } from "../../themes/formatPrices";
 import { useNavigate } from "react-router-dom";
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import { useAddToWishlistMutation, useGetWishlistQuery, useRemoveFromWishlistMutation } from "../../provider/queries/Wishlist.query";
 
 declare global {
   interface Window {
@@ -24,6 +26,9 @@ const CartPage = () => {
   const [verifyPayment] = useVerifyPaymentMutation();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [addToWishlist] = useAddToWishlistMutation();
+  const { data: wishlistData } = useGetWishlistQuery();
+  const [removeFromWishlist] = useRemoveFromWishlistMutation();
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -116,6 +121,27 @@ const CartPage = () => {
     }
   };
 
+  const isProductInWishlist = (productId: string) => {
+    return wishlistData?.items?.some(item => item?.productId?._id === productId) || false;
+  };
+
+  const handleAddToWishlist = async (e: React.MouseEvent, productId: string) => {
+    e.stopPropagation();
+    try {
+      if (isProductInWishlist(productId)) {
+        await removeFromWishlist(productId).unwrap();
+        const productName = cart?.items?.find(p => p.productId._id === productId)?.productId.name;
+        toast.success(`${productName} removed from wishlist`);
+      } else {
+        await addToWishlist(productId).unwrap();
+        const productName = cart?.items?.find(p => p.productId._id === productId)?.productId.name;
+        toast.success(`${productName} added to wishlist`);
+      }
+    } catch (error) {
+      toast.error('Failed to update wishlist');
+    }
+  };
+
   if (isLoading) return <div>Loading...</div>;
 
   return (
@@ -143,15 +169,54 @@ const CartPage = () => {
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <IconButton onClick={() => handleUpdateQuantity(item.productId._id, item.quantity, false)}>
-                      <RemoveIcon />
+                    <IconButton 
+                      onClick={() => handleUpdateQuantity(item.productId._id, item.quantity, false)}
+                      size="small"
+                      sx={{
+                        bgcolor: 'grey.100',
+                        '&:hover': {
+                          bgcolor: 'grey.200'
+                        }
+                      }}
+                    >
+                      <RemoveIcon fontSize="small" />
                     </IconButton>
-                    <Typography>{item.quantity}</Typography>
-                    <IconButton onClick={() => handleUpdateQuantity(item.productId._id, item.quantity, true)}>
-                      <AddIcon />
+                    
+                    <Typography sx={{ minWidth: '30px', textAlign: 'center' }}>
+                      {item.quantity}
+                    </Typography>
+                    
+                    <IconButton 
+                      onClick={() => handleUpdateQuantity(item.productId._id, item.quantity, true)}
+                      size="small"
+                      sx={{
+                        bgcolor: 'grey.100',
+                        '&:hover': {
+                          bgcolor: 'grey.200'
+                        }
+                      }}
+                    >
+                      <AddIcon fontSize="small" />
                     </IconButton>
                     <IconButton onClick={() => handleRemoveItem(item.productId._id)} color="error">
                       <DeleteIcon />
+                    </IconButton>
+                    <IconButton 
+                      onClick={(e) => handleAddToWishlist(e, item.productId._id)}
+                      size="small"
+                      sx={{ 
+                        bgcolor: isProductInWishlist(item.productId._id) ? 'error.light' : 'transparent',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        padding: '5px',
+                        borderRadius: '50%',
+                        '&:hover': { 
+                          backgroundColor: isProductInWishlist(item.productId._id) 
+                            ? 'error.light' 
+                            : 'rgba(244, 67, 54, 0.04)',
+                          transform: 'scale(1.1)',
+                        } 
+                      }}
+                    >
                     </IconButton>
                   </Box>
                 </CardContent>
