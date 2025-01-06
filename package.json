@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@shadcn/ui": "^0.0.4"
+    "@shadcn/ui": "^0.0.4",
+    "@upstash/redis": "^1.34.3"
   }
 }
