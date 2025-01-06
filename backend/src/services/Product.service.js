@@ -70,7 +70,10 @@ class ProductService {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
-                .populate("category", "name"); // Populate category name only
+                .populate({
+                    path: "category",
+                    select: "name _id"
+                });
     
             // Count total matching documents
             const totalCount = await ProductModel.countDocuments(filter);
@@ -100,7 +103,11 @@ class ProductService {
             const products = await ProductModel.find()
                 .sort({ createdAt: -1 })
                 .skip(skip)
-                .limit(limit);
+                .limit(limit)
+                .populate({
+                    path: "category",
+                    select: "name _id"
+                });
 
             // Get total count for pagination
             const totalCount = await ProductModel.countDocuments();

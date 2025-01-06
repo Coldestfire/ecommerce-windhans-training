@@ -53,9 +53,16 @@ const ProductsLanding = () => {
   const runProtectedAction = useProtectedAction();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredProducts = data?.data?.filter(product => 
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = data?.data?.filter(product => {
+    console.log("Product category: ", product)
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(searchTerm) ||
+      (typeof product.category === 'object' && product.category?.name?.toLowerCase().includes(searchTerm))
+    );
+  });
+ 
+  
 
   // Function to check if product is in cart
   const isProductInCart = (productId: string) => {
