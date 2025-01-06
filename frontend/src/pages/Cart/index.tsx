@@ -8,8 +8,6 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { toast } from "react-toastify";
 import { formatIndianPrice } from "../../themes/formatPrices";
 import { useNavigate } from "react-router-dom";
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import { useAddToWishlistMutation, useGetWishlistQuery, useRemoveFromWishlistMutation } from "../../provider/queries/Wishlist.query";
 
 declare global {
   interface Window {
@@ -26,9 +24,6 @@ const CartPage = () => {
   const [verifyPayment] = useVerifyPaymentMutation();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [addToWishlist] = useAddToWishlistMutation();
-  const { data: wishlistData } = useGetWishlistQuery();
-  const [removeFromWishlist] = useRemoveFromWishlistMutation();
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -121,26 +116,6 @@ const CartPage = () => {
     }
   };
 
-  const isProductInWishlist = (productId: string) => {
-    return wishlistData?.items?.some(item => item?.productId?._id === productId) || false;
-  };
-
-  const handleAddToWishlist = async (e: React.MouseEvent, productId: string) => {
-    e.stopPropagation();
-    try {
-      if (isProductInWishlist(productId)) {
-        await removeFromWishlist(productId).unwrap();
-        const productName = cart?.items?.find(p => p.productId._id === productId)?.productId.name;
-        toast.success(`${productName} removed from wishlist`);
-      } else {
-        await addToWishlist(productId).unwrap();
-        const productName = cart?.items?.find(p => p.productId._id === productId)?.productId.name;
-        toast.success(`${productName} added to wishlist`);
-      }
-    } catch (error) {
-      toast.error('Failed to update wishlist');
-    }
-  };
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -200,23 +175,6 @@ const CartPage = () => {
                     </IconButton>
                     <IconButton onClick={() => handleRemoveItem(item.productId._id)} color="error">
                       <DeleteIcon />
-                    </IconButton>
-                    <IconButton 
-                      onClick={(e) => handleAddToWishlist(e, item.productId._id)}
-                      size="small"
-                      sx={{ 
-                        bgcolor: isProductInWishlist(item.productId._id) ? 'error.light' : 'transparent',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        padding: '5px',
-                        borderRadius: '50%',
-                        '&:hover': { 
-                          backgroundColor: isProductInWishlist(item.productId._id) 
-                            ? 'error.light' 
-                            : 'rgba(244, 67, 54, 0.04)',
-                          transform: 'scale(1.1)',
-                        } 
-                      }}
-                    >
                     </IconButton>
                   </Box>
                 </CardContent>
