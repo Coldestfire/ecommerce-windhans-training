@@ -74,6 +74,33 @@ export const CartApi = createApi({
           'Authorization': 'Bearer ' + localStorage.getItem("token"),
         },
       }),
+      async onQueryStarted({ productId, quantity }, { dispatch, queryFulfilled, getState }) {
+        const state = getState() as any;
+        const product = state.ProductsApi.queries['getProduct("' + productId + '")']?.data;
+        
+        const patchResult = dispatch(
+          CartApi.util.updateQueryData('getCart', undefined, (draft) => {
+            if (!draft) return;
+            draft.items.push({
+              productId: {
+                _id: productId,
+                name: product?.name || '',
+                price: product?.price || 0,
+                images: product?.images || []
+              },
+              quantity,
+              price: product?.price || 0
+            });
+            draft.totalPrice = (draft.totalPrice || 0) + (product?.price || 0) * quantity;
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
       invalidatesTags: ['Cart'],
     }),
 
@@ -87,6 +114,25 @@ export const CartApi = createApi({
           'Authorization': 'Bearer ' + localStorage.getItem("token"),
         },
       }),
+      async onQueryStarted({ productId, quantity }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          CartApi.util.updateQueryData('getCart', undefined, (draft) => {
+            if (!draft) return;
+            const item = draft.items.find(item => item.productId._id === productId);
+            if (item) {
+              const priceDiff = (quantity - item.quantity) * item.price;
+              item.quantity = quantity;
+              draft.totalPrice = (draft.totalPrice || 0) + priceDiff;
+            }
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
       invalidatesTags: ['Cart'],
     }),
 
@@ -99,6 +145,24 @@ export const CartApi = createApi({
           'Authorization': 'Bearer ' + localStorage.getItem("token"),
         },
       }),
+      async onQueryStarted(productId, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          CartApi.util.updateQueryData('getCart', undefined, (draft) => {
+            if (!draft) return;
+            const item = draft.items.find(item => item.productId._id === productId);
+            if (item) {
+              draft.totalPrice = (draft.totalPrice || 0) - (item.price * item.quantity);
+              draft.items = draft.items.filter(item => item.productId._id !== productId);
+            }
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
       invalidatesTags: ['Cart'],
     }),
 

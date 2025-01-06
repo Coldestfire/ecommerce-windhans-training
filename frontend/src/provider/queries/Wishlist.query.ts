@@ -61,7 +61,32 @@ export const WishlistApi = createApi({
           'Authorization': 'Bearer ' + localStorage.getItem("token"),
         },
       }),
-      invalidatesTags: ['Wishlist'],
+      async onQueryStarted(productId, { dispatch, queryFulfilled, getState }) {
+        const state = getState() as any;
+        const wishlist = state.WishlistApi.queries['getWishlist(undefined)']?.data;
+        
+        // Optimistically update the wishlist
+        const patchResult = dispatch(
+          WishlistApi.util.updateQueryData('getWishlist', undefined, (draft) => {
+            if (!draft) return;
+            draft.items.push({
+              productId: {
+                _id: productId,
+                name: '', // Will be updated when query completes
+                price: 0,
+                images: []
+              },
+              addedAt: new Date().toISOString()
+            });
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
 
     // Remove item from wishlist
@@ -73,7 +98,20 @@ export const WishlistApi = createApi({
           'Authorization': 'Bearer ' + localStorage.getItem("token"),
         },
       }),
-      invalidatesTags: ['Wishlist'],
+      async onQueryStarted(productId, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          WishlistApi.util.updateQueryData('getWishlist', undefined, (draft) => {
+            if (!draft) return;
+            draft.items = draft.items.filter(item => item.productId._id !== productId);
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
   }),
 });
