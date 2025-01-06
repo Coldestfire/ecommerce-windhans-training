@@ -28,13 +28,14 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { formatIndianPrice } from '../../themes/formatPrices';
 import { useRemoveFromCartMutation } from '../../provider/queries/Cart.query';
+import { useProtectedAction } from '../../hooks/useProtectedAction';
 
 const ProductCategory = () => {
   const { category } = useParams();
   const [page, setPage] = useState(1);
   const { data, error, isLoading } = useGetAllProductsQuery({ category, page });
   const navigate = useNavigate();
-
+  const runProtectedAction = useProtectedAction();
   // Cart and Wishlist mutations
   const [addToCart] = useAddToCartMutation();
   const [updateCartItem] = useUpdateCartItemMutation();
@@ -53,6 +54,7 @@ const ProductCategory = () => {
 
   const handleAddToCart = async (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
+    runProtectedAction(async () => {
     try {
       if (isProductInCart(productId)) {
         const cartItem = cartData?.items?.find(item => item.productId?._id === productId);
@@ -68,10 +70,12 @@ const ProductCategory = () => {
     } catch (error) {
       toast.error('Failed to update cart');
     }
-  };
+  });
+};
 
   const handleAddToWishlist = async (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
+    runProtectedAction(async () => {
     try {
       if (isProductInWishlist(productId)) {
         await removeFromWishlist(productId).unwrap();
@@ -85,7 +89,8 @@ const ProductCategory = () => {
     } catch (error) {
       toast.error('Failed to update wishlist');
     }
-  };
+  });
+};
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
@@ -95,6 +100,7 @@ const ProductCategory = () => {
   const totalPages = data?.totalPages || 1;
 
   const handleUpdateQuantity = async (e: React.MouseEvent, productId: string, newQuantity: number) => {
+    runProtectedAction(async () => {
     e.stopPropagation();
     try {
       await updateCartItem({ productId, quantity: newQuantity }).unwrap();
@@ -103,10 +109,12 @@ const ProductCategory = () => {
     } catch (error) {
       toast.error('Failed to update quantity');
     }
-  };
+  });
+};
 
   const handleRemoveFromCart = async (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
+    runProtectedAction(async () => {
     try {
       await removeFromCart(productId).unwrap();
       const productName = data?.data?.find(p => p._id === productId)?.name;
@@ -114,7 +122,8 @@ const ProductCategory = () => {
     } catch (error) {
       toast.error('Failed to remove from cart');
     }
-  };
+  });
+};
 
   if (isLoading) return <CardSkeleton />;
   if (error) return <div className="text-center p-4 text-red-500">{error.message}</div>;

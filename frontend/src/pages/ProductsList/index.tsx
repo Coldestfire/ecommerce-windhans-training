@@ -401,27 +401,45 @@ const ProductsPage = () => {
                 value={newProduct.category}
                 onChange={handleCategoryChange}
                 label="Category"
+                renderValue={() => {
+                  const selectedCategory = fetchedCategories?.data?.find(
+                    (cat) => cat._id === newProduct.category
+                  );
+                  return selectedCategory?.name || "";
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300
+                    }
+                  }
+                }}
               >
                 {fetchedCategories?.data?.map((cat) => (
-                  <MenuItem
-                    key={cat._id}
-                    value={cat._id}
-                    sx={{
-                      display: "flex",
+                  <MenuItem key={cat._id} value={cat._id}>
+                    <Box sx={{ 
+                      display: "flex", 
                       justifyContent: "space-between",
                       alignItems: "center",
-                    }}
-                  >
-                    <span>{cat.name}</span>
-                    <IconButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteCategory(cat._id);
-                      }}
-                      size="small"
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
+                      width: '100%'
+                    }}>
+                      <span>{cat.name}</span>
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCategory(cat._id);
+                        }}
+                        size="small"
+                        sx={{
+                          color: 'error.main',
+                          '&:hover': {
+                            backgroundColor: 'error.lighter'
+                          }
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
                   </MenuItem>
                 ))}
               </Select>

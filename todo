@@ -23,3 +23,5 @@ user directed to login page when trying to do a user action
 reviews show average rating
 breadcrumbs on product description page 
 used redis to cache, home page 800ms to 200ms
+optimistic updates for wishlist and cart
+    

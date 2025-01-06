@@ -4,31 +4,68 @@ const ApiError = require("../utils/ApiError");
 const cloudinary = require('../config/cloudinary.config');
 const redis = require('../config/redis.config');
 
+const deleteKeysByPattern = async (pattern) => {
+    try {
+        const keys = await redis.keys(pattern);
+        console.log('Found keys to delete:', keys);
+        if (keys.length > 0) {
+            const pipeline = redis.pipeline();
+            keys.forEach(key => pipeline.del(key));
+            await pipeline.exec();
+            console.log('Successfully deleted keys:', keys);
+        }
+    } catch (error) {
+        console.error('Error deleting keys:', error);
+    }
+};
+
 class ProductService {
     static async createProduct(user, body) {  
-        const { images } = body; // Accept multiple images
-    
-        if (images && images.length > 0) {
-            // Upload multiple images to Cloudinary
-            const uploadedImages = await Promise.all(
-                images.map(async (image) => {
-                    const { secure_url } = await cloudinary.uploader.upload(image, {
-                        folder: 'products',
-                        use_filename: true,
-                        unique_filename: false,
-                    });
-                    return secure_url; // Return the secure URL
-                })
-            );
-            body.images = uploadedImages; // Replace 'images' with uploaded URLs
+        try {
+            const { images } = body;
+
+            if (images && images.length > 0) {
+                try {
+                    // Upload multiple images to Cloudinary
+                    const uploadedImages = await Promise.all(
+                        images.map(async (image) => {
+                            const { secure_url } = await cloudinary.uploader.upload(image, {
+                                folder: 'products',
+                                use_filename: true,
+                                unique_filename: false,
+                            });
+                            return secure_url;
+                        })
+                    );
+                    body.images = uploadedImages;
+                } catch (error) {
+                    console.error("Cloudinary upload error:", error);
+                    throw new ApiError(500, "Failed to upload images");
+                }
+            }
+
+            // Validate required fields
+            if (!body.name || !body.price || body.stock === undefined) {
+                throw new ApiError(400, "Missing required fields");
+            }
+            // await redis.del(`products:1::`);
+            await deleteKeysByPattern('products:*');
+
+            const product = await ProductModel.create({
+                ...body,
+                user,
+            });
+
+
+
+            return product;
+        } catch (error) {
+            console.error("Error in createProduct:", error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(500, "Failed to create product. Please try again.");
         }
-    
-        const product = await ProductModel.create({
-            ...body,
-            user,
-        });
-    
-        return product;
     }
     
     
@@ -135,7 +172,7 @@ class ProductService {
             };
 
             // Cache for 5 minutes
-            await redis.set(cacheKey, JSON.stringify(response), { ex: 300 });
+            await redis.set(cacheKey, response, { ex: 300 });
             console.log('✅ Cached successfully:', cacheKey);
 
             return response;
@@ -156,17 +193,22 @@ class ProductService {
                 throw new ApiError(401, "User must be logged in to delete a product.");
             }
 
+            // Invalidate caches
+            await redis.del(`product:${productId}`);
+            await deleteKeysByPattern('products:*');
+            await deleteKeysByPattern('everyProduct:*');
+
             const product = await ProductModel.findById(productId);
             if (!product) {
                 throw new ApiError(404, "Product not found.");
             }
 
+            console.log("productID: ",productId);
+            console.log("product: ",product);
+
             await ProductModel.findByIdAndDelete(productId);
 
-            // Invalidate caches
-            await redis.del(`product:${productId}`);
-            await redis.del(new RegExp('products:*'));
-            await redis.del(new RegExp('everyProduct:*'));
+            
 
             return { msg: "Product deleted successfully" };
         } catch (error) {
@@ -198,8 +240,8 @@ class ProductService {
 
             // Invalidate caches
             await redis.del(`product:${id}`);
-            await redis.del(new RegExp('products:*'));
-            await redis.del(new RegExp('everyProduct:*'));
+            await deleteKeysByPattern('products:*');
+            await deleteKeysByPattern('everyProduct:*');
 
             return {
                 msg: 'Product updated successfully',
