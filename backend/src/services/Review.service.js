@@ -1,9 +1,5 @@
-const { ProductModel } = require('../models')
-const { CategoryModel } =  require('../models');
 const { ReviewModel } = require('../models');
 const ApiError = require("../utils/ApiError");
-const cloudinary = require('../config/cloudinary.config');
-const redis = require('../config/redis.config');
 
 class ReviewService {
     static async createReview(user, body) {  
@@ -21,10 +17,6 @@ class ReviewService {
                 user,
                 ...body,
             });
-
-            // Invalidate review cache for this product
-            await redis.del(`reviews:${body.productId}`);
-            await redis.del('reviews:all');
         
             return review;
         } catch (error) {
@@ -37,33 +29,15 @@ class ReviewService {
     
     static async getReviews(id = "") {
         try {
-            const cacheKey = id ? `reviews:${id}` : 'reviews:all';
-            
-            // Try cache first
-            const cached = await redis.get(cacheKey);
-            if (cached) {
-                console.log('🚀 Cache HIT:', cacheKey);
-                return cached;
-            }
-            console.log('❌ Cache MISS:', cacheKey);
-
-            // Apply filter only if id is provided
             const filter = id ? { productId: id } : {};
             
-            // Query the database with the filter
             const reviews = await ReviewModel.find(filter)
                 .populate('user', 'name email')
                 .lean();
 
-            const response = {
+            return {
                 data: reviews,
             };
-
-            // Cache for 5 minutes
-            await redis.set(cacheKey, JSON.stringify(response), { ex: 300 });
-            console.log('✅ Cached successfully:', cacheKey);
-
-            return response;
         } catch (error) {
             console.error("Error in getReviews:", error);
             if (error instanceof ApiError) {
@@ -86,10 +60,6 @@ class ReviewService {
             }
 
             await ReviewModel.findByIdAndDelete(reviewId);
-
-            // Invalidate review caches
-            await redis.del(`reviews:${review.productId}`);
-            await redis.del('reviews:all');
 
             return { message: "Review deleted successfully" };
         } catch (error) {
@@ -120,10 +90,6 @@ class ReviewService {
                 },
                 { new: true }
             );
-
-            // Invalidate review caches
-            await redis.del(`reviews:${review.productId}`);
-            await redis.del('reviews:all');
 
             return updatedReview;
         } catch (error) {
