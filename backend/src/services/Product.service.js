@@ -71,17 +71,7 @@ class ProductService {
     
     
     static async getProducts(page = 1, query = "", category = "") {
-        const cacheKey = `products:${page}:${query}:${category}`;
-        
         try {
-            // Try cache first
-            const cached = await redis.get(cacheKey);
-            if (cached) {
-                console.log('🚀 Cache HIT:', cacheKey);
-                return cached;
-            }
-            console.log('❌ Cache MISS:', cacheKey);
-
             const validatedPage = Math.max(1, page);
             const limit = 10;
             const skip = (validatedPage - 1) * limit;
@@ -111,19 +101,13 @@ class ProductService {
 
             const totalCount = await ProductModel.countDocuments(filter);
 
-            const response = {
+            return {
                 data: products,
                 total: totalCount,
                 currentPage: validatedPage,
                 totalPages: Math.ceil(totalCount / limit),
                 hasMore: skip + products.length < totalCount,
             };
-
-            // Cache for 5 minutes
-            await redis.set(cacheKey, response, { ex: 300 });
-            console.log('✅ Cached successfully:', cacheKey);
-
-            return response;
         } catch (error) {
             console.error("Error in getProducts:", error);
             if (error instanceof ApiError) {
@@ -135,47 +119,29 @@ class ProductService {
     
 
     static async getEveryProduct(page = 1) {
-        const cacheKey = `everyProduct:${page}`;
+        const limit = 10;
+        const skip = (page - 1) * limit;
         
         try {
-            // Try cache first
-            const cached = await redis.get(cacheKey);
-            if (cached) {
-                console.log('🚀 Cache HIT:', cacheKey);
-                return cached;
-            }
-            console.log('❌ Cache MISS:', cacheKey);
-
-            const limit = 8;
-            const skip = (page - 1) * limit;
-
-            // Fetch paginated products
             const products = await ProductModel.find()
-                .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
+                .sort({ createdAt: -1 })
                 .populate({
                     path: "category",
                     select: "name _id"
                 })
                 .lean();
 
-            // Get total count for pagination
             const totalCount = await ProductModel.countDocuments();
 
-            const response = {
+            return {
                 data: products,
                 total: totalCount,
                 currentPage: page,
                 totalPages: Math.ceil(totalCount / limit),
                 hasMore: skip + products.length < totalCount,
             };
-
-            // Cache for 5 minutes
-            await redis.set(cacheKey, response, { ex: 300 });
-            console.log('✅ Cached successfully:', cacheKey);
-
-            return response;
         } catch (error) {
             console.error("Error in getEveryProduct:", error);
             if (error instanceof ApiError) {
@@ -256,29 +222,16 @@ class ProductService {
     }
     
     static async getById(id) {
-        const cacheKey = `product:${id}`;
-        
         try {
-            // Try cache first
-            const cached = await redis.get(cacheKey);
-            if (cached) {
-                console.log('🚀 Cache HIT:', cacheKey);
-                return cached;
-            }
-            console.log('❌ Cache MISS:', cacheKey);
-
-            const product = await ProductModel.findById(id).populate('category').lean();
+            const product = await ProductModel.findById(id)
+                .populate('category')
+                .lean();
+                
             if (!product) {
                 throw new ApiError(400, "Product Not Found in Record");
             }
 
-            const response = { product };
-            
-            // Cache for 10 minutes
-            await redis.set(cacheKey, response, { ex: 600 });
-            console.log('✅ Cached successfully:', cacheKey);
-
-            return response;
+            return { product };
         } catch (error) {
             console.error("Error in getById:", error);
             if (error instanceof ApiError) {

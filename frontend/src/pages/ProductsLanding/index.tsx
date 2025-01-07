@@ -1,5 +1,5 @@
 import { Card, CardContent, CardMedia, Typography, Grid, CardActionArea, Box, Container } from "@mui/material";
-import { useGetEveryProductQuery } from "../../provider/queries/Products.query";
+import { useGetAllProductsQuery, useGetEveryProductQuery } from "../../provider/queries/Products.query";
 import ProductRating from '../../components/Rating';
 import { useNavigate } from "react-router-dom";
 import CardSkeleton from "../../components/CardSkeleton";
@@ -35,8 +35,8 @@ interface GetAllProductsResponse {
 
 const ProductsLanding = () => {
   const [page, setPage] = useState(1);
-  const { data, error, isLoading } = useGetEveryProductQuery({ page });
-  const { data: carasoulData } = useGetEveryProductQuery({ page: 1 });
+  const { data, error, isLoading } = useGetAllProductsQuery({ page });
+  const { data: carasoulData } = useGetAllProductsQuery({ page: 1 });
   const { isAuthenticated } = useAuth();
   const [addToCart] = useAddToCartMutation();
   const [updateCartItem] = useUpdateCartItemMutation();
